@@ -18,7 +18,7 @@ DayToDo는 단순한 일정 관리 앱을 넘어, 장소 선택과 비용 계산
 MVVM + 멀티모듈
 
 ### 프레임워크
-<img src="https://img.shields.io/badge/Jetpack Compose-4285F4?style=for-the-badge&logo=Jetpack Compose&logoColor=white">
+<img src="https://img.shields.io/badge/JetpackCompose-4285F4?style=for-the-badge&logo=JetpackCompose&logoColor=white">
 
 ### 라이브러리
 <img src="https://img.shields.io/badge/Hilt-3056D3?style=for-the-badge&logo=Hilt&logoColor=white"><img src="https://img.shields.io/badge/Retrofit-CC0000?style=for-the-badge&logo=Retrofit&logoColor=white"><img src="https://img.shields.io/badge/Timber-E04E39?style=for-the-badge&logo=Timber&logoColor=white"><img src="https://img.shields.io/badge/Detekt-53AC56?style=for-the-badge&logo=Detekt&logoColor=white">
