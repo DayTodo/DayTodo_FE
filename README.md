@@ -66,10 +66,10 @@ Start([앱 최초 진입]) --> Login[로그인 화면<br/>LoginScreen<br/>담당
     Login -->|로그인 후| Home[홈 화면<br/>HomeScreen<br/>담당: 환]
 
     %% 홈 화면 진입/이동
-    Home -->|매거진 버튼 클릭| Magazine[매거진 화면<br/>MagazineScreen<br/>담당: 환]
-    Home -->|생성한 코스 보러가기 클릭| CourseList[코스 목록 화면<br/>CourseListScreen<br/>담당: 환]
-    Home -->|책갈피 버튼 클릭| Save[저장 화면<br/>SaveScreen<br/>담당: 환]
-    Home -->|캘린더 버튼 클릭| Calendar[캘린더 화면<br/>CalendarScreen<br/>담당: 레디]
+    Home -->|매거진 버튼| Magazine[매거진 화면<br/>MagazineScreen<br/>담당: 환]
+    Home -->|생성한 코스 보러가기| CourseList[코스 목록 화면<br/>CourseListScreen<br/>담당: 환]
+    Home -->|책갈피 버튼| Save[저장 화면<br/>SaveScreen<br/>담당: 환]
+    Home -->|캘린더 버튼| Calendar[캘린더 화면<br/>CalendarScreen<br/>담당: 레디]
 
     %% FAB 플로우
     Home -->|FAB| MakeGroup[새 코스 방 만들기 화면<br/>MakeGroupScreen<br/>담당: 환]
