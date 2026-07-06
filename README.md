@@ -18,7 +18,7 @@ DayToDo는 단순한 일정 관리 앱을 넘어, 장소 선택과 비용 계산
 MVVM + 멀티모듈
 
 ### 프레임워크
-<img src="https://img.shields.io/badge/Jetpack Compose-4285F4?style=for-the-badge&logo=Jetpack Compose&logoColor=white">
+<img src="https://img.shields.io/badge/JetpackCompose-4285F4?style=for-the-badge&logo=JetpackCompose&logoColor=white">
 
 ### 라이브러리
 <img src="https://img.shields.io/badge/Hilt-3056D3?style=for-the-badge&logo=Hilt&logoColor=white"><img src="https://img.shields.io/badge/Retrofit-CC0000?style=for-the-badge&logo=Retrofit&logoColor=white"><img src="https://img.shields.io/badge/Timber-E04E39?style=for-the-badge&logo=Timber&logoColor=white"><img src="https://img.shields.io/badge/Detekt-53AC56?style=for-the-badge&logo=Detekt&logoColor=white">
@@ -74,10 +74,10 @@ Start([앱 최초 진입]) --> Login[로그인 화면<br/>LoginScreen<br/>담당
     Login -->|로그인 후| Home[홈 화면<br/>HomeScreen<br/>담당: 환]
 
     %% 홈 화면 진입/이동
-    Home -->|매거진 버튼 클릭| Magazine[매거진 화면<br/>MagazineScreen<br/>담당: 환]
-    Home -->|생성한 코스 보러가기 클릭| CourseList[코스 목록 화면<br/>CourseListScreen<br/>담당: 환]
-    Home -->|책갈피 버튼 클릭| Save[저장 화면<br/>SaveScreen<br/>담당: 환]
-    Home -->|캘린더 버튼 클릭| Calendar[캘린더 화면<br/>CalendarScreen<br/>담당: 레디]
+    Home -->|매거진 버튼| Magazine[매거진 화면<br/>MagazineScreen<br/>담당: 환]
+    Home -->|생성한 코스 보러가기| CourseList[코스 목록 화면<br/>CourseListScreen<br/>담당: 환]
+    Home -->|책갈피 버튼| Save[저장 화면<br/>SaveScreen<br/>담당: 환]
+    Home -->|캘린더 버튼| Calendar[캘린더 화면<br/>CalendarScreen<br/>담당: 레디]
 
     %% FAB 플로우
     Home -->|FAB| MakeGroup[새 코스 방 만들기 화면<br/>MakeGroupScreen<br/>담당: 환]
