@@ -1,5 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.daytodo.android.application)
+    alias(libs.plugins.daytodo.android.compose)
+    alias(libs.plugins.daytodo.hilt)
 }
 
 android {
@@ -28,10 +30,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
