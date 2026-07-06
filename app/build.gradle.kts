@@ -36,11 +36,21 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    implementation(project(":core"))
+    implementation(project(":uikit"))
+    implementation(project(":data"))
+
+    implementation(project(":feature:auth"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:magazine"))
+    implementation(project(":feature:course"))
+    implementation(project(":feature:save"))
+    implementation(project(":feature:calendar"))
+    implementation(project(":feature:today"))
+    implementation(project(":feature:diary"))
+    implementation(project(":feature:mypage"))
+
+    implementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

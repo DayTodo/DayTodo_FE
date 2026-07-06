@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("build-logic")
+
     repositories {
         google {
             content {
@@ -11,9 +13,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -23,5 +23,19 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "DayTodo"
+
 include(":app")
- 
+include(":core")
+include(":uikit")
+include(":domain")
+include(":data")
+
+include(":feature:auth")
+include(":feature:home")
+include(":feature:magazine")
+include(":feature:course")
+include(":feature:save")
+include(":feature:calendar")
+include(":feature:today")
+include(":feature:diary")
+include(":feature:mypage")
