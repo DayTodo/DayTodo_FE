@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.uikit.theme
 
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
