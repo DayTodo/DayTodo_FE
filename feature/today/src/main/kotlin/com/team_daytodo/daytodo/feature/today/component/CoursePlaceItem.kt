@@ -54,7 +54,6 @@ fun CoursePlaceItem(
                 .background(color = DayTodoTheme.colors.backgroundSecondary)
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
                 modifier = Modifier
@@ -70,7 +69,10 @@ fun CoursePlaceItem(
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                // 숫자 박스 ↔ 이름 16dp, 이름 ↔ 삭제 아이콘 8dp
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp, end = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(1.dp),
             ) {
                 Text(

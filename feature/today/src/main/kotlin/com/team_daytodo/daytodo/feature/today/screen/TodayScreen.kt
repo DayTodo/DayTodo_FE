@@ -115,7 +115,7 @@ fun TodayScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 18.dp)
+                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
             Row(
@@ -135,7 +135,7 @@ fun TodayScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp)
+                            .padding(top = 24.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(color = DayTodoTheme.colors.backgroundSecondary)
                             .padding(16.dp),
@@ -158,7 +158,7 @@ fun TodayScreen(
                     Text(
                         text = "코스",
                         style = DayTodoTheme.typography.label2,
-                        modifier = Modifier.padding(top = 28.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
                     )
 
                     Column(
