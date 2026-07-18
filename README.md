@@ -40,27 +40,27 @@ MVVM + 멀티모듈
     ├── :save
     ├── :calendar
     ├── :today
-    ├── :diary
+    ├── :record
     └── :mypage
 ```
 
 # 플로우 정리
-| 화면 이름    | 스크린 ID           | 진입 경로                         | 담당자 |
-|----------|------------------|-------------------------------|-----|
-| 로그인 화면   | LoginScreen      | 앱 최초 진입                       | 환   |
-| 온보딩 화면   | OnboardingScreen | 회원가입 후 첫 로그인 시                | 환   |
-| 회원가입 화면  | SignupScreen     | 로그인 화면                        | 환   |
-| 매거진 화면   | MagazineScreen   | 홈 화면에서 매거진 버튼 클릭 시            | 환   |
-| 홈 화면     | HomeScreen       | 다른 화면에서 뒤로가기, 로그인 후, 바텀 네비게이션 | 환   |
-| 코스 목록 화면 | CourseListScreen | 홈 화면에서 생성한 코스 보러가기 클릭 시       | 환   |
-| 저장 화면    | SaveScreen       | 홈 화면에서 책갈피 버튼 클릭 시            | 환   |
-| 캘린더 화면   | CalendarScreen   | 홈 화면에서 캘린더 버튼 클릭 시            | 레디  |
-| 새 코스 방 만들기 화면 | MakeGroupScreen | 홈 화면 FAB                      | 환 |
-| 초대코드 입력하기 화면 | EnterGroupScreen | 홈 화면 FAB                      | 환 |
-| 장소 추천 화면 | RecommendScreen | 코스 목록 화면에서 아이템 클릭 시           | 환 |
-| 투데이 화면 | TodayScreen | 바텀 네비게이션 | 레디 |
-| 일기 화면 | DiaryScreen | 바텀 네비게이션 | 레디 |
-| 마이페이지 화면 | MypageScreen | 바텀 네비게이션 | 레디 |
+| 화면 이름         | 스크린 ID           | 진입 경로                         | 담당자 |
+|---------------|------------------|-------------------------------|-----|
+| 로그인 화면        | LoginScreen      | 앱 최초 진입                       | 환   |
+| 온보딩 화면        | OnboardingScreen | 회원가입 후 첫 로그인 시                | 환   |
+| 회원가입 화면       | SignupScreen     | 로그인 화면                        | 환   |
+| 매거진 화면        | MagazineScreen   | 홈 화면에서 매거진 버튼 클릭 시            | 환   |
+| 홈 화면          | HomeScreen       | 다른 화면에서 뒤로가기, 로그인 후, 바텀 네비게이션 | 환   |
+| 코스 목록 화면      | CourseListScreen | 홈 화면에서 생성한 코스 보러가기 클릭 시       | 환   |
+| 저장 화면         | SaveScreen       | 홈 화면에서 책갈피 버튼 클릭 시            | 환   |
+| 캘린더 화면        | CalendarScreen   | 홈 화면에서 캘린더 버튼 클릭 시            | 레디  |
+| 새 코스 방 만들기 화면 | MakeGroupScreen  | 홈 화면 FAB                      | 환 |
+| 초대코드 입력하기 화면  | EnterGroupScreen | 홈 화면 FAB                      | 환 |
+| 장소 추천 화면      | RecommendScreen  | 코스 목록 화면에서 아이템 클릭 시           | 환 |
+| 투데이 화면        | TodayScreen      | 바텀 네비게이션 | 레디 |
+| 기록 화면         | RecordScreen     | 바텀 네비게이션 | 레디 |
+| 마이페이지 화면      | MypageScreen     | 바텀 네비게이션 | 레디 |
 
 ```mermaid
 flowchart TD
@@ -88,11 +88,11 @@ Start([앱 최초 진입]) --> Login[로그인 화면<br/>LoginScreen<br/>담당
 
     %% 바텀 네비게이션
     Home -->|바텀 네비게이션| Today[투데이 화면<br/>TodayScreen<br/>담당: 레디]
-    Home -->|바텀 네비게이션| Diary[일기 화면<br/>DiaryScreen<br/>담당: 레디]
+    Home -->|바텀 네비게이션| Record[기록 화면<br/>RecordScreen<br/>담당: 레디]
     Home -->|바텀 네비게이션| Mypage[마이페이지 화면<br/>MypageScreen<br/>담당: 레디]
 
     Today -->|바텀 네비게이션| Home
-    Diary -->|바텀 네비게이션| Home
+    Record -->|바텀 네비게이션| Home
     Mypage -->|바텀 네비게이션| Home
 
     %% 뒤로가기 흐름
