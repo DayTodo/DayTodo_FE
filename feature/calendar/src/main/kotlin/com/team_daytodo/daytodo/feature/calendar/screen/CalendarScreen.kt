@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.daysOfWeek
-import com.team_daytodo.daytodo.uikit.R
+import com.team_daytodo.daytodo.feature.calendar.R
 import com.team_daytodo.daytodo.feature.calendar.component.CalendarDayCell
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import kotlinx.coroutines.launch
