@@ -18,6 +18,7 @@ object DayTodoTheme {
         get() = localDayTodoTypography.current
 }
 
+@Suppress("UnusedParameter")
 @Composable
 fun DayTodoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
