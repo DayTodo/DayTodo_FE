@@ -50,7 +50,7 @@ fun CoursePlaceItem(
             modifier = Modifier
                 .weight(1f)
                 .height(66.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(color = DayTodoTheme.colors.backgroundSecondary)
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,

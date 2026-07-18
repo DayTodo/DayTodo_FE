@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.today.R
+import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.feature.today.component.CourseMember
 import com.team_daytodo.daytodo.feature.today.component.CourseMemberRow
 import com.team_daytodo.daytodo.feature.today.component.CoursePlace
@@ -136,7 +136,7 @@ fun TodayScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(color = DayTodoTheme.colors.backgroundSecondary)
                             .padding(16.dp),
                     ) {
@@ -264,7 +264,7 @@ private fun CourseMemoryToggle(
         modifier = modifier
             .background(
                 color = DayTodoTheme.colors.backgroundSecondary,
-                shape = RoundedCornerShape(999.dp),
+                shape = RoundedCornerShape(24.dp),
             )
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -273,7 +273,7 @@ private fun CourseMemoryToggle(
             val selected = tab == selectedTab
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(999.dp))
+                    .clip(RoundedCornerShape(24.dp))
                     .background(
                         color = if (selected) DayTodoTheme.colors.brandPrimary else Color.Transparent,
                     )
