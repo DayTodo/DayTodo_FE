@@ -7,8 +7,14 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 data class DayTodoColors(
     val brandPrimary: Color,
+    val brandPrimaryStrong: Color,
+    val brandPrimaryEmphasis: Color,
     val brandSecondary: Color,
+    val brandSecondaryStrong: Color,
+    val brandSecondaryEmphasis: Color,
     val brandTertiary: Color,
+    val brandTertiaryStrong: Color,
+    val brandTertiaryEmphasis: Color,
 
     val textPrimary: Color,
     val textSecondary: Color,
@@ -29,8 +35,14 @@ data class DayTodoColors(
 
 internal val lightDayTodoColors = DayTodoColors(
     brandPrimary = purple500,
+    brandPrimaryStrong = purple600,
+    brandPrimaryEmphasis = purple700,
     brandSecondary = yellow500,
+    brandSecondaryStrong = yellow600,
+    brandSecondaryEmphasis = yellow700,
     brandTertiary = pink500,
+    brandTertiaryStrong = pink600,
+    brandTertiaryEmphasis = pink700,
 
     textPrimary = text1,
     textSecondary = text2,
