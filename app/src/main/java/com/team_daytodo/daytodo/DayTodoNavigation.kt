@@ -7,7 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
-import com.team_daytodo.daytodo.feature.course.CourseScreen
+import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
+import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
 import com.team_daytodo.daytodo.feature.course.CourseScreenMode
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.record.RecordScreen
@@ -46,7 +47,18 @@ internal fun DayTodoNavHost(
             CourseScreen(mode = CourseScreenMode.List)
         }
         composable(DayTodoRoute.CourseCreate) {
-            CourseScreen(mode = CourseScreenMode.Create)
+            CourseCreateRoute(
+                onBackClick = { navController.popBackStack() },
+                onDoneClick = {
+                    val didPopToHome = navController.popBackStack(
+                        route = DayTodoRoute.Home,
+                        inclusive = false,
+                    )
+                    if (!didPopToHome) {
+                        navController.navigateSingleTopTo(DayTodoRoute.Home)
+                    }
+                },
+            )
         }
         composable(DayTodoRoute.CourseJoin) {
             InviteCodeJoinScreen(
