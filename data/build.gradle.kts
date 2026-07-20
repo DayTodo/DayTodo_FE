@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":domain"))
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.timber)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
