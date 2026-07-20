@@ -75,7 +75,7 @@ fun DayTodoHeaderSection(
     }
 }
 
-private val HeaderContentColor = Color(0xFF616166)
+private val HeaderContentColor = Color(0xFFD9D9D9)
 
 @Preview
 @Composable
