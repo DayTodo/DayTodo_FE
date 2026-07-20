@@ -55,7 +55,7 @@ fun DayTodoHeaderSection(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = "뒤로가기",
                     modifier = Modifier.size(24.dp),
-                    tint = HeaderContentColor,
+                    tint = Color(0xFF616166),
                 )
             }
             Text(
@@ -64,18 +64,16 @@ fun DayTodoHeaderSection(
                 style = DayTodoTheme.typography.headlineSmall.copy(
                     fontSize = 20.sp
                 ),
-                color = HeaderContentColor,
+                color = Color(0xFF616166),
             )
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = HeaderContentColor,
+            color = Color(0xFFD9D9D9),
         )
     }
 }
-
-private val HeaderContentColor = Color(0xFFD9D9D9)
 
 @Preview
 @Composable
