@@ -1,4 +1,4 @@
-package com.team_daytodo.daytodo.feature.course
+package com.team_daytodo.daytodo.feature.course.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.course.CourseScreenMode
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
