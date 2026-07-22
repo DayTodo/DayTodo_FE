@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import kotlin.math.PI
 import kotlin.math.cos
@@ -67,7 +69,7 @@ private fun LoadingDots(
     Canvas(modifier = modifier.size(96.dp)) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val orbitRadius = size.minDimension / 2f - 8.dp.toPx()
-        val dotRadius = 5.dp.toPx()
+        val dotRadius = 8.dp.toPx()
         val activeIndex = activeDot.toInt() % 8
 
         repeat(8) { index ->
@@ -83,4 +85,13 @@ private fun LoadingDots(
             )
         }
     }
+}
+
+private val LoadingActiveColor = Color(0xFF2D2D2D)
+private val LoadingInactiveColor = Color(0xFFD9D9D9)
+
+@Preview
+@Composable
+fun PreviewCourseCreateLoadingScreen() {
+    CourseCreateLoadingScreen()
 }
