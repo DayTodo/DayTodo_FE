@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -74,15 +75,25 @@ fun RelationshipCard(
             tint = colors.icon,
         )
         if (selected) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_check),
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 13.dp, end = 9.dp)
-                    .size(24.dp),
-                tint = colors.icon,
-            )
+                    .size(RelationshipCheckSize)
+                    .clip(CircleShape)
+                    .background(colors.icon),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check),
+                    contentDescription = null,
+                    modifier = Modifier.size(RelationshipCheckIconSize),
+                    tint = Color.White,
+                )
+            }
         }
     }
 }
+
+private val RelationshipCheckSize = 24.dp
+private val RelationshipCheckIconSize = 16.dp
