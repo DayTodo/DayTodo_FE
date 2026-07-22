@@ -13,18 +13,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.course.presentation.ProgressColor
-import com.team_daytodo.daytodo.feature.course.presentation.ProgressTrackColor
-import com.team_daytodo.daytodo.feature.course.presentation.TotalInputSteps
+import com.team_daytodo.daytodo.feature.course.model.CourseCreateStep
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
 
 @Composable
 fun CourseCreateProgressIndicator(
     step: Int,
     modifier: Modifier = Modifier,
 ) {
+    val totalSteps = CourseCreateStep.entries.size
     val progressFraction by animateFloatAsState(
-        targetValue = step.coerceIn(1, TotalInputSteps) / TotalInputSteps.toFloat(),
+        targetValue = step.coerceIn(1, totalSteps) / totalSteps.toFloat(),
         animationSpec = tween(
             durationMillis = 320,
             easing = FastOutSlowInEasing,
@@ -48,3 +49,5 @@ fun CourseCreateProgressIndicator(
         )
     }
 }
+
+private val ProgressTrackColor = Color(0xFFF3F4F6)
