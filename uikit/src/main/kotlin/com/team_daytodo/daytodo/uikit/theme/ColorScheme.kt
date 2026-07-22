@@ -1,7 +1,6 @@
 package com.team_daytodo.daytodo.uikit.theme
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.Divider
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
