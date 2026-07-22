@@ -1,4 +1,4 @@
-package com.team_daytodo.daytodo.feature.course
+package com.team_daytodo.daytodo.feature.course.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,6 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
 fun CourseScreen(
-    mode: CourseScreenMode,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -32,13 +31,13 @@ fun CourseScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = mode.title,
+                text = "생성한 코스",
                 style = DayTodoTheme.typography.title1,
                 color = DayTodoTheme.colors.textPrimary,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = mode.description,
+                text = "직접 만든 코스 방을 확인할 수 있어요.",
                 style = DayTodoTheme.typography.caption1,
                 color = DayTodoTheme.colors.textSecondary,
             )
