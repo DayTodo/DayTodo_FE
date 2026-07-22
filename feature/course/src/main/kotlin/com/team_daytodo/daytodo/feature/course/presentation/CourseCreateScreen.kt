@@ -406,19 +406,23 @@ private val RelationshipCardHeight = 178.dp
 @Preview
 @Composable
 private fun CourseCreateScreenPreview() {
-    CourseCreateScreen(
-        uiState = CourseCreateUiState(),
-        onRoomNameChange = {},
-        onRegionSelected = {},
-        onDateSelected = {},
-        onMinBudgetChange = {},
-        onMaxBudgetChange = {},
-        onRelationshipSelected = {},
-        onRetryRegionOptionsClick = {},
-        onPastDateClick = {},
-        onBackClick = {},
-        onNextClick = {},
-        onSubmitClick = {},
-        onDoneClick = {},
+//    CourseCreateScreen(
+//        uiState = CourseCreateUiState(),
+//        onRoomNameChange = {},
+//        onRegionSelected = {},
+//        onDateSelected = {},
+//        onMinBudgetChange = {},
+//        onMaxBudgetChange = {},
+//        onRelationshipSelected = {},
+//        onRetryRegionOptionsClick = {},
+//        onPastDateClick = {},
+//        onBackClick = {},
+//        onNextClick = {},
+//        onSubmitClick = {},
+//        onDoneClick = {},
+//    )
+    RelationshipStep(
+        selectedRelationship = Relationship.FRIEND,
+        onRelationshipSelected = {}
     )
 }
