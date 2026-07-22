@@ -38,10 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.feature.course.R
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.ParentRegionSelectedBackground
-import com.team_daytodo.daytodo.feature.course.presentation.PlaceholderColor
-import com.team_daytodo.daytodo.feature.course.presentation.SundayColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.parentRegionSelectedBackground
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.placeholderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.sundayColor
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import java.util.Calendar
@@ -81,7 +81,7 @@ internal fun CourseDatePickerDialog(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_cancel),
                         contentDescription = "취소",
-                        tint = FieldContentColor,
+                        tint = fieldContentColor,
                         modifier = Modifier
                             .size(13.dp)
                             .clickable(role = Role.Button, onClick = onDismissRequest),
@@ -97,7 +97,7 @@ internal fun CourseDatePickerDialog(
                     Text(
                         text = "${visibleYear}년",
                         style = DayTodoTheme.typography.body3,
-                        color = FieldContentColor,
+                        color = fieldContentColor,
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -111,7 +111,7 @@ internal fun CourseDatePickerDialog(
                     Icon(
                         painter = painterResource(id = UIKitR.drawable.ic_back),
                         contentDescription = "이전 달",
-                        tint = FieldContentColor,
+                        tint = fieldContentColor,
                         modifier = Modifier
                             .size(width = 20.dp, height = 23.dp)
                             .clickable(role = Role.Button) {
@@ -124,14 +124,14 @@ internal fun CourseDatePickerDialog(
                     Text(
                         text = "${visibleMonth}월",
                         style = DayTodoTheme.typography.title1,
-                        color = FieldContentColor,
+                        color = fieldContentColor,
                         textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Icon(
                         painter = painterResource(id = UIKitR.drawable.ic_next),
                         contentDescription = "다음 달",
-                        tint = FieldContentColor,
+                        tint = fieldContentColor,
                         modifier = Modifier
                             .size(width = 20.dp, height = 23.dp)
                             .clickable(role = Role.Button) {
@@ -165,7 +165,7 @@ internal fun CourseDatePickerDialog(
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 0.sp,
                     ),
-                    color = FieldContentColor,
+                    color = fieldContentColor,
                 )
             }
         }
@@ -194,7 +194,7 @@ private fun CalendarGrid(
                     text = day,
                     modifier = Modifier.weight(1f),
                     style = DayTodoTheme.typography.body3,
-                    color = if (index == 0) SundayColor else FieldContentColor,
+                    color = if (index == 0) sundayColor else fieldContentColor,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -216,7 +216,7 @@ private fun CalendarGrid(
                             .weight(1f)
                             .aspectRatio(1f)
                             .clip(CircleShape)
-                            .background(if (isSelected) ParentRegionSelectedBackground else Color.Transparent)
+                            .background(if (isSelected) parentRegionSelectedBackground else Color.Transparent)
                             .clickable(
                                 enabled = date != null,
                                 role = Role.Button,
@@ -234,9 +234,9 @@ private fun CalendarGrid(
                                 text = day.toString(),
                                 style = DayTodoTheme.typography.body3,
                                 color = when {
-                                    isPastDate -> PlaceholderColor
-                                    index == 0 -> SundayColor
-                                    else -> FieldContentColor
+                                    isPastDate -> placeholderColor
+                                    index == 0 -> sundayColor
+                                    else -> fieldContentColor
                                 },
                                 textAlign = TextAlign.Center,
                             )

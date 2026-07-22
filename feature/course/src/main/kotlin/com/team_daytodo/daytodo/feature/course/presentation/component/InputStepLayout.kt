@@ -10,8 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.ScreenHorizontalPadding
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.screenHorizontalPadding
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -23,13 +23,13 @@ fun InputStepLayout(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = ScreenHorizontalPadding)
+            .padding(horizontal = screenHorizontalPadding)
             .padding(top = 42.dp),
     ) {
         Text(
             text = title,
             style = DayTodoTheme.typography.headlineLarge,
-            color = FieldContentColor,
+            color = fieldContentColor,
         )
         Spacer(modifier = Modifier.height(28.dp))
         content()

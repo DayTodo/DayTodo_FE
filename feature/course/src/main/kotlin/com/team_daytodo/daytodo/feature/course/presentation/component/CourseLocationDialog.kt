@@ -37,9 +37,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.team_daytodo.daytodo.domain.course.model.CourseRegionGroup
 import com.team_daytodo.daytodo.feature.course.R
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.ParentRegionSelectedBackground
-import com.team_daytodo.daytodo.feature.course.presentation.ProgressColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.parentRegionSelectedBackground
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable

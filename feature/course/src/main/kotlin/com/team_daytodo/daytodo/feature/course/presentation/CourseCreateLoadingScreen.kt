@@ -43,7 +43,7 @@ fun CourseCreateLoadingScreen(
             Text(
                 text = "그룹 생성 중",
                 style = DayTodoTheme.typography.headlineLarge,
-                color = FieldContentColor,
+                color = fieldContentColor,
             )
         }
     }

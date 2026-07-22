@@ -44,7 +44,7 @@ fun CourseCreateProgressIndicator(
                 .fillMaxWidth(progressFraction)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(999.dp))
-                .background(ProgressColor),
+                .background(progressColor),
         )
     }
 }

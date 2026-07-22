@@ -57,8 +57,7 @@ fun CourseCreateCompleteScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
-                .padding(horizontal = ScreenHorizontalPadding),
+                .padding(horizontal = screenHorizontalPadding, vertical = 297.94.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(

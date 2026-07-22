@@ -24,10 +24,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.team_daytodo.daytodo.feature.course.presentation.FieldBorderColor
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.PlaceholderColor
-import com.team_daytodo.daytodo.feature.course.presentation.ProgressColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldBorderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.placeholderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import java.text.DecimalFormat
 
@@ -39,13 +39,13 @@ fun BudgetTextField(
 ) {
     val formattedValue = formatBudgetDigits(value)
     val textStyle = DayTodoTheme.typography.label2.copy(
-        color = FieldContentColor,
+        color = fieldContentColor,
         letterSpacing = 0.sp,
     )
     val selectionColors = remember {
         TextSelectionColors(
-            handleColor = ProgressColor,
-            backgroundColor = ProgressColor.copy(alpha = 0.22f),
+            handleColor = progressColor,
+            backgroundColor = progressColor.copy(alpha = 0.22f),
         )
     }
 
@@ -57,11 +57,11 @@ fun BudgetTextField(
                 .height(54.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(1.dp, FieldBorderColor, RoundedCornerShape(12.dp)),
+                .border(1.dp, fieldBorderColor, RoundedCornerShape(12.dp)),
             singleLine = true,
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            cursorBrush = SolidColor(ProgressColor),
+            cursorBrush = SolidColor(progressColor),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -77,7 +77,7 @@ fun BudgetTextField(
                             Text(
                                 text = "0",
                                 style = textStyle,
-                                color = PlaceholderColor,
+                                color = placeholderColor,
                             )
                         }
                         innerTextField()
@@ -85,7 +85,7 @@ fun BudgetTextField(
                     Text(
                         text = "원",
                         style = textStyle,
-                        color = if (formattedValue.isEmpty()) PlaceholderColor else FieldContentColor,
+                        color = if (formattedValue.isEmpty()) placeholderColor else fieldContentColor,
                     )
                 }
             },

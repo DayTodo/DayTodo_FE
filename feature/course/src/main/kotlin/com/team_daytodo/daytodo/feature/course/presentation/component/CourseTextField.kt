@@ -24,10 +24,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.team_daytodo.daytodo.feature.course.presentation.FieldBorderColor
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.PlaceholderColor
-import com.team_daytodo.daytodo.feature.course.presentation.ProgressColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldBorderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.placeholderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -39,13 +39,13 @@ fun CourseTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     val textStyle = DayTodoTheme.typography.label2.copy(
-        color = FieldContentColor,
+        color = fieldContentColor,
         letterSpacing = 0.sp,
     )
     val selectionColors = remember {
         TextSelectionColors(
-            handleColor = ProgressColor,
-            backgroundColor = ProgressColor.copy(alpha = 0.22f),
+            handleColor = progressColor,
+            backgroundColor = progressColor.copy(alpha = 0.22f),
         )
     }
 
@@ -58,11 +58,11 @@ fun CourseTextField(
                 .height(54.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .border(1.dp, FieldBorderColor, RoundedCornerShape(12.dp)),
+                .border(1.dp, fieldBorderColor, RoundedCornerShape(12.dp)),
             singleLine = true,
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
-            cursorBrush = SolidColor(ProgressColor),
+            cursorBrush = SolidColor(progressColor),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -74,7 +74,7 @@ fun CourseTextField(
                         Text(
                             text = placeholder,
                             style = textStyle,
-                            color = PlaceholderColor,
+                            color = placeholderColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

@@ -38,6 +38,7 @@ import com.team_daytodo.daytodo.feature.course.R
 import com.team_daytodo.daytodo.feature.course.model.CourseCreatePhase
 import com.team_daytodo.daytodo.feature.course.model.CourseCreateStep
 import com.team_daytodo.daytodo.feature.course.model.CourseCreateUiState
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.screenHorizontalPadding
 import com.team_daytodo.daytodo.feature.course.presentation.component.BudgetTextField
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseCreateProgressIndicator
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseDatePickerDialog
@@ -47,10 +48,14 @@ import com.team_daytodo.daytodo.feature.course.presentation.component.CourseText
 import com.team_daytodo.daytodo.feature.course.presentation.component.InputStepLayout
 import com.team_daytodo.daytodo.feature.course.presentation.component.RelationshipCard
 import com.team_daytodo.daytodo.feature.course.presentation.component.todayCourseDate
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.buttonBottomPadding
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.secondaryTextColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.sundayColor
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-import java.text.DecimalFormat
 
 @Composable
 fun CourseCreateScreen(
@@ -122,12 +127,12 @@ private fun CourseCreateInputFlow(
             DayTodoHeaderSection(
                 title = "코스 방 만들기",
                 onBackClick = onBackClick,
-                horizontalPadding = ScreenHorizontalPadding,
+                horizontalPadding = screenHorizontalPadding,
             )
             CourseCreateProgressIndicator(
                 step = uiState.currentStep.progressStep,
                 modifier = Modifier
-                    .padding(horizontal = ScreenHorizontalPadding)
+                    .padding(horizontal = screenHorizontalPadding)
                     .padding(top = 48.dp),
             )
 
@@ -180,8 +185,8 @@ private fun CourseCreateInputFlow(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(horizontal = ScreenHorizontalPadding)
-                .padding(bottom = 99.dp),
+                .padding(horizontal = screenHorizontalPadding)
+                .padding(bottom = buttonBottomPadding),
         )
     }
 }
@@ -262,7 +267,7 @@ private fun RegionLoadStateMessage(
         Text(
             text = message,
             style = DayTodoTheme.typography.caption2.copy(letterSpacing = 0.sp),
-            color = SecondaryTextColor,
+            color = secondaryTextColor,
         )
         if (!isLoading) {
             Text(
@@ -272,7 +277,7 @@ private fun RegionLoadStateMessage(
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.sp,
                 ),
-                color = ProgressColor,
+                color = progressColor,
             )
         }
     }
@@ -331,7 +336,7 @@ private fun BudgetStep(
             Icon(
                 painter = painterResource(id = R.drawable.ic_tilde),
                 contentDescription = null,
-                tint = FieldContentColor,
+                tint = fieldContentColor,
                 modifier = Modifier.size(16.dp),
             )
             Spacer(modifier = Modifier.width(24.dp))
@@ -346,7 +351,7 @@ private fun BudgetStep(
             Text(
                 text = errorMessage,
                 style = DayTodoTheme.typography.caption2.copy(letterSpacing = 0.sp),
-                color = SundayColor,
+                color = sundayColor,
             )
         }
     }
@@ -360,13 +365,13 @@ private fun RelationshipStep(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = ScreenHorizontalPadding)
+            .padding(horizontal = screenHorizontalPadding)
             .padding(top = 42.dp),
     ) {
         Text(
             text = "코스를 함께할\n관계를 선택해 주세요.",
             style = DayTodoTheme.typography.headlineLarge,
-            color = FieldContentColor,
+            color = fieldContentColor,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -375,7 +380,7 @@ private fun RelationshipStep(
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.sp,
             ),
-            color = FieldContentColor,
+            color = fieldContentColor,
         )
         Spacer(modifier = Modifier.height(28.dp))
         Row(
@@ -389,12 +394,14 @@ private fun RelationshipStep(
                     onClick = { onRelationshipSelected(relationship) },
                     modifier = Modifier
                         .weight(1f)
-                        .height(178.dp),
+                        .height(RelationshipCardHeight),
                 )
             }
         }
     }
 }
+
+private val RelationshipCardHeight = 178.dp
 
 @Preview
 @Composable

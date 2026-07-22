@@ -22,11 +22,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.feature.course.R
-import com.team_daytodo.daytodo.feature.course.presentation.FieldBorderColor
-import com.team_daytodo.daytodo.feature.course.presentation.FieldContentColor
-import com.team_daytodo.daytodo.feature.course.presentation.SecondaryTextColor
-import com.team_daytodo.daytodo.feature.course.presentation.relationshipColors
-import com.team_daytodo.daytodo.feature.course.presentation.relationshipDescription
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldBorderColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.secondaryTextColor
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.relationshipColors
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.relationshipDescription
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -41,7 +41,7 @@ fun RelationshipCard(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(if (selected) colors.background else Color.White)
-            .border(1.dp, FieldBorderColor, RoundedCornerShape(12.dp))
+            .border(1.dp, fieldBorderColor, RoundedCornerShape(12.dp))
             .clickable(role = Role.Button, onClick = onClick),
     ) {
         Column(
@@ -53,14 +53,14 @@ fun RelationshipCard(
             Text(
                 text = relationship.label,
                 style = DayTodoTheme.typography.title1,
-                color = FieldContentColor,
+                color = fieldContentColor,
                 maxLines = 1,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = relationshipDescription(relationship),
                 style = DayTodoTheme.typography.body3,
-                color = SecondaryTextColor,
+                color = secondaryTextColor,
                 maxLines = 1,
             )
         }
