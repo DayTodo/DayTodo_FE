@@ -83,18 +83,18 @@ fun CourseLocationDialog(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_location),
                             contentDescription = null,
-                            tint = FieldContentColor,
+                            tint = fieldContentColor,
                             modifier = Modifier.size(24.dp),
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "지역 필터",
                             style = DayTodoTheme.typography.title1,
-                            color = FieldContentColor,
+                            color = fieldContentColor,
                         )
                     }
                 }
-                HorizontalDivider(thickness = 1.dp, color = FieldContentColor)
+                HorizontalDivider(thickness = 1.dp, color = fieldContentColor)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier
@@ -150,14 +150,14 @@ private fun RegionParentItem(
             .width(58.dp)
             .height(33.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) ParentRegionSelectedBackground else Color.Transparent)
+            .background(if (selected) parentRegionSelectedBackground else Color.Transparent)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
             style = DayTodoTheme.typography.label3.copy(letterSpacing = 0.sp),
-            color = if (selected) ProgressColor else FieldContentColor,
+            color = if (selected) progressColor else fieldContentColor,
             maxLines = 1,
         )
     }
@@ -179,7 +179,7 @@ private fun RegionChildItem(
         Text(
             text = text,
             style = DayTodoTheme.typography.label3.copy(letterSpacing = 0.sp),
-            color = if (selected) ProgressColor else FieldContentColor,
+            color = if (selected) progressColor else fieldContentColor,
         )
     }
 }
