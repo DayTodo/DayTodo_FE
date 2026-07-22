@@ -36,7 +36,7 @@ dependencies {
     implementation(project(":feature:save"))
     implementation(project(":feature:calendar"))
     implementation(project(":feature:today"))
-    implementation(project(":feature:diary"))
+    implementation(project(":feature:record"))
     implementation(project(":feature:mypage"))
 
     implementation(libs.kotlinx.coroutines.android)

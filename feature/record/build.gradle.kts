@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "com.team_daytodo.daytodo.feature.diary"
+    namespace = "com.team_daytodo.daytodo.feature.record"
 }

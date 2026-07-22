@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.uikit.theme
 
-import android.R.attr.fontFamily
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
@@ -15,6 +14,7 @@ data class DayTodoTypography(
 
     val title1: TextStyle,
     val title2: TextStyle,
+    val title3: TextStyle,
 
     val label1: TextStyle,
     val label2: TextStyle,
@@ -22,6 +22,7 @@ data class DayTodoTypography(
 
     val body1: TextStyle,
     val body2: TextStyle,
+    val body3: TextStyle,
 
     val caption1: TextStyle,
     val caption2: TextStyle,
@@ -46,68 +47,80 @@ internal val dayTodoTypography =
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 24,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         headlineSmall = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 16,
-            lineHeightRatio = 1.30f
+            fontSize = 20,
+            lineHeightRatio = 1.30f,
         ),
         title1 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 20,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         title2 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
+        ),
+        title3 = dayTodoTextStyle(
+            fontFamily = suiteFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 14,
+            lineHeightRatio = 1.30f,
         ),
         label1 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             fontSize = 20,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         label2 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         label3 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.SemiBold,
             fontSize = 14,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         body1 = dayTodoTextStyle(
             fontFamily = suiteFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 20,
-            lineHeightRatio = 1.40f
+            lineHeightRatio = 1.40f,
         ),
         body2 = dayTodoTextStyle(
             fontFamily = pretendardFontFamily,
             fontWeight = FontWeight.Medium,
-            fontSize = 12,
-            lineHeightRatio = 1.50f
+            fontSize = 16,
+            lineHeightRatio = 1.50f,
         ),
-        caption1 =dayTodoTextStyle(
+        body3 = dayTodoTextStyle(
             fontFamily = pretendardFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12,
+            lineHeightRatio = 1.50f,
+        ),
+        caption1 = dayTodoTextStyle(
+            fontFamily = suiteFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 14,
-            lineHeightRatio = 1.30f
+            lineHeightRatio = 1.30f,
         ),
         caption2 = dayTodoTextStyle(
-            fontFamily = pretendardFontFamily,
+            fontFamily = suiteFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 12,
-            lineHeightRatio = 1.30f
-        )
+            lineHeightRatio = 1.30f,
+        ),
     )
 
 internal val localDayTodoTypography = staticCompositionLocalOf {
