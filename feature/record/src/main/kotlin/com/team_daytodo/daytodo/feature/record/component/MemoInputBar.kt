@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -62,13 +63,14 @@ fun MemoInputBar(
         Box(
             modifier = Modifier
                 .weight(1f)
+                .height(55.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(DayTodoTheme.colors.backgroundSecondary)
                 .clickable {
                     focusRequester.requestFocus()
                     keyboardController?.show()
                 }
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
             BasicTextField(

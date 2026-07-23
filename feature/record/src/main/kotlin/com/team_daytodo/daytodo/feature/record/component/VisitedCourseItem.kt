@@ -5,16 +5,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.record.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 data class VisitedCourse(
@@ -32,6 +37,8 @@ fun VisitedCourseItem(
     onSaveClick: (VisitedCourse) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var isSaved by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -46,13 +53,19 @@ fun VisitedCourseItem(
             color = DayTodoTheme.colors.textPrimary,
             modifier = Modifier.weight(1f),
         )
-        // TODO: 장소 저장(북마크) 아이콘 SVG 필요. 프로젝트/Material core 에 북마크 아이콘이
-        //  없어 임시로 Material Star 사용 — 실제 아이콘 확보 시 교체.
-        IconButton(onClick = { onSaveClick(course) }) {
+        IconButton(
+            onClick = {
+                isSaved = !isSaved
+                onSaveClick(course)
+            },
+        ) {
             Icon(
-                imageVector = Icons.Default.Star,
+                painter = painterResource(
+                    id = if (isSaved) R.drawable.ic_fullbookmark else R.drawable.ic_emptybookmark,
+                ),
                 contentDescription = "장소 저장",
-                tint = DayTodoTheme.colors.iconDefault,
+                // 북마크 SVG가 색을 자체 보유(채움: brandPrimary, 빈 상태: textPrimary 외곽선)하므로 tint로 덮어쓰지 않는다.
+                tint = Color.Unspecified,
             )
         }
     }
