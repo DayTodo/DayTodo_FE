@@ -56,7 +56,7 @@ private val weekDays = listOf(
  * - 코스가 있는 날짜만 클릭 가능, 코스 없는 날짜는 흐리게(alpha) 표시
  */
 @Composable
-fun DiaryCalendarSection(
+fun RecordCalendarSection(
     yearMonth: YearMonth,
     selectedDate: LocalDate,
     courseDates: Set<LocalDate>,
@@ -166,7 +166,7 @@ private fun MonthGrid(
                     val dayNumber = week * 7 + dayOfWeekIndex - leadingEmpty + 1
                     if (dayNumber in 1..daysInMonth) {
                         val date = yearMonth.atDay(dayNumber)
-                        DiaryDayCell(
+                        RecordDayCell(
                             date = date,
                             isSelected = date == selectedDate,
                             hasCourse = date in courseDates,
@@ -191,7 +191,7 @@ private fun MonthGrid(
  * 단, 기록 화면에서는 코스가 있는 날짜만 선택 가능하며, 코스 없는 날짜는 흐리게 표시한다.
  */
 @Composable
-private fun DiaryDayCell(
+private fun RecordDayCell(
     date: LocalDate,
     isSelected: Boolean,
     hasCourse: Boolean,
