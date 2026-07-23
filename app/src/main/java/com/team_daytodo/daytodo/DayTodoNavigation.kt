@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
-import com.team_daytodo.daytodo.feature.course.CourseScreenMode
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
@@ -44,7 +43,7 @@ internal fun DayTodoNavHost(
             CalendarScreen()
         }
         composable(DayTodoRoute.Course) {
-            CourseScreen(mode = CourseScreenMode.List)
+            CourseScreen()
         }
         composable(DayTodoRoute.CourseCreate) {
             CourseCreateRoute(
