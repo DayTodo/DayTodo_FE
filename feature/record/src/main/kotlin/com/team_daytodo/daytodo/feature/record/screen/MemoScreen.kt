@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.feature.record.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -183,12 +184,10 @@ private fun MemoListSection(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         memos.forEach { memo ->
-            MemoItem(
-                memo = memo,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+            MemoItem(memo = memo)
         }
     }
 
