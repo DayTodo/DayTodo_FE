@@ -20,12 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.record.R
+import com.team_daytodo.daytodo.feature.record.model.VisitedCourse
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-data class VisitedCourse(
-    val id: String,
-    val title: String,
-)
 
 /**
  * "다녀간 코스" 리스트 아이템.

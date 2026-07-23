@@ -21,13 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-data class RecordPhoto(
-    val id: String,
-    // 서버/DB 이미지로 교체될 자리. 지금은 dummypicture 리소스, 나중엔 URL 기반 로더로 대체 가능.
-    val imageRes: Int? = null,
-)
 
 /**
  * 선택된 날짜의 추억 사진 미리보기.

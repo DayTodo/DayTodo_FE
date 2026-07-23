@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.feature.record.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -21,22 +24,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.record.component.MemoEntry
+import com.team_daytodo.daytodo.feature.record.component.MemoInputBar
+import com.team_daytodo.daytodo.feature.record.component.MemoItem
+import com.team_daytodo.daytodo.feature.record.model.MemoEntry
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
+import com.team_daytodo.daytodo.feature.record.R as RecordR
 
 data class MemoPhoto(
     val id: String,
+    val imageRes: Int,
     val memos: List<MemoEntry>,
 )
 
@@ -44,14 +56,15 @@ data class MemoPhoto(
 private val dummyMemoPhotos = listOf(
     MemoPhoto(
         id = "photo-1",
+        imageRes = RecordR.drawable.dummypicture_1,
         memos = listOf(
             MemoEntry(id = "m1", author = "나", content = "소품샵 어때 😊"),
             MemoEntry(id = "m2", author = "보라", content = "다음에 곰볼 갔다가 헤이티도 고고"),
             MemoEntry(id = "m3", author = "나", content = "고고고"),
         ),
     ),
-    MemoPhoto(id = "photo-2", memos = emptyList()),
-    MemoPhoto(id = "photo-3", memos = emptyList()),
+    MemoPhoto(id = "photo-2", imageRes = RecordR.drawable.dummypicture_2, memos = emptyList()),
+    MemoPhoto(id = "photo-3", imageRes = RecordR.drawable.dummypicture_3, memos = emptyList()),
 )
 
 @Composable
@@ -61,6 +74,16 @@ fun MemoScreen(
     modifier: Modifier = Modifier,
 ) {
     var currentPhotoIndex by remember { mutableIntStateOf(0) }
+
+    // 사진 id -> 메모 목록. DB/API 연동 전 임시 로컬 state.
+    // ViewModel 도입 시 이 remember 블록만 교체하면 아래 MemoListSection(memos, onSubmit) 은 그대로 재사용 가능.
+    var memosByPhotoId by remember {
+        mutableStateOf(photos.associate { it.id to it.memos })
+    }
+    var nextMemoId by remember { mutableIntStateOf(0) }
+
+    val currentPhoto = photos[currentPhotoIndex]
+    val currentMemos = memosByPhotoId[currentPhoto.id].orEmpty()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -94,11 +117,16 @@ fun MemoScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
         ) {
             MemoPhotoPager(
-                photoCount = photos.size,
+                photoRes = currentPhoto.imageRes,
                 currentIndex = currentPhotoIndex,
+                photoCount = photos.size,
+                isFirst = currentPhotoIndex == 0,
+                isLast = currentPhotoIndex == photos.lastIndex,
                 onPrevious = {
                     if (currentPhotoIndex > 0) currentPhotoIndex--
                 },
@@ -119,20 +147,19 @@ fun MemoScreen(
                 ),
             )
 
-            // 댓글 작성 기능 연결 전 자리 표시용 박스 (UI만)
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(DayTodoTheme.colors.backgroundSecondary),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "작성하기",
-                    style = DayTodoTheme.typography.label3,
-                    color = DayTodoTheme.colors.textTertiary,
+            // 사진이 바뀌면 입력창의 임시 입력값도 초기화되도록 photo index 로 key 를 건다.
+            key(currentPhotoIndex) {
+                MemoListSection(
+                    memos = currentMemos,
+                    onSubmit = { content ->
+                        val newMemo = MemoEntry(
+                            id = "local-$nextMemoId",
+                            author = "나",
+                            content = content,
+                        )
+                        nextMemoId++
+                        memosByPhotoId = memosByPhotoId + (currentPhoto.id to (currentMemos + newMemo))
+                    },
                 )
             }
         }
@@ -140,13 +167,55 @@ fun MemoScreen(
 }
 
 /**
+ * 메모 목록 + 입력창. memos/onSubmit 만 받는 stateless 컴포저블이며,
+ * 입력 중인 텍스트(draft)만 내부 로컬 state로 들고 있다가 제출 시 비운다.
+ */
+@Composable
+private fun MemoListSection(
+    memos: List<MemoEntry>,
+    onSubmit: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var inputValue by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+    ) {
+        memos.forEach { memo ->
+            MemoItem(
+                memo = memo,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+    }
+
+    MemoInputBar(
+        value = inputValue,
+        onValueChange = { inputValue = it },
+        onSubmit = {
+            if (inputValue.isNotBlank()) {
+                onSubmit(inputValue)
+                inputValue = ""
+            }
+        },
+        focusRequester = focusRequester,
+    )
+}
+
+/**
  * 추억 사진 영역. 사진 위에 좌/우 화살표를 플로팅으로 겹쳐 배치한다.
- * 실제 이미지 로딩은 다음 단계이며, 지금은 placeholder 정사각형이다.
+ * 첫 장에서는 왼쪽 화살표, 마지막 장에서는 오른쪽 화살표가 비활성화(반투명 + 클릭 불가) 된다.
  */
 @Composable
 private fun MemoPhotoPager(
-    photoCount: Int,
+    photoRes: Int,
     currentIndex: Int,
+    photoCount: Int,
+    isFirst: Boolean,
+    isLast: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
@@ -158,22 +227,24 @@ private fun MemoPhotoPager(
             .background(DayTodoTheme.colors.backgroundSecondary),
         contentAlignment = Alignment.Center,
     ) {
-        // placeholder: 현재 사진 위치 표시
-        Text(
-            text = "${currentIndex + 1} / $photoCount",
-            style = DayTodoTheme.typography.caption1,
-            color = DayTodoTheme.colors.textTertiary,
+        Image(
+            painter = painterResource(id = photoRes),
+            contentDescription = "추억 사진 ${currentIndex + 1} / $photoCount",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
         )
 
         PhotoArrowButton(
             icon = Icons.Default.KeyboardArrowLeft,
             contentDescription = "이전 사진",
+            enabled = !isFirst,
             onClick = onPrevious,
             modifier = Modifier.align(Alignment.CenterStart),
         )
         PhotoArrowButton(
             icon = Icons.Default.KeyboardArrowRight,
             contentDescription = "다음 사진",
+            enabled = !isLast,
             onClick = onNext,
             modifier = Modifier.align(Alignment.CenterEnd),
         )
@@ -184,6 +255,7 @@ private fun MemoPhotoPager(
 private fun PhotoArrowButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
+    enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -194,7 +266,8 @@ private fun PhotoArrowButton(
             .clip(RoundedCornerShape(8.dp))
             // TODO: DayTodoTheme.colors 에 연보라 배경 토큰 추가 후 교체 (임시 하드코딩)
             .background(Color(0xFFE0E0F5))
-            .clickable(onClick = onClick),
+            .alpha(if (enabled) 1f else 0.4f)
+            .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

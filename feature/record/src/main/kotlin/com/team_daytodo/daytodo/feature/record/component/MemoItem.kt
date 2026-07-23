@@ -5,13 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.team_daytodo.daytodo.feature.record.model.MemoEntry
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-data class MemoEntry(
-    val id: String,
-    val author: String,
-    val content: String,
-)
 
 /**
  * 메모(댓글) 리스트 아이템. "이름: 내용" 형식으로 표시한다.
