@@ -22,13 +22,8 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.today.R
+import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-data class CoursePlace(
-    val id: String,
-    val name: String,
-    val category: String,
-)
 
 @Composable
 fun CoursePlaceItem(

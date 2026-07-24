@@ -42,17 +42,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.R
-import com.team_daytodo.daytodo.feature.today.component.CourseMember
 import com.team_daytodo.daytodo.feature.today.component.CourseMemberRow
-import com.team_daytodo.daytodo.feature.today.component.CoursePlace
 import com.team_daytodo.daytodo.feature.today.component.CoursePlaceItem
-import com.team_daytodo.daytodo.feature.today.component.TodayEmptyState
+import com.team_daytodo.daytodo.feature.today.component.TodayEmptyContent
+import com.team_daytodo.daytodo.feature.today.model.CourseMember
+import com.team_daytodo.daytodo.feature.today.model.CoursePlace
+import com.team_daytodo.daytodo.feature.today.model.TodayTab
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-private enum class TodayTab(val label: String) {
-    COURSE("코스"),
-    MEMORY("추억"),
-}
 
 @Composable
 fun TodayScreen(
@@ -102,7 +98,7 @@ fun TodayScreen(
 
     ) { innerPadding ->
         if (!hasCourse) {
-            TodayEmptyState(
+            TodayEmptyContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)

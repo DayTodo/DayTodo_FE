@@ -13,12 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-
-data class CourseMember(
-    val id: String,
-    val name: String,
-)
 
 @Composable
 fun CourseMemberRow(
