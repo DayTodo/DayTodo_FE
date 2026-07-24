@@ -57,6 +57,7 @@ fun TodayScreen(
     places: List<CoursePlace> = emptyList(),
     onBackClick: () -> Unit = {},
     onAddPlaceClick: () -> Unit = {},
+    onAddCourseClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     startWithMemoryTab: Boolean = false,
 ) {
@@ -167,7 +168,31 @@ fun TodayScreen(
 
                     Row(
                         modifier = Modifier
-                            .padding(top = 16.dp)
+                            .align(Alignment.End)
+                            .padding(top = 14.dp)
+                            .clickable(onClick = onAddCourseClick),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                id = com.team_daytodo.daytodo.feature.today.R.drawable.ic_plus,
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Unspecified,
+                        )
+                        Text(
+                            text = "코스 추가",
+                            style = DayTodoTheme.typography.label2,
+                            color = DayTodoTheme.colors.brandPrimary,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(56.dp))
+
+                    Row(
+                        modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .width(100.dp)
                             .height(50.dp)
@@ -179,7 +204,7 @@ fun TodayScreen(
                     ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "장소 추가",
+                            text = "코스 종료하기",
                             style = DayTodoTheme.typography.label2,
                             color = DayTodoTheme.colors.textQuaternary
                         )
@@ -259,7 +284,8 @@ private fun CourseMemoryToggle(
     Row(
         modifier = modifier
             .background(
-                color = DayTodoTheme.colors.backgroundSecondary,
+                // uikit에 해당 토큰이 없어 하드코딩
+                color = Color(0xFFECECFF),
                 shape = RoundedCornerShape(24.dp),
             )
             .padding(4.dp),

@@ -53,13 +53,13 @@ fun CoursePlaceItem(
             Box(
                 modifier = Modifier
                     .size(24.dp)
-                    .background(color = DayTodoTheme.colors.iconOnColor, shape = CircleShape),
+                    .background(color = DayTodoTheme.colors.iconDefault, shape = CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = order.toString(),
                     style = DayTodoTheme.typography.label3,
-                    color = DayTodoTheme.colors.brandPrimary,
+                    color = DayTodoTheme.colors.textQuaternary,
                 )
             }
 
