@@ -16,7 +16,7 @@ import com.team_daytodo.daytodo.feature.today.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
-fun TodayEmptyState(
+fun TodayEmptyContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
