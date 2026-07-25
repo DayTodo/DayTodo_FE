@@ -23,6 +23,7 @@ fun DayTodoNextStepButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    allowDisabledClick: Boolean = false,
 ) {
     val backgroundColor = if (enabled) {
         EnabledButtonColor

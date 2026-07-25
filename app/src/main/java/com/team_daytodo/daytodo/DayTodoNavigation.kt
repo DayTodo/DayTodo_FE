@@ -3,9 +3,12 @@ package com.team_daytodo.daytodo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.team_daytodo.daytodo.feature.auth.LoginRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
@@ -24,8 +27,23 @@ internal fun DayTodoNavHost(
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = DayTodoRoute.Home,
+        startDestination = DayTodoRoute.Login,
     ) {
+        composable(DayTodoRoute.Login) {
+            LoginRoute(
+                onNavigateToSignup = { navController.navigateSingleTopTo(DayTodoRoute.Signup) },
+                onNavigateToFindPassword = {
+                    navController.navigateSingleTopTo(DayTodoRoute.FindPassword)
+                },
+                onLoginCompleted = { needsProfileSetup ->
+                    if (needsProfileSetup) {
+                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
+                    } else {
+                        navController.navigateToHomeClearingAuth()
+                    }
+                },
+            )
+        }
         composable(DayTodoRoute.Home) {
             HomeRoute(
                 onNavigateToSave = { navController.navigateSingleTopTo(DayTodoRoute.Save) },
@@ -73,6 +91,15 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Mypage) {
             MypageScreen()
         }
+    }
+}
+
+private fun NavHostController.navigateToHomeClearingAuth() {
+    navigate(DayTodoRoute.Home) {
+        popUpTo(DayTodoRoute.Login) {
+            inclusive = true
+        }
+        launchSingleTop = true
     }
 }
 
