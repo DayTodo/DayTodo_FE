@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.team_daytodo.daytodo.feature.auth.FindPasswordRoute
 import com.team_daytodo.daytodo.feature.auth.LoginRoute
 import com.team_daytodo.daytodo.feature.auth.ProfileSetupRoute
 import com.team_daytodo.daytodo.feature.auth.ResetPasswordRoute
