@@ -24,10 +24,6 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 private val HorizontalPadding = 20.dp
 
-/**
- * 프로필 관리 화면. 상태를 갖지 않는 stateless Composable 로,
- * 상위(ProfileEditRoute)에서 내려준 UiState 를 표시만 한다.
- */
 @Composable
 fun ProfileEditScreen(
     uiState: ProfileEditUiState,
@@ -62,7 +58,6 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "사진을 눌러 프로필 사진을 변경할 수 있어요",
-                // 12sp Medium = caption2(SUITE Medium 12sp).
                 style = DayTodoTheme.typography.caption2,
                 color = DayTodoTheme.colors.textSecondary,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

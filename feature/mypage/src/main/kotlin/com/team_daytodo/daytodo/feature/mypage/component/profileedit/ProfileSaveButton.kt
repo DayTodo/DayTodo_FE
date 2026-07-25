@@ -18,15 +18,8 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 private val ButtonHeight = 58.dp
 
-/** 스펙상 반경 999px. uikit DayTodoNextStepButton 과 동일한 표기를 따른다. */
 private val ButtonShape = RoundedCornerShape(999.dp)
 
-/**
- * 프로필 관리 하단 "저장하기" 버튼.
- * uikit DayTodoNextStepButton 과 같은 pill + label1 + 흰 텍스트 컨벤션을 따르되,
- * 높이가 58dp 고정 스펙이라(uikit 쪽은 vertical padding 기반) 별도 컴포저블로 둔다.
- * 색은 하드코딩 대신 brandPrimary / textQuaternary 토큰을 쓴다.
- */
 @Composable
 fun ProfileSaveButton(
     text: String,

@@ -8,10 +8,6 @@ import androidx.compose.ui.res.painterResource
 import com.team_daytodo.daytodo.feature.mypage.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/**
- * 프로필 수정(연필) 버튼.
- * 업로드된 ic_edit 에셋을 사용한다.
- */
 @Composable
 fun ProfileEditButton(
     onClick: () -> Unit,

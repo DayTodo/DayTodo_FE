@@ -17,10 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/**
- * "개인정보 수정" 그룹: 이름/닉네임/이메일 표시 필드 + 비밀번호 변경 + 전화번호 행.
- * 값은 모두 상위에서 UiState 로 내려받아 그대로 표시만 한다.
- */
 @Composable
 fun PersonalInfoSection(
     name: String,
@@ -36,7 +32,6 @@ fun PersonalInfoSection(
         Spacer(modifier = Modifier.height(20.dp))
         ProfileInfoField(label = "닉네임", value = nickname)
         Spacer(modifier = Modifier.height(20.dp))
-        // 이메일만 연회색 배경 + 테두리 없는 스타일, 높이도 54dp 로 다르다.
         ProfileInfoField(
             label = "이메일",
             value = email,

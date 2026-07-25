@@ -19,19 +19,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/** 그룹 왼쪽 끝에서 행 내용까지의 여백. */
 private val RowStartPadding = 24.dp
 
-/** 화살표가 그룹 오른쪽 끝에서 떨어지는 거리. 화살표가 없는 행에는 적용하지 않는다. */
 private val ArrowEndPadding = 20.dp
 
-/** 선행 아이콘과 텍스트 사이 간격. */
 private val LeadingIconSpacing = 16.dp
 
-/**
- * 그룹 내 label2 메뉴 항목 한 줄.
- * 필요 시 텍스트 왼쪽에 선행 아이콘을, 오른쪽 끝에 > 화살표를 노출한다.
- */
 @Composable
 fun MypageMenuRow(
     text: String,
@@ -55,7 +48,6 @@ fun MypageMenuRow(
             Icon(
                 painter = painterResource(id = leadingIconRes),
                 contentDescription = null,
-                // 에셋 자체 색(#616166)과 동일한 토큰으로 틴트해 디자인 색을 유지한다.
                 tint = DayTodoTheme.colors.textPrimary,
             )
             Spacer(modifier = Modifier.width(LeadingIconSpacing))

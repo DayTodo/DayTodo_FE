@@ -8,10 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * 프로필 관리 화면 ViewModel.
- * 표시에 필요한 값을 모두 가공해서 UiState 로 내려주고, 화면은 표시만 담당한다.
- */
 @HiltViewModel
 class ProfileEditViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileEditUiState(isLoading = true))
@@ -21,10 +17,6 @@ class ProfileEditViewModel @Inject constructor() : ViewModel() {
         loadProfile()
     }
 
-    /**
-     * TODO: API 연동 시 UseCase 호출로 교체 (viewModelScope.launch + DataResult 처리).
-     * 지금은 연동 전 단계라 더미 값으로 State 만 채운다.
-     */
     private fun loadProfile() {
         _uiState.value = ProfileEditUiState(
             name = "홍길동",

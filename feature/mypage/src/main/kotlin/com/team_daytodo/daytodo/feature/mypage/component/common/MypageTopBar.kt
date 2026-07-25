@@ -15,16 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/** 뒤로가기 아이콘(IconButton 기본 크기)이 없을 때도 상단바 높이가 유지되도록 하는 최소 높이. */
 private val TopBarMinHeight = 48.dp
 
-/**
- * 투데이 상단바와 동일 구조: (선택) 좌측 뒤로가기 아이콘 + 중앙 타이틀 + 하단 구분선.
- * 마이페이지 / 프로필 관리 화면이 공통으로 사용한다.
- *
- * onBackClick 이 null 이면 뒤로가기 버튼을 그리지 않는다.
- * 마이페이지는 바텀 네비 최상위 화면이라 되돌아갈 곳이 없어 null 로 사용한다.
- */
 @Composable
 fun MypageTopBar(
     title: String,

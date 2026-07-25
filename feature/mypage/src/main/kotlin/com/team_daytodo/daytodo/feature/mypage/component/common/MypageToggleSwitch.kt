@@ -24,17 +24,8 @@ private val TrackHeight = 29.5.dp
 private val ThumbWidth = 41.dp
 private val ThumbHeight = 25.dp
 
-/** 트랙 안에서 썸이 상하좌우로 갖는 여백. 트랙/썸 높이 차이의 절반(2.25dp). */
 private val ThumbPadding = (TrackHeight - ThumbHeight) / 2
 
-/**
- * 디자인 스펙 전용 토글 스위치. Material3 Switch 는 트랙/썸 크기가 고정이라 직접 그린다.
- * 트랙 67x29.5(brandPrimary) + 썸 41x25(흰색), 양쪽 모두 pill 형태.
- *
- * OFF 상태 트랙 색은 스펙에 없어 iconDisabled 토큰을 사용한다.
- * 마이페이지 밖에서도 쓸 일이 생기면 uikit/component 로 그대로 옮길 수 있도록
- * mypage 모델에 의존하지 않게 작성함.
- */
 @Composable
 fun MypageToggleSwitch(
     checked: Boolean,

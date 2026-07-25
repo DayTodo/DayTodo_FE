@@ -11,11 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/**
- * "관리 / 고객센터 / 기타"처럼 반복되는 그룹 패턴:
- * title1 헤더 + 12dp 간격 + 하위 항목들(항목 간 12dp).
- * 하위 항목은 호출부에서 content 슬롯으로 구성한다.
- */
 @Composable
 fun MypageMenuGroup(
     title: String,

@@ -22,15 +22,8 @@ private val PhotoSize = 92.dp
 private val AddBadgeSize = 23.dp
 private val AddIconSize = 15.dp
 
-/** 뱃지가 원형 홀더와 살짝 겹치도록 바깥으로 밀어내는 양. */
 private val AddBadgeOffset = 2.dp
 
-/**
- * 원형 프로필 사진 placeholder + 우측 하단 플러스 뱃지.
- * 사진과 뱃지를 합친 영역 전체가 하나의 버튼으로 동작한다(뱃지가 원 밖으로 튀어나온
- * 부분까지 눌린다). 실제 사진 선택 동작은 호출부에서 onClick 으로 붙인다.
- * 실제 이미지 로딩은 API 연동 시 placeholder Box 를 교체해 붙인다.
- */
 @Composable
 fun ProfilePhotoPicker(
     onClick: () -> Unit,
@@ -54,7 +47,6 @@ fun ProfilePhotoPicker(
                 .offset(x = AddBadgeOffset, y = AddBadgeOffset)
                 .size(AddBadgeSize)
                 .clip(CircleShape)
-                // textPrimary(#616166) = 진한 회색.
                 .background(DayTodoTheme.colors.textPrimary),
             contentAlignment = Alignment.Center,
         ) {
