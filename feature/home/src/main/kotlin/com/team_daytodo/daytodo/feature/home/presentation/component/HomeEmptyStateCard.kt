@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.team_daytodo.daytodo.feature.home.R
 import com.team_daytodo.daytodo.uikit.component.DayTodoEmptyStateCard
+import com.team_daytodo.daytodo.uikit.R as UIKitR
 
 @Composable
 internal fun HomeEmptyStateCard(
@@ -15,7 +15,7 @@ internal fun HomeEmptyStateCard(
     DayTodoEmptyStateCard(
         modifier = modifier,
         message = message,
-        iconPainter = painterResource(id = R.drawable.ic_symbol),
+        iconPainter = painterResource(id = UIKitR.drawable.ic_symbol),
     )
 }
 
