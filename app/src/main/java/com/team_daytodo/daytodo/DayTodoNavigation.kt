@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.team_daytodo.daytodo.feature.auth.LoginRoute
+import com.team_daytodo.daytodo.feature.auth.ProfileSetupRoute
+import com.team_daytodo.daytodo.feature.auth.ResetPasswordRoute
 import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
@@ -55,6 +57,42 @@ internal fun DayTodoNavHost(
                         navController.navigateToHomeClearingAuth()
                     }
                 },
+            )
+        }
+        composable(DayTodoRoute.FindPassword) {
+            FindPasswordRoute(
+                onBackClick = { navController.popBackStack() },
+                onVerificationCompleted = { verificationToken ->
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.resetPasswordRoute(verificationToken),
+                    )
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.ResetPassword,
+            arguments = listOf(
+                navArgument(DayTodoRoute.ResetPasswordTokenArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            ResetPasswordRoute(
+                verificationToken = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.ResetPasswordTokenArg)
+                    .orEmpty(),
+                onPasswordResetCompleted = {
+                    navController.popBackStack(
+                        route = DayTodoRoute.Login,
+                        inclusive = false,
+                    )
+                },
+            )
+        }
+        composable(DayTodoRoute.ProfileSetup) {
+            ProfileSetupRoute(
+                onBackClick = { navController.navigateToHomeClearingAuth() },
+                onProfileSaved = { navController.navigateToHomeClearingAuth() },
             )
         }
         composable(DayTodoRoute.Home) {
