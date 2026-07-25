@@ -1,7 +1,5 @@
 package com.team_daytodo.daytodo.feature.home.presentation.component
 
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,10 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.home.R
+import com.team_daytodo.daytodo.uikit.component.DayTodoCircleAddIcon
 import com.team_daytodo.daytodo.uikit.component.DayTodoFloatingActionMenu
 import com.team_daytodo.daytodo.uikit.component.DayTodoFloatingMenuItem
 
@@ -40,23 +36,20 @@ internal fun HomeFloatingActionButton(
         ),
         expandedFabContainerColor = Color.Transparent,
         collapsedFabContent = {
-            Icon(
-                modifier = Modifier.size(56.dp),
-                painter = painterResource(id = R.drawable.ic_fab),
-                contentDescription = null,
-                tint = Color.Unspecified,
+            DayTodoCircleAddIcon(
+                containerColor = HomeCollapsedFabColor,
             )
         },
         expandedFabContent = {
-            Icon(
-                modifier = Modifier.size(56.dp),
-                painter = painterResource(id = R.drawable.ic_fab_expanded),
-                contentDescription = null,
-                tint = Color.Unspecified,
+            DayTodoCircleAddIcon(
+                containerColor = HomeExpandedFabColor,
             )
         },
     )
 }
+
+private val HomeCollapsedFabColor = Color(0xFF8B8AF5)
+private val HomeExpandedFabColor = Color(0xFFC3C7C5)
 
 @Preview
 @Composable
