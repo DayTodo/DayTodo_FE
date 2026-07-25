@@ -54,7 +54,7 @@ fun LinkedAccountSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_naver),
+                    painter = painterResource(id = R.drawable.ic_mypage_naver),
                     contentDescription = null,
                     modifier = Modifier.size(34.dp),
                 )
