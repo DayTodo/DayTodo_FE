@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.team_daytodo.daytodo.feature.auth.LoginRoute
+import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
@@ -36,6 +37,18 @@ internal fun DayTodoNavHost(
                     navController.navigateSingleTopTo(DayTodoRoute.FindPassword)
                 },
                 onLoginCompleted = { needsProfileSetup ->
+                    if (needsProfileSetup) {
+                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
+                    } else {
+                        navController.navigateToHomeClearingAuth()
+                    }
+                },
+            )
+        }
+        composable(DayTodoRoute.Signup) {
+            SignupRoute(
+                onBackClick = { navController.popBackStack() },
+                onSignupCompleted = { needsProfileSetup ->
                     if (needsProfileSetup) {
                         navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
                     } else {
