@@ -31,6 +31,9 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
 
         MypageScreen(
             onEditProfileClick = { navController.navigate(MypageRoute.ProfileEdit) },
+            // TODO: 로그인 라우트가 생기면 백스택을 비우고 로그인 화면으로 이동시킨다.
+            //  현재 :feature:auth 에 등록된 라우트가 없어 비워둔다.
+            onNavigateToLogin = {},
             notificationEnabled = notificationEnabled,
             onNotificationToggle = { notificationEnabled = it },
         )
