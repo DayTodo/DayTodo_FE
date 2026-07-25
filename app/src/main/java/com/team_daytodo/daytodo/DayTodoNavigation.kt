@@ -1,5 +1,7 @@
 package com.team_daytodo.daytodo
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,9 +16,12 @@ import com.team_daytodo.daytodo.feature.auth.ProfileSetupRoute
 import com.team_daytodo.daytodo.feature.auth.ResetPasswordRoute
 import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
+import com.team_daytodo.daytodo.feature.course.CourseEditRoute
+import com.team_daytodo.daytodo.feature.course.CourseListRoute
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
-import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
+import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
+import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
@@ -27,11 +32,16 @@ import com.team_daytodo.daytodo.feature.today.TodayScreen
 internal fun DayTodoNavHost(
     navController: NavHostController,
     onTodayScheduleChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     NavHost(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         navController = navController,
         startDestination = DayTodoRoute.Login,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None },
     ) {
         composable(DayTodoRoute.Login) {
             LoginRoute(
@@ -113,7 +123,14 @@ internal fun DayTodoNavHost(
             CalendarScreen()
         }
         composable(DayTodoRoute.Course) {
-            CourseScreen()
+            CourseListRoute(
+                onBackClick = { navController.popBackStack() },
+                onCourseClick = { courseId ->
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.placeRecommendationRoute(courseId),
+                    )
+                },
+            )
         }
         composable(DayTodoRoute.CourseCreate) {
             CourseCreateRoute(
@@ -131,6 +148,71 @@ internal fun DayTodoNavHost(
         }
         composable(DayTodoRoute.CourseJoin) {
             InviteCodeJoinScreen(
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = DayTodoRoute.PlaceRecommendation,
+            arguments = listOf(
+                navArgument(DayTodoRoute.CourseIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            val courseId = backStackEntry.arguments
+                ?.getString(DayTodoRoute.CourseIdArg)
+                .orEmpty()
+            PlaceRecommendationRoute(
+                courseId = courseId,
+                onBackClick = { navController.popBackStack() },
+                onEditClick = { selectedCourseId ->
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.courseEditRoute(selectedCourseId),
+                    )
+                },
+                onCommentClick = { selectedCourseId, placeId ->
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.placeCommentRoute(
+                            courseId = selectedCourseId,
+                            placeId = placeId,
+                        ),
+                    )
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.CourseEdit,
+            arguments = listOf(
+                navArgument(DayTodoRoute.CourseIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            CourseEditRoute(
+                courseId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.CourseIdArg)
+                    .orEmpty(),
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = DayTodoRoute.PlaceComment,
+            arguments = listOf(
+                navArgument(DayTodoRoute.CourseIdArg) {
+                    type = NavType.StringType
+                },
+                navArgument(DayTodoRoute.PlaceIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            PlaceCommentRoute(
+                courseId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.CourseIdArg)
+                    .orEmpty(),
+                placeId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.PlaceIdArg)
+                    .orEmpty(),
                 onBackClick = { navController.popBackStack() },
             )
         }

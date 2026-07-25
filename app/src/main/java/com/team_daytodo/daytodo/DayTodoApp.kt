@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,14 +28,25 @@ fun DayTodoApp() {
     val routesWithoutBottomNavigation = DayTodoRoute.AuthRoutes + setOf(
         DayTodoRoute.CourseCreate,
         DayTodoRoute.CourseJoin,
+        DayTodoRoute.PlaceRecommendation,
+        DayTodoRoute.CourseEdit,
+        DayTodoRoute.PlaceComment,
     )
     val showBottomNavigation = currentRoute != null &&
         currentRoute !in routesWithoutBottomNavigation
+    val navHostModifier = if (currentRoute == null || currentRoute in DayTodoRoute.AuthRoutes) {
+        Modifier.fillMaxSize()
+    } else {
+        Modifier
+            .fillMaxSize()
+            .safeDrawingPadding()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         DayTodoNavHost(
             navController = navController,
             onTodayScheduleChanged = { hasTodaySchedule = it },
+            modifier = navHostModifier,
         )
         if (showBottomNavigation) {
             FloatingBottomNavigation(

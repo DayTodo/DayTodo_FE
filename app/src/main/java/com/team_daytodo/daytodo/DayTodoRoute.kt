@@ -4,6 +4,8 @@ import android.net.Uri
 
 internal object DayTodoRoute {
     const val ResetPasswordTokenArg = "verificationToken"
+    const val CourseIdArg = "courseId"
+    const val PlaceIdArg = "placeId"
 
     const val Login = "auth/login"
     const val Signup = "auth/signup"
@@ -17,6 +19,9 @@ internal object DayTodoRoute {
     const val Course = "course"
     const val CourseCreate = "course/create"
     const val CourseJoin = "course/join"
+    const val PlaceRecommendation = "course/recommend/{$CourseIdArg}"
+    const val CourseEdit = "course/edit/{$CourseIdArg}"
+    const val PlaceComment = "course/{$CourseIdArg}/place/{$PlaceIdArg}/comments"
     const val Today = "today"
     const val Record = "record"
     const val Mypage = "mypage"
@@ -31,4 +36,16 @@ internal object DayTodoRoute {
 
     fun resetPasswordRoute(verificationToken: String): String =
         "auth/reset-password/${Uri.encode(verificationToken)}"
+
+    fun placeRecommendationRoute(courseId: String): String =
+        "course/recommend/${Uri.encode(courseId)}"
+
+    fun courseEditRoute(courseId: String): String =
+        "course/edit/${Uri.encode(courseId)}"
+
+    fun placeCommentRoute(
+        courseId: String,
+        placeId: String,
+    ): String =
+        "course/${Uri.encode(courseId)}/place/${Uri.encode(placeId)}/comments"
 }
