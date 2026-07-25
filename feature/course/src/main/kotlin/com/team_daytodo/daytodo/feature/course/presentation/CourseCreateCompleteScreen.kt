@@ -47,6 +47,7 @@ import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreat
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.screenHorizontalPadding
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.relationshipColors
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import kotlinx.coroutines.delay
 
@@ -116,7 +117,7 @@ fun CourseCreateCompleteScreen(
             Spacer(modifier = Modifier.height(84.dp))
             DayTodoNextStepButton(
                 text = "돌아가기",
-                enabled = true,
+                state = DayTodoNextStepButtonState.Enabled,
                 onClick = onDoneClick,
             )
         }

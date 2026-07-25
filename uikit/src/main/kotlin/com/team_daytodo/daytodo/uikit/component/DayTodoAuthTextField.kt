@@ -263,7 +263,7 @@ private fun DayTodoAuthComponentsPreview() {
         Spacer(modifier = Modifier.height(20.dp))
         DayTodoNextStepButton(
             text = "로그인",
-            enabled = true,
+            state = DayTodoNextStepButtonState.Enabled,
             onClick = {},
         )
     }

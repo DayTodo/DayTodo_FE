@@ -17,19 +17,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
+enum class DayTodoNextStepButtonState {
+    Disabled,
+    Incomplete,
+    Enabled,
+    Loading,
+}
+
 @Composable
 fun DayTodoNextStepButton(
     text: String,
-    enabled: Boolean,
+    state: DayTodoNextStepButtonState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    allowDisabledClick: Boolean = false,
 ) {
-    val backgroundColor = if (enabled) {
-        EnabledButtonColor
-    } else {
-        DisabledButtonColor
+    val backgroundColor = when (state) {
+        DayTodoNextStepButtonState.Enabled -> EnabledButtonColor
+        DayTodoNextStepButtonState.Incomplete -> IncompleteButtonColor
+        DayTodoNextStepButtonState.Disabled,
+        DayTodoNextStepButtonState.Loading -> DisabledButtonColor
     }
+    val clickable = state == DayTodoNextStepButtonState.Enabled ||
+        state == DayTodoNextStepButtonState.Incomplete
 
     Box(
         modifier = modifier
@@ -37,7 +46,7 @@ fun DayTodoNextStepButton(
             .clip(RoundedCornerShape(999.dp))
             .background(backgroundColor)
             .clickable(
-                enabled = enabled,
+                enabled = clickable,
                 role = Role.Button,
                 onClick = onClick,
             )
@@ -53,6 +62,7 @@ fun DayTodoNextStepButton(
 }
 
 private val DisabledButtonColor = Color(0xFFCBCAF5)
+private val IncompleteButtonColor = Color(0xFFB1B0F7)
 private val EnabledButtonColor = Color(0xFF8B8AF5)
 
 @Preview
@@ -60,7 +70,7 @@ private val EnabledButtonColor = Color(0xFF8B8AF5)
 fun PreviewNextStepButton() {
     DayTodoNextStepButton(
         text = "다음",
-        enabled = true,
+        state = DayTodoNextStepButtonState.Enabled,
         onClick = {},
     )
 }
