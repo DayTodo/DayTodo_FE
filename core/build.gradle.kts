@@ -1,13 +1,8 @@
 plugins {
-    alias(libs.plugins.daytodo.android.library)
-}
-
-android {
-    namespace = "com.team_daytodo.daytodo.core"
+    alias(libs.plugins.daytodo.kotlin.library)
 }
 
 dependencies {
-    api(libs.timber)
     api(libs.kotlinx.coroutines.core)
 
     testImplementation(libs.junit)
