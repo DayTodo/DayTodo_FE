@@ -28,20 +28,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.domain.course.model.CourseSummary
-import com.team_daytodo.daytodo.feature.course.R
 import com.team_daytodo.daytodo.feature.course.model.CourseListUiState
 import com.team_daytodo.daytodo.feature.course.model.displayKoreanDateWithWeekday
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseDatePickerDialog
 import com.team_daytodo.daytodo.feature.course.presentation.component.todayCourseDate
+import com.team_daytodo.daytodo.feature.course.presentation.defaults.relationshipColors
 import com.team_daytodo.daytodo.uikit.component.DayTodoEmptyStateCard
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -200,7 +198,7 @@ private fun UpcomingCourseCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = course.relationship.courseCardColors()
+    val colors = relationshipColors(course.relationship)
 
     Surface(
         modifier = modifier
@@ -218,7 +216,7 @@ private fun UpcomingCourseCard(
             Text(
                 text = course.name,
                 style = DayTodoTheme.typography.headlineSmall.copy(letterSpacing = 0.sp),
-                color = colors.title,
+                color = colors.text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -264,24 +262,3 @@ private fun LoadingMessage(
         )
     }
 }
-
-private data class CourseCardColors(
-    val background: Color,
-    val title: Color,
-)
-
-private fun Relationship.courseCardColors(): CourseCardColors =
-    when (this) {
-        Relationship.FRIEND -> CourseCardColors(
-            background = Color(0xFFFFF9D8),
-            title = Color(0xFFFFAB00),
-        )
-        Relationship.LOVER -> CourseCardColors(
-            background = Color(0xFFFDE1F5),
-            title = Color(0xFFF56ACB),
-        )
-        Relationship.FAMILY -> CourseCardColors(
-            background = Color(0xFFE0E0F5),
-            title = Color(0xFF8B8AF5),
-        )
-    }

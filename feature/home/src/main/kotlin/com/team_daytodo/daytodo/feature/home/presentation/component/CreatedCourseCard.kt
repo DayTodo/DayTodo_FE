@@ -20,19 +20,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.home.model.CreatedCourse
-import com.team_daytodo.daytodo.feature.home.presentation.accentColor
-import com.team_daytodo.daytodo.feature.home.presentation.badgeColor
-import com.team_daytodo.daytodo.feature.home.presentation.emphasisColor
+import com.team_daytodo.daytodo.feature.home.presentation.homeRelationshipColors
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
 internal fun CreatedCourseCard(course: CreatedCourse) {
+    val colors = course.relationship.homeRelationshipColors()
+
     Surface(
         modifier = Modifier
             .width(217.dp)
             .height(99.dp),
         shape = RoundedCornerShape(11.dp),
-        color = course.relationship.accentColor(),
+        color = colors.background,
     ) {
         Column(
             modifier = Modifier
@@ -65,20 +65,20 @@ internal fun CreatedCourseCard(course: CreatedCourse) {
                         .width(44.dp)
                         .height(20.dp),
                     shape = RoundedCornerShape(8.dp),
-                    color = course.relationship.badgeColor(),
+                    color = colors.emphasis,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "${course.memberCount}명",
                             style = DayTodoTheme.typography.caption1,
-                            color = DayTodoTheme.colors.textPrimary,
+                            color = DayTodoTheme.colors.textQuaternary,
                         )
                     }
                 }
                 Text(
                     text = course.dDay,
                     style = DayTodoTheme.typography.headlineLarge,
-                    color = course.relationship.emphasisColor(),
+                    color = colors.emphasis,
                 )
             }
         }
