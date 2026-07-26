@@ -10,7 +10,7 @@ import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
-import com.team_daytodo.daytodo.feature.record.RecordScreen
+import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
 import com.team_daytodo.daytodo.feature.save.SaveScreen
@@ -68,7 +68,7 @@ internal fun DayTodoNavHost(
             TodayScreen()
         }
         composable(DayTodoRoute.Record) {
-            RecordScreen()
+            RecordNavHost()
         }
         composable(DayTodoRoute.Mypage) {
             MypageScreen()
