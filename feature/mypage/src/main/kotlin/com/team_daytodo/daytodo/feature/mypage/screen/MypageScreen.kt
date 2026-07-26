@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.mypage.R
+import com.team_daytodo.daytodo.feature.mypage.component.MypageDialogHost
 import com.team_daytodo.daytodo.feature.mypage.component.common.MypageDivider
 import com.team_daytodo.daytodo.feature.mypage.component.common.MypageToggleSwitch
 import com.team_daytodo.daytodo.feature.mypage.component.common.MypageTopBar
@@ -36,19 +37,11 @@ import com.team_daytodo.daytodo.feature.mypage.component.mypage.MypageMenuRow
 import com.team_daytodo.daytodo.feature.mypage.component.mypage.ProfileEditButton
 import com.team_daytodo.daytodo.feature.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.feature.mypage.state.MypageDialogState
-import com.team_daytodo.daytodo.uikit.dialog.DayTodoAlertDialog
-import com.team_daytodo.daytodo.uikit.dialog.DayTodoMessageDialog
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 private val HorizontalPadding = 20.dp
 
 private val WithdrawTextColor = Color(0xFFFF607E)
-
-private const val LogoutConfirmMessage = "다시 이용하시려면\n재로그인이 필요합니다."
-private const val LogoutDoneMessage = "안전하게 로그아웃되었습니다.\n다음에 다시 만나요!"
-private const val WithdrawConfirmMessage =
-    "탈퇴 시 모든 계정 정보와 이용 내역이\n영구적으로 삭제되며\n복구할 수 없습니다."
-private const val WithdrawDoneMessage = "안전하게 탈퇴되었습니다.\n다음에 다시 만나요!"
 
 @Composable
 fun MypageScreen(
@@ -180,47 +173,6 @@ fun MypageScreen(
         onStateChange = { dialogState = it },
         onNavigateToLogin = onNavigateToLogin,
     )
-}
-
-@Composable
-private fun MypageDialogHost(
-    state: MypageDialogState,
-    onStateChange: (MypageDialogState) -> Unit,
-    onNavigateToLogin: () -> Unit,
-) {
-    val dismiss = { onStateChange(MypageDialogState.None) }
-    val finish = {
-        onStateChange(MypageDialogState.None)
-        onNavigateToLogin()
-    }
-
-    when (state) {
-        MypageDialogState.None -> Unit
-
-        MypageDialogState.LogoutConfirm -> DayTodoAlertDialog(
-            title = "주의",
-            message = LogoutConfirmMessage,
-            onConfirm = { onStateChange(MypageDialogState.LogoutDone) },
-            onDismiss = dismiss,
-        )
-
-        MypageDialogState.LogoutDone -> DayTodoMessageDialog(
-            message = LogoutDoneMessage,
-            onDismiss = finish,
-        )
-
-        MypageDialogState.WithdrawConfirm -> DayTodoAlertDialog(
-            title = "주의",
-            message = WithdrawConfirmMessage,
-            onConfirm = { onStateChange(MypageDialogState.WithdrawDone) },
-            onDismiss = dismiss,
-        )
-
-        MypageDialogState.WithdrawDone -> DayTodoMessageDialog(
-            message = WithdrawDoneMessage,
-            onDismiss = finish,
-        )
-    }
 }
 
 @Preview(showBackground = true, heightDp = 900)
