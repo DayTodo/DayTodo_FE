@@ -14,10 +14,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,77 +23,26 @@ import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.record.component.RecordCalendarSection
 import com.team_daytodo.daytodo.feature.record.component.RecordPhotoRow
 import com.team_daytodo.daytodo.feature.record.component.VisitedCourseItem
-import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import com.team_daytodo.daytodo.feature.record.model.RecordUiState
 import com.team_daytodo.daytodo.feature.record.model.VisitedCourse
+import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import java.time.LocalDate
-import java.time.YearMonth
-import com.team_daytodo.daytodo.feature.record.R as RecordR
-
-// 더미 데이터: 5월 5/12/19/26 에만 코스 존재 (5/19 는 코스는 있으나 사진 없음 케이스)
-private val dummyCourseDates: Set<LocalDate> = setOf(
-    LocalDate.of(2026, 5, 5),
-    LocalDate.of(2026, 5, 12),
-    LocalDate.of(2026, 5, 19),
-    LocalDate.of(2026, 5, 26),
-)
-
-// 미리보기용 더미 사진 3종을 순환시켜 사용한다.
-private val dummyPhotoResources = listOf(
-    RecordR.drawable.dummypicture_1,
-    RecordR.drawable.dummypicture_2,
-    RecordR.drawable.dummypicture_3,
-)
-
-private val dummyPhotosByDate: Map<LocalDate, List<RecordPhoto>> = mapOf(
-    LocalDate.of(2026, 5, 5) to List(4) {
-        RecordPhoto(id = "0505-$it", imageRes = dummyPhotoResources[it % dummyPhotoResources.size])
-    },
-    LocalDate.of(2026, 5, 12) to List(3) {
-        RecordPhoto(id = "0512-$it", imageRes = dummyPhotoResources[it % dummyPhotoResources.size])
-    },
-    LocalDate.of(2026, 5, 19) to emptyList(), // 코스는 있으나 사진 없음
-    LocalDate.of(2026, 5, 26) to List(5) {
-        RecordPhoto(id = "0526-$it", imageRes = dummyPhotoResources[it % dummyPhotoResources.size])
-    },
-)
-
-private val dummyCoursesByDate: Map<LocalDate, List<VisitedCourse>> = mapOf(
-    LocalDate.of(2026, 5, 5) to listOf(
-        VisitedCourse(id = "0505-1", title = "연남동 브런치 코스"),
-    ),
-    LocalDate.of(2026, 5, 12) to listOf(
-        VisitedCourse(id = "0512-1", title = "한강 피크닉 코스"),
-        VisitedCourse(id = "0512-2", title = "망원 카페 코스"),
-    ),
-    LocalDate.of(2026, 5, 19) to listOf(
-        VisitedCourse(id = "0519-1", title = "북촌 한옥 산책"),
-    ),
-    LocalDate.of(2026, 5, 26) to listOf(
-        VisitedCourse(id = "0526-1", title = "성수 데이트 코스"),
-        VisitedCourse(id = "0526-2", title = "서울숲 나들이"),
-        VisitedCourse(id = "0526-3", title = "건대 맛집 투어"),
-        VisitedCourse(id = "0526-4", title = "잠실 야경 코스"),
-    ),
-)
 
 @Composable
 fun RecordScreen(
+    uiState: RecordUiState,
     onBackClick: () -> Unit = {},
-    onPhotoClick: (RecordPhoto) -> Unit = {},
+    onDateClick: (LocalDate) -> Unit = {},
+    onPreviousMonth: () -> Unit = {},
+    onNextMonth: () -> Unit = {},
+    // 사진 클릭 시 선택된 날짜의 사진 목록 기준 인덱스를 넘긴다.
+    onPhotoClick: (Int) -> Unit = {},
     onMorePhotosClick: () -> Unit = {},
     onSaveCourseClick: (VisitedCourse) -> Unit = {},
     modifier: Modifier = Modifier,
-    // 코스가 있는 날짜만 선택 가능하므로 기본 선택은 코스 있는 날짜(5/26)로 둔다.
-    initialSelectedDate: LocalDate = LocalDate.of(2026, 5, 26),
 ) {
-    var selectedDate by remember { mutableStateOf(initialSelectedDate) }
-    var currentMonth by remember { mutableStateOf(YearMonth.from(initialSelectedDate)) }
-
-    val selectedPhotos = dummyPhotosByDate[selectedDate].orEmpty()
-    val selectedCourses = dummyCoursesByDate[selectedDate].orEmpty()
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = DayTodoTheme.colors.backgroundDefault,
@@ -135,16 +80,16 @@ fun RecordScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             RecordCalendarSection(
-                yearMonth = currentMonth,
-                selectedDate = selectedDate,
-                courseDates = dummyCourseDates,
-                onDateClick = { selectedDate = it },
-                onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
-                onNextMonth = { currentMonth = currentMonth.plusMonths(1) },
+                yearMonth = uiState.currentMonth,
+                selectedDate = uiState.selectedDate,
+                courseDates = uiState.courseDates,
+                onDateClick = onDateClick,
+                onPreviousMonth = onPreviousMonth,
+                onNextMonth = onNextMonth,
             )
 
             RecordPhotoRow(
-                photos = selectedPhotos,
+                photos = uiState.selectedPhotos,
                 onPhotoClick = onPhotoClick,
                 onMoreClick = onMorePhotosClick,
                 modifier = Modifier.padding(top = 32.dp),
@@ -160,7 +105,7 @@ fun RecordScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(bottom = 24.dp),
             ) {
-                selectedCourses.forEach { course ->
+                uiState.selectedCourses.forEach { course ->
                     VisitedCourseItem(
                         course = course,
                         onSaveClick = onSaveCourseClick,
@@ -175,9 +120,7 @@ fun RecordScreen(
 @Composable
 private fun RecordScreenPreview() {
     DayTodoTheme {
-        RecordScreen(
-            initialSelectedDate = LocalDate.of(2026, 5, 26),
-        )
+        RecordScreen(uiState = sampleRecordUiState())
     }
 }
 
@@ -185,8 +128,9 @@ private fun RecordScreenPreview() {
 @Composable
 private fun RecordScreenEmptyPhotoPreview() {
     DayTodoTheme {
+        // 5/19: 코스는 있으나 사진 없음
         RecordScreen(
-            initialSelectedDate = LocalDate.of(2026, 5, 19),
+            uiState = sampleRecordUiState().copy(selectedDate = LocalDate.of(2026, 5, 19)),
         )
     }
 }

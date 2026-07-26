@@ -1,6 +1,8 @@
 package com.team_daytodo.daytodo.feature.record.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,22 +22,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-// 갤러리 연동 전 자리 표시용 개수. 실제 사진 데이터 연결은 이후 단계.
-private const val PlaceholderPhotoCount = 9
-
-/**
- * "사진 더보기"에서 진입하는 사진 선택 화면.
- * 사진 데이터 연결은 다음 단계이며, 지금은 3열 그리드 플레이스홀더만 표시한다.
- */
 @Composable
 fun PhotoSelectScreen(
+    photos: List<RecordPhoto>,
     onBackClick: () -> Unit = {},
+    onPhotoClick: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -85,14 +85,40 @@ fun PhotoSelectScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(count = PlaceholderPhotoCount) {
-                    Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .background(DayTodoTheme.colors.backgroundSecondary),
+                itemsIndexed(
+                    items = photos,
+                    key = { _, photo -> photo.id },
+                ) { index, photo ->
+                    PhotoGridCell(
+                        photo = photo,
+                        onClick = { onPhotoClick(index) },
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PhotoGridCell(
+    photo: RecordPhoto,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val imageRes = photo.imageRes
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .background(DayTodoTheme.colors.backgroundSecondary)
+            .clickable(onClick = onClick),
+    ) {
+        if (imageRes != null) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }
@@ -101,6 +127,6 @@ fun PhotoSelectScreen(
 @Composable
 private fun PhotoSelectScreenPreview() {
     DayTodoTheme {
-        PhotoSelectScreen()
+        PhotoSelectScreen(photos = sampleRecordUiState().selectedPhotos)
     }
 }

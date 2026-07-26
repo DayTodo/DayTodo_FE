@@ -43,45 +43,25 @@ import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.record.component.MemoInputBar
 import com.team_daytodo.daytodo.feature.record.component.MemoItem
 import com.team_daytodo.daytodo.feature.record.model.MemoEntry
+import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-import com.team_daytodo.daytodo.feature.record.R as RecordR
-
-data class MemoPhoto(
-    val id: String,
-    val imageRes: Int,
-    val memos: List<MemoEntry>,
-)
-
-// 더미 데이터: 사진 3장. 첫 사진에만 댓글이 있고 나머지는 빈 상태.
-private val dummyMemoPhotos = listOf(
-    MemoPhoto(
-        id = "photo-1",
-        imageRes = RecordR.drawable.dummypicture_1,
-        memos = listOf(
-            MemoEntry(id = "m1", author = "나", content = "소품샵 어때 😊"),
-            MemoEntry(id = "m2", author = "보라", content = "다음에 곰볼 갔다가 헤이티도 고고"),
-            MemoEntry(id = "m3", author = "나", content = "고고고"),
-        ),
-    ),
-    MemoPhoto(id = "photo-2", imageRes = RecordR.drawable.dummypicture_2, memos = emptyList()),
-    MemoPhoto(id = "photo-3", imageRes = RecordR.drawable.dummypicture_3, memos = emptyList()),
-)
 
 @Composable
 fun MemoScreen(
+    photos: List<RecordPhoto>,
+    memosByPhotoId: Map<String, List<MemoEntry>>,
+    initialPhotoIndex: Int = 0,
     onBackClick: () -> Unit = {},
-    photos: List<MemoPhoto> = dummyMemoPhotos,
+    onSubmitMemo: (photoId: String, content: String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
-    var currentPhotoIndex by remember { mutableIntStateOf(0) }
+    if (photos.isEmpty()) return
 
-    // 사진 id -> 메모 목록. DB/API 연동 전 임시 로컬 state.
-    // ViewModel 도입 시 이 remember 블록만 교체하면 아래 MemoListSection(memos, onSubmit) 은 그대로 재사용 가능.
-    var memosByPhotoId by remember {
-        mutableStateOf(photos.associate { it.id to it.memos })
+    var currentPhotoIndex by remember(photos) {
+        mutableIntStateOf(initialPhotoIndex.coerceIn(0, photos.lastIndex))
     }
-    var nextMemoId by remember { mutableIntStateOf(0) }
 
     val currentPhoto = photos[currentPhotoIndex]
     val currentMemos = memosByPhotoId[currentPhoto.id].orEmpty()
@@ -152,25 +132,13 @@ fun MemoScreen(
             key(currentPhotoIndex) {
                 MemoListSection(
                     memos = currentMemos,
-                    onSubmit = { content ->
-                        val newMemo = MemoEntry(
-                            id = "local-$nextMemoId",
-                            author = "나",
-                            content = content,
-                        )
-                        nextMemoId++
-                        memosByPhotoId = memosByPhotoId + (currentPhoto.id to (currentMemos + newMemo))
-                    },
+                    onSubmit = { content -> onSubmitMemo(currentPhoto.id, content) },
                 )
             }
         }
     }
 }
 
-/**
- * 메모 목록 + 입력창. memos/onSubmit 만 받는 stateless 컴포저블이며,
- * 입력 중인 텍스트(draft)만 내부 로컬 state로 들고 있다가 제출 시 비운다.
- */
 @Composable
 private fun MemoListSection(
     memos: List<MemoEntry>,
@@ -204,13 +172,9 @@ private fun MemoListSection(
     )
 }
 
-/**
- * 추억 사진 영역. 사진 위에 좌/우 화살표를 플로팅으로 겹쳐 배치한다.
- * 첫 장에서는 왼쪽 화살표, 마지막 장에서는 오른쪽 화살표가 비활성화(반투명 + 클릭 불가) 된다.
- */
 @Composable
 private fun MemoPhotoPager(
-    photoRes: Int,
+    photoRes: Int?,
     currentIndex: Int,
     photoCount: Int,
     isFirst: Boolean,
@@ -226,12 +190,14 @@ private fun MemoPhotoPager(
             .background(DayTodoTheme.colors.backgroundSecondary),
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = painterResource(id = photoRes),
-            contentDescription = "추억 사진 ${currentIndex + 1} / $photoCount",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
+        if (photoRes != null) {
+            Image(
+                painter = painterResource(id = photoRes),
+                contentDescription = "추억 사진 ${currentIndex + 1} / $photoCount",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         PhotoArrowButton(
             icon = Icons.Default.KeyboardArrowLeft,
@@ -280,7 +246,11 @@ private fun PhotoArrowButton(
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun MemoScreenPreview() {
+    val uiState = sampleRecordUiState()
     DayTodoTheme {
-        MemoScreen()
+        MemoScreen(
+            photos = uiState.selectedPhotos,
+            memosByPhotoId = uiState.memosByPhotoId,
+        )
     }
 }
