@@ -26,7 +26,6 @@ import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
-import com.team_daytodo.daytodo.feature.save.SaveScreen
 import com.team_daytodo.daytodo.feature.save.SaveRoute
 import com.team_daytodo.daytodo.feature.today.TodayScreen
 
