@@ -9,6 +9,7 @@ internal object DayTodoRoute {
     const val SavedPlacesImportedArg = "savedPlacesImported"
 
     const val Login = "auth/login"
+    const val OnboardingGate = "onboarding/gate"
     const val Onboarding = "onboarding"
     const val Signup = "auth/signup"
     const val FindPassword = "auth/find-password"
