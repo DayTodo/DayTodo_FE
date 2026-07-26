@@ -15,6 +15,7 @@ internal object DayTodoRoute {
 
     const val Home = "home"
     const val Save = "save"
+    const val MagazineDetail = "magazine/{$PlaceIdArg}"
     const val Calendar = "calendar"
     const val Course = "course"
     const val CourseCreate = "course/create"
@@ -39,6 +40,9 @@ internal object DayTodoRoute {
 
     fun placeRecommendationRoute(courseId: String): String =
         "course/recommend/${Uri.encode(courseId)}"
+
+    fun magazineDetailRoute(placeId: String): String =
+        "magazine/${Uri.encode(placeId)}"
 
     fun courseEditRoute(courseId: String): String =
         "course/edit/${Uri.encode(courseId)}"

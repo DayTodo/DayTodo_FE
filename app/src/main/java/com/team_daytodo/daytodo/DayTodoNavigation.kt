@@ -22,6 +22,7 @@ import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
+import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
@@ -113,11 +114,28 @@ internal fun DayTodoNavHost(
                 onNavigateToCourseList = { navController.navigateSingleTopTo(DayTodoRoute.Course) },
                 onNavigateToCourseCreate = { navController.navigateSingleTopTo(DayTodoRoute.CourseCreate) },
                 onNavigateToCourseJoin = { navController.navigateSingleTopTo(DayTodoRoute.CourseJoin) },
+                onMagazineClick = { placeId ->
+                    navController.navigateSingleTopTo(DayTodoRoute.magazineDetailRoute(placeId))
+                },
                 onTodayScheduleChanged = onTodayScheduleChanged,
             )
         }
         composable(DayTodoRoute.Save) {
             SaveScreen()
+        composable(
+            route = DayTodoRoute.MagazineDetail,
+            arguments = listOf(
+                navArgument(DayTodoRoute.PlaceIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            MagazineRoute(
+                placeId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.PlaceIdArg)
+                    .orEmpty(),
+                onBackClick = { navController.popBackStack() },
+            )
         }
         composable(DayTodoRoute.Calendar) {
             CalendarScreen()

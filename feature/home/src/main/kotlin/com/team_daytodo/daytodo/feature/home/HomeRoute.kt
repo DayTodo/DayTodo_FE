@@ -14,6 +14,7 @@ fun HomeRoute(
     onNavigateToCourseList: () -> Unit = {},
     onNavigateToCourseCreate: () -> Unit = {},
     onNavigateToCourseJoin: () -> Unit = {},
+    onMagazineClick: (String) -> Unit = {},
     onTodayScheduleChanged: (Boolean) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -30,5 +31,6 @@ fun HomeRoute(
         onNavigateToCourseList = onNavigateToCourseList,
         onNavigateToCourseCreate = onNavigateToCourseCreate,
         onNavigateToCourseJoin = onNavigateToCourseJoin,
+        onMagazineClick = { magazine -> onMagazineClick(magazine.placeId) },
     )
 }
