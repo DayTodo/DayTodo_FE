@@ -17,7 +17,7 @@ import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
-import com.team_daytodo.daytodo.feature.record.RecordScreen
+import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
 import com.team_daytodo.daytodo.feature.save.SaveScreen
@@ -138,7 +138,7 @@ internal fun DayTodoNavHost(
             TodayRoute()
         }
         composable(DayTodoRoute.Record) {
-            RecordScreen()
+            RecordNavHost()
         }
         // 마이페이지("mypage") + 프로필 관리 라우트를 함께 등록한다.
         // MypageRoute.Mypage 값이 DayTodoRoute.Mypage 와 같아 바텀 네비와 그대로 호환된다.
