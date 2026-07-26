@@ -122,9 +122,10 @@ internal fun MagazineCard(
 private fun PreviewMagazineCard() {
     MagazineCard(
         magazine = HomeMagazineUiModel(
-            title = "비 오는 날에 딱 맞는 실내 데이트",
-            location = "서울 성수",
-            description = "날씨에 흔들리지 않는 전시, 카페, 작은 식당 코스를 골라봤어요.",
+            placeId = "place-seoul-forest",
+            title = "비 오는 날에도 걷기 좋은 실내 정원",
+            location = "서울 강서구",
+            description = "온실과 산책 동선을 함께 즐길 수 있는 서울 식물원 코스를 둘러보세요.",
             imageRes = UIKitR.drawable.ic_symbol,
         ),
         onClick = {},

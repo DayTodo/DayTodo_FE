@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team_daytodo.daytodo.feature.course.model.PlaceRecommendationEvent
 import com.team_daytodo.daytodo.feature.course.presentation.PlaceRecommendationScreen
 
@@ -20,6 +20,9 @@ fun PlaceRecommendationRoute(
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit,
     onCommentClick: (String, String) -> Unit,
+    onSavedPlaceClick: () -> Unit = {},
+    importedSavedPlaces: Boolean = false,
+    onImportedSavedPlacesHandled: () -> Unit = {},
     viewModel: PlaceRecommendationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -28,6 +31,13 @@ fun PlaceRecommendationRoute(
 
     LaunchedEffect(courseId) {
         viewModel.loadCourse(courseId)
+    }
+
+    LaunchedEffect(importedSavedPlaces) {
+        if (importedSavedPlaces) {
+            viewModel.selectCurrentMemberRecommendations()
+            onImportedSavedPlacesHandled()
+        }
     }
 
     DisposableEffect(lifecycleOwner, courseId) {
@@ -71,12 +81,6 @@ fun PlaceRecommendationRoute(
         onToggleCoursePlaceClick = viewModel::toggleCoursePlace,
         onRemoveCoursePlaceClick = viewModel::removeCoursePlace,
         onMoveCoursePlace = viewModel::moveCoursePlace,
-        onSavedPlaceClick = {
-            Toast.makeText(
-                context,
-                "저장된 장소 불러오기는 API 연결 후 이어붙일 수 있게 준비해뒀어요.",
-                Toast.LENGTH_SHORT,
-            ).show()
-        },
+        onSavedPlaceClick = onSavedPlaceClick,
     )
 }

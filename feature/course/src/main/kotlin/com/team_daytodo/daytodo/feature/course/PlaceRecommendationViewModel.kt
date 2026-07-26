@@ -164,6 +164,19 @@ class PlaceRecommendationViewModel @Inject constructor(
         _uiState.update { it.copy(selectedRecommender = filter) }
     }
 
+    fun selectCurrentMemberRecommendations() {
+        val course = _uiState.value.course ?: return
+        _uiState.update {
+            it.copy(
+                mode = PlaceCourseMode.Recommendation,
+                selectedRecommender = RecommenderFilter.Member(
+                    memberId = course.currentMemberId,
+                    name = "나",
+                ),
+            )
+        }
+    }
+
     fun selectPlace(placeId: String) {
         _uiState.update { it.copy(selectedPlaceId = placeId) }
     }

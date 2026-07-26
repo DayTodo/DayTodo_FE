@@ -4,7 +4,9 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,11 +24,14 @@ import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
+import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
 import com.team_daytodo.daytodo.feature.home.HomeRoute
+import com.team_daytodo.daytodo.feature.mypage.MypageScreen
+import com.team_daytodo.daytodo.feature.save.SaveRoute
+import com.team_daytodo.daytodo.feature.save.SavedPlacePickerRoute
 import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
-import com.team_daytodo.daytodo.feature.save.SaveScreen
 import com.team_daytodo.daytodo.feature.today.screen.TodayRoute
 
 @Composable
@@ -114,11 +119,34 @@ internal fun DayTodoNavHost(
                 onNavigateToCourseList = { navController.navigateSingleTopTo(DayTodoRoute.Course) },
                 onNavigateToCourseCreate = { navController.navigateSingleTopTo(DayTodoRoute.CourseCreate) },
                 onNavigateToCourseJoin = { navController.navigateSingleTopTo(DayTodoRoute.CourseJoin) },
+                onMagazineClick = { placeId ->
+                    navController.navigateSingleTopTo(DayTodoRoute.magazineDetailRoute(placeId))
+                },
                 onTodayScheduleChanged = onTodayScheduleChanged,
             )
         }
         composable(DayTodoRoute.Save) {
-            SaveScreen()
+            SaveRoute(
+                onBackClick = { navController.popBackStack() },
+                onPlaceClick = { placeId ->
+                    navController.navigateSingleTopTo(DayTodoRoute.magazineDetailRoute(placeId))
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.MagazineDetail,
+            arguments = listOf(
+                navArgument(DayTodoRoute.PlaceIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            MagazineRoute(
+                placeId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.PlaceIdArg)
+                    .orEmpty(),
+                onBackClick = { navController.popBackStack() },
+            )
         }
         composable(DayTodoRoute.Calendar) {
             CalendarScreen()
@@ -163,6 +191,9 @@ internal fun DayTodoNavHost(
             val courseId = backStackEntry.arguments
                 ?.getString(DayTodoRoute.CourseIdArg)
                 .orEmpty()
+            val savedPlacesImported by backStackEntry.savedStateHandle
+                .getStateFlow(DayTodoRoute.SavedPlacesImportedArg, false)
+                .collectAsStateWithLifecycle()
             PlaceRecommendationRoute(
                 courseId = courseId,
                 onBackClick = { navController.popBackStack() },
@@ -178,6 +209,36 @@ internal fun DayTodoNavHost(
                             placeId = placeId,
                         ),
                     )
+                },
+                importedSavedPlaces = savedPlacesImported,
+                onImportedSavedPlacesHandled = {
+                    backStackEntry.savedStateHandle[DayTodoRoute.SavedPlacesImportedArg] = false
+                },
+                onSavedPlaceClick = {
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.savedPlacePickerRoute(courseId),
+                    )
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.SavedPlacePicker,
+            arguments = listOf(
+                navArgument(DayTodoRoute.CourseIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            SavedPlacePickerRoute(
+                courseId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.CourseIdArg)
+                    .orEmpty(),
+                onBackClick = { navController.popBackStack() },
+                onImportCompleted = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(DayTodoRoute.SavedPlacesImportedArg, true)
+                    navController.popBackStack()
                 },
             )
         }

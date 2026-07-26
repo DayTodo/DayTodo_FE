@@ -185,7 +185,7 @@ private fun DateFilterRow(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_filter),
+                painter = painterResource(id = UIKitR.drawable.ic_filter),
                 contentDescription = "날짜 필터",
                 tint = DayTodoTheme.colors.textPrimary,
                 modifier = Modifier.size(20.dp),
