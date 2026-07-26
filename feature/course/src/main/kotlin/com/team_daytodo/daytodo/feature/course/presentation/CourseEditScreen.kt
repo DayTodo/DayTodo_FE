@@ -43,6 +43,7 @@ import com.team_daytodo.daytodo.feature.course.presentation.component.CourseLoca
 import com.team_daytodo.daytodo.feature.course.presentation.component.todayCourseDate
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 
@@ -143,7 +144,11 @@ fun CourseEditScreen(
 
         DayTodoNextStepButton(
             text = if (uiState.isSaving) "수정 중..." else "수정하기",
-            enabled = uiState.canSubmit,
+            state = when {
+                uiState.isSaving -> DayTodoNextStepButtonState.Loading
+                uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+                else -> DayTodoNextStepButtonState.Disabled
+            },
             onClick = onSubmitClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
