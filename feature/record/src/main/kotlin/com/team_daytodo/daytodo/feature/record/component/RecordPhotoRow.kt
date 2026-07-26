@@ -30,7 +30,7 @@ fun RecordPhotoRow(
     modifier: Modifier = Modifier,
 ) {
     if (photos.isEmpty()) {
-        EmptyPhotoState(modifier = modifier)
+        EmptyPhotoContent(modifier = modifier)
     } else {
         Row(
             modifier = modifier,
@@ -78,7 +78,7 @@ private fun PhotoThumbnail(
 }
 
 @Composable
-private fun EmptyPhotoState(
+private fun EmptyPhotoContent(
     modifier: Modifier = Modifier,
 ) {
     Box(
