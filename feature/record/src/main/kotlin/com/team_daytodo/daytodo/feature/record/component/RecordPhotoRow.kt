@@ -22,16 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
-/**
- * 선택된 날짜의 추억 사진 미리보기.
- *
- * - 사진이 있으면 최대 3장 + 같은 행에 "사진 더보기" 텍스트
- * - 사진이 없으면 회색 네모(+ 흰색 플러스) 빈 상태 영역
- */
 @Composable
 fun RecordPhotoRow(
     photos: List<RecordPhoto>,
-    onPhotoClick: (RecordPhoto) -> Unit,
+    onPhotoClick: (Int) -> Unit,
     onMoreClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -40,15 +34,13 @@ fun RecordPhotoRow(
     } else {
         Row(
             modifier = modifier,
-            // 사진 더보기 텍스트를 행의 바닥에 붙인다. 사진 썸네일(84dp)이 행 높이를 결정하므로
-            // 텍스트가 행 높이 밖으로 나가지 않는다.
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            photos.take(3).forEach { photo ->
+            photos.take(3).forEachIndexed { index, photo ->
                 PhotoThumbnail(
                     photo = photo,
-                    onClick = onPhotoClick,
+                    onClick = { onPhotoClick(index) },
                 )
             }
             Text(
@@ -60,16 +52,10 @@ fun RecordPhotoRow(
         }
     }
 }
-
-/**
- * 사진 한 장을 표시하는 재사용 가능한 썸네일.
- * [RecordPhoto.imageRes] 가 있으면 실제 이미지를, 없으면 회색 빈 상태 박스를 보여준다.
- * 나중에 서버/DB 이미지로 교체될 때도 이 컴포넌트의 파라미터만 바뀌면 된다.
- */
 @Composable
 private fun PhotoThumbnail(
     photo: RecordPhoto,
-    onClick: (RecordPhoto) -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val imageRes = photo.imageRes
@@ -77,7 +63,7 @@ private fun PhotoThumbnail(
         modifier = modifier
             .size(84.dp)
             .background(color = DayTodoTheme.colors.backgroundSecondary)
-            .clickable { onClick(photo) },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         if (imageRes != null) {
