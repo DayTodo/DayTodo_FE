@@ -45,11 +45,7 @@ fun DayTodoApp() {
                     .padding(horizontal = 28.dp)
                     .padding(bottom = 56.dp),
                 onDestinationClick = { destination ->
-                    if (destination.route == DayTodoRoute.Today && !hasTodaySchedule) {
-                        Toast.makeText(context, "오늘은 일정이 없어요.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        navController.navigateToTopLevelDestination(destination.route)
-                    }
+                    navController.navigateToTopLevelDestination(destination.route)
                 },
             )
         }

@@ -21,7 +21,7 @@ import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
 import com.team_daytodo.daytodo.feature.save.SaveScreen
-import com.team_daytodo.daytodo.feature.today.TodayScreen
+import com.team_daytodo.daytodo.feature.today.screen.TodayRoute
 
 @Composable
 internal fun DayTodoNavHost(
@@ -135,7 +135,7 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Today) {
-            TodayScreen()
+            TodayRoute()
         }
         composable(DayTodoRoute.Record) {
             RecordScreen()
