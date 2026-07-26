@@ -4,7 +4,9 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -27,6 +29,7 @@ import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
 import com.team_daytodo.daytodo.feature.save.SaveRoute
+import com.team_daytodo.daytodo.feature.save.SavedPlacePickerRoute
 import com.team_daytodo.daytodo.feature.today.TodayScreen
 
 @Composable
@@ -186,6 +189,9 @@ internal fun DayTodoNavHost(
             val courseId = backStackEntry.arguments
                 ?.getString(DayTodoRoute.CourseIdArg)
                 .orEmpty()
+            val savedPlacesImported by backStackEntry.savedStateHandle
+                .getStateFlow(DayTodoRoute.SavedPlacesImportedArg, false)
+                .collectAsStateWithLifecycle()
             PlaceRecommendationRoute(
                 courseId = courseId,
                 onBackClick = { navController.popBackStack() },
@@ -201,6 +207,36 @@ internal fun DayTodoNavHost(
                             placeId = placeId,
                         ),
                     )
+                },
+                importedSavedPlaces = savedPlacesImported,
+                onImportedSavedPlacesHandled = {
+                    backStackEntry.savedStateHandle[DayTodoRoute.SavedPlacesImportedArg] = false
+                },
+                onSavedPlaceClick = {
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.savedPlacePickerRoute(courseId),
+                    )
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.SavedPlacePicker,
+            arguments = listOf(
+                navArgument(DayTodoRoute.CourseIdArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            SavedPlacePickerRoute(
+                courseId = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.CourseIdArg)
+                    .orEmpty(),
+                onBackClick = { navController.popBackStack() },
+                onImportCompleted = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(DayTodoRoute.SavedPlacesImportedArg, true)
+                    navController.popBackStack()
                 },
             )
         }

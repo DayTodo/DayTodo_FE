@@ -29,6 +29,7 @@ fun DayTodoApp() {
         DayTodoRoute.CourseCreate,
         DayTodoRoute.CourseJoin,
         DayTodoRoute.PlaceRecommendation,
+        DayTodoRoute.SavedPlacePicker,
         DayTodoRoute.CourseEdit,
         DayTodoRoute.PlaceComment,
         DayTodoRoute.Save,
