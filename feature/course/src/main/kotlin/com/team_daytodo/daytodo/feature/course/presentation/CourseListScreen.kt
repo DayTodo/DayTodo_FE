@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -203,14 +204,14 @@ private fun UpcomingCourseCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(116.dp)
+            .heightIn(min = UpcomingCourseCardMinHeight)
             .clickable(role = Role.Button, onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = colors.background,
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(20.dp),
         ) {
             Text(
@@ -228,16 +229,23 @@ private fun UpcomingCourseCard(
                 maxLines = 1,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
                 Text(
                     text = "멤버: ${course.members.size}명",
                     style = DayTodoTheme.typography.caption1.copy(letterSpacing = 0.sp),
                     color = DayTodoTheme.colors.textPrimary,
+                    maxLines = 1,
                 )
                 Text(
                     text = "담아 놓은 장소: ${course.placeCount}개",
+                    modifier = Modifier.weight(1f),
                     style = DayTodoTheme.typography.caption1.copy(letterSpacing = 0.sp),
                     color = DayTodoTheme.colors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -262,3 +270,5 @@ private fun LoadingMessage(
         )
     }
 }
+
+private val UpcomingCourseCardMinHeight = 116.dp
