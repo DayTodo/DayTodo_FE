@@ -46,6 +46,7 @@ class PlaceRecommendationViewModel @Inject constructor(
     val event: SharedFlow<PlaceRecommendationEvent> = _event.asSharedFlow()
 
     private var loadedCourseId: String? = null
+    private var searchPlacesRequestVersion = 0
     private var coursePlaceMoveRequestVersion = 0
 
     fun loadCourse(courseId: String) {
@@ -100,6 +101,9 @@ class PlaceRecommendationViewModel @Inject constructor(
     }
 
     fun updateSearchQuery(query: String) {
+        if (query != _uiState.value.searchQuery) {
+            searchPlacesRequestVersion++
+        }
         _uiState.update {
             it.copy(
                 searchQuery = query,
@@ -110,6 +114,7 @@ class PlaceRecommendationViewModel @Inject constructor(
     }
 
     fun clearSearch() {
+        searchPlacesRequestVersion++
         _uiState.update {
             it.copy(
                 searchQuery = "",
@@ -122,19 +127,24 @@ class PlaceRecommendationViewModel @Inject constructor(
     fun searchPlaces() {
         val courseId = loadedCourseId ?: return
         val query = _uiState.value.searchQuery
+        val requestVersion = ++searchPlacesRequestVersion
         viewModelScope.launch {
             searchPlacesUseCase(courseId, query)
                 .onSuccess { results ->
-                    _uiState.update {
-                        it.copy(
-                            searchResults = results,
-                            searchPerformed = query.isNotBlank(),
-                            selectedPlaceId = results.firstOrNull()?.place?.id ?: it.selectedPlaceId,
-                        )
+                    if (isLatestSearchPlacesRequest(requestVersion, courseId, query)) {
+                        _uiState.update {
+                            it.copy(
+                                searchResults = results,
+                                searchPerformed = query.isNotBlank(),
+                                selectedPlaceId = results.firstOrNull()?.place?.id ?: it.selectedPlaceId,
+                            )
+                        }
                     }
                 }
                 .onFailure { cause ->
-                    _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))
+                    if (isLatestSearchPlacesRequest(requestVersion, courseId, query)) {
+                        _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))
+                    }
                 }
         }
     }
@@ -255,6 +265,15 @@ class PlaceRecommendationViewModel @Inject constructor(
             )
         }
     }
+
+    private fun isLatestSearchPlacesRequest(
+        requestVersion: Int,
+        courseId: String,
+        query: String,
+    ): Boolean =
+        requestVersion == searchPlacesRequestVersion &&
+            loadedCourseId == courseId &&
+            _uiState.value.searchQuery == query
 }
 
 private fun CourseDetail.withMovedCoursePlace(

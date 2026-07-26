@@ -32,4 +32,6 @@ android {
 
 dependencies {
     implementation(libs.android.kakao.maps)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
