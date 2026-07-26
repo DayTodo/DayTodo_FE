@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.team_daytodo.daytodo.feature.today"
 }
+
+dependencies {
+    implementation(libs.reorderable)
+}

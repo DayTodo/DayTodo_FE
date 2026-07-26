@@ -1,0 +1,6 @@
+<resources>
+    <string name="mypage_logout_confirm_message">다시 이용하시려면\n재로그인이 필요합니다.</string>
+    <string name="mypage_logout_done_message">안전하게 로그아웃되었습니다.\n다음에 다시 만나요!</string>
+    <string name="mypage_withdraw_confirm_message">탈퇴 시 모든 계정 정보와 이용 내역이\n영구적으로 삭제되며\n복구할 수 없습니다.</string>
+    <string name="mypage_withdraw_done_message">안전하게 탈퇴되었습니다.\n다음에 다시 만나요!</string>
+</resources>

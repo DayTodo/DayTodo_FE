@@ -51,6 +51,7 @@ import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreat
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.secondaryTextColor
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -169,7 +170,11 @@ private fun CourseCreateInputFlow(
 
         DayTodoNextStepButton(
             text = uiState.primaryButtonText,
-            enabled = uiState.isPrimaryButtonEnabled,
+            state = if (uiState.isPrimaryButtonEnabled) {
+                DayTodoNextStepButtonState.Enabled
+            } else {
+                DayTodoNextStepButtonState.Disabled
+            },
             onClick = {
                 if (uiState.currentStep == CourseCreateStep.Relationship) {
                     onSubmitClick()

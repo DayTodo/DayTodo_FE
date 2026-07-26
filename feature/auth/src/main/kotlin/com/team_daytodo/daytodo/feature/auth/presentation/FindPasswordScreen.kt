@@ -36,6 +36,7 @@ import com.team_daytodo.daytodo.feature.auth.presentation.component.AuthIntroSec
 import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextField
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -145,7 +146,11 @@ fun FindPasswordScreen(
 
         DayTodoNextStepButton(
             text = "확인",
-            enabled = uiState.canVerifyCode,
+            state = if (uiState.canVerifyCode) {
+                DayTodoNextStepButtonState.Enabled
+            } else {
+                DayTodoNextStepButtonState.Disabled
+            },
             onClick = onConfirmClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
