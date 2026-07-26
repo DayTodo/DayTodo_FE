@@ -31,6 +31,8 @@ fun DayTodoApp() {
         DayTodoRoute.PlaceRecommendation,
         DayTodoRoute.CourseEdit,
         DayTodoRoute.PlaceComment,
+        DayTodoRoute.Save,
+        DayTodoRoute.MagazineDetail,
     )
     val showBottomNavigation = currentRoute != null &&
         currentRoute !in routesWithoutBottomNavigation

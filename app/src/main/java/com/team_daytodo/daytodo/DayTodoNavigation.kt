@@ -27,6 +27,7 @@ import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.mypage.MypageScreen
 import com.team_daytodo.daytodo.feature.save.SaveScreen
+import com.team_daytodo.daytodo.feature.save.SaveRoute
 import com.team_daytodo.daytodo.feature.today.TodayScreen
 
 @Composable
@@ -121,7 +122,13 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Save) {
-            SaveScreen()
+            SaveRoute(
+                onBackClick = { navController.popBackStack() },
+                onPlaceClick = { placeId ->
+                    navController.navigateSingleTopTo(DayTodoRoute.magazineDetailRoute(placeId))
+                },
+            )
+        }
         composable(
             route = DayTodoRoute.MagazineDetail,
             arguments = listOf(
