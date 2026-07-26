@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.feature.today.component
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ fun CoursePlaceItem(
     modifier: Modifier = Modifier,
     isDragging: Boolean = false,
     dragHandleModifier: Modifier = Modifier,
+    onDeleteClick: (String) -> Unit = {},
 ) {
     val elevation by animateDpAsState(
         targetValue = if (isDragging) 8.dp else 0.dp,
@@ -118,6 +120,7 @@ fun CoursePlaceItem(
             Icon(
                 painter = painterResource(id = R.drawable.ic_delete),
                 contentDescription = "삭제",
+                modifier = Modifier.clickable { onDeleteClick(place.id) },
             )
         }
     }

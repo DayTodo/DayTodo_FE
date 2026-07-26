@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,12 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -31,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,8 +52,8 @@ import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.feature.today.model.TodayTab
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun TodayScreen(
@@ -70,6 +71,15 @@ fun TodayScreen(
     }
 
     val coursePlaces = remember(places) { places.toMutableStateList() }
+
+    val lazyListState = rememberLazyListState()
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val fromIndex = coursePlaces.indexOfFirst { it.id == from.key }
+        val toIndex = coursePlaces.indexOfFirst { it.id == to.key }
+        if (fromIndex != -1 && toIndex != -1) {
+            coursePlaces.add(toIndex, coursePlaces.removeAt(fromIndex))
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -114,27 +124,29 @@ fun TodayScreen(
             return@Scaffold
         }
 
-        Column(
+        LazyColumn(
+            state = lazyListState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(innerPadding),
+            contentPadding = PaddingValues(horizontal = 20.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                CourseMemoryToggle(
-                    selectedTab = selectedTab,
-                    onTabSelected = { selectedTab = it },
-                )
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    CourseMemoryToggle(
+                        selectedTab = selectedTab,
+                        onTabSelected = { selectedTab = it },
+                    )
+                }
             }
 
-            when {
-                selectedTab == TodayTab.COURSE -> {
+            if (selectedTab == TodayTab.COURSE) {
+                item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -157,79 +169,95 @@ fun TodayScreen(
                             )
                         }
                     }
+                }
 
+                item {
                     Text(
                         text = "코스",
                         style = DayTodoTheme.typography.label2,
                         modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
                     )
+                }
 
-                    ReorderableColumn(
-                        list = coursePlaces,
-                        onSettle = { fromIndex, toIndex ->
-                            coursePlaces.add(toIndex, coursePlaces.removeAt(fromIndex))
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) { index, place, isDragging ->
-                        key(place.id) {
-                            ReorderableItem {
-                                CoursePlaceItem(
-                                    order = index + 1,
-                                    place = place,
-                                    isDragging = isDragging,
-                                    dragHandleModifier = Modifier.draggableHandle(),
-                                )
-                            }
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(top = 14.dp)
-                            .clickable(onClick = onAddCourseClick),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Icon(
-                            painter = painterResource(
-                                id = com.team_daytodo.daytodo.feature.today.R.drawable.ic_plus,
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Unspecified,
-                        )
-                        Text(
-                            text = "코스 추가",
-                            style = DayTodoTheme.typography.label2,
-                            color = DayTodoTheme.colors.brandPrimary,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(56.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .width(100.dp)
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(color = DayTodoTheme.colors.brandPrimary)
-                            .clickable(onClick = onAddPlaceClick),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "코스 종료하기",
-                            style = DayTodoTheme.typography.label2,
-                            color = DayTodoTheme.colors.textQuaternary
+                itemsIndexed(
+                    items = coursePlaces,
+                    key = { _, place -> place.id },
+                ) { index, place ->
+                    ReorderableItem(reorderableState, key = place.id) { isDragging ->
+                        CoursePlaceItem(
+                            order = index + 1,
+                            place = place,
+                            modifier = if (index == coursePlaces.lastIndex) {
+                                Modifier
+                            } else {
+                                Modifier.padding(bottom = 10.dp)
+                            },
+                            isDragging = isDragging,
+                            dragHandleModifier = Modifier.draggableHandle(),
+                            onDeleteClick = { placeId ->
+                                coursePlaces.removeAll { it.id == placeId }
+                            },
                         )
                     }
                 }
 
-                else -> {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Row(
+                            modifier = Modifier.clickable(onClick = onAddCourseClick),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = com.team_daytodo.daytodo.feature.today.R.drawable.ic_plus,
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Unspecified,
+                            )
+                            Text(
+                                text = "코스 추가",
+                                style = DayTodoTheme.typography.label2,
+                                color = DayTodoTheme.colors.brandPrimary,
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 56.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(color = DayTodoTheme.colors.brandPrimary)
+                                .clickable(onClick = onAddPlaceClick),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "코스 종료하기",
+                                style = DayTodoTheme.typography.label2,
+                                color = DayTodoTheme.colors.textQuaternary
+                            )
+                        }
+                    }
+                }
+            } else {
+                item {
                     MemoryPhotoGrid(
                         photoCount = 8,
                         modifier = Modifier
