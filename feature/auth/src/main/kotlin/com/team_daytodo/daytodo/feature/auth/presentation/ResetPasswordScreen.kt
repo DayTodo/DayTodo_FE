@@ -25,6 +25,7 @@ import com.team_daytodo.daytodo.feature.auth.presentation.component.AuthIntroSec
 import com.team_daytodo.daytodo.feature.auth.presentation.component.AuthPasswordTextField
 import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextFieldColors
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.component.DayTodoSimpleHeader
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import com.team_daytodo.daytodo.uikit.theme.pretendardFontFamily
@@ -51,6 +52,11 @@ fun ResetPasswordScreen(
             unfocusedBorder = borderColor,
         )
     } ?: inputColors
+    val resetButtonState = when {
+        uiState.isLoading -> DayTodoNextStepButtonState.Loading
+        uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+        else -> DayTodoNextStepButtonState.Incomplete
+    }
 
     Box(
         modifier = modifier
@@ -120,8 +126,7 @@ fun ResetPasswordScreen(
 
         DayTodoNextStepButton(
             text = "변경하기",
-            enabled = uiState.canSubmit,
-            allowDisabledClick = true,
+            state = resetButtonState,
             onClick = onResetClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

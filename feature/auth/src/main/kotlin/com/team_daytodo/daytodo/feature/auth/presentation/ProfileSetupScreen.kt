@@ -45,6 +45,7 @@ import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextField
 import com.team_daytodo.daytodo.uikit.component.DayTodoCircleAddIcon
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,6 +60,12 @@ fun ProfileSetupScreen(
     onSubmitClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val submitButtonState = when {
+        uiState.isLoading -> DayTodoNextStepButtonState.Loading
+        uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+        else -> DayTodoNextStepButtonState.Incomplete
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -113,8 +120,7 @@ fun ProfileSetupScreen(
 
         DayTodoNextStepButton(
             text = "설정하기",
-            enabled = uiState.canSubmit,
-            allowDisabledClick = true,
+            state = submitButtonState,
             onClick = onSubmitClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

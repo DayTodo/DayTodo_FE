@@ -31,8 +31,11 @@ data class SignupUiState(
 
 fun SignupUiState.invalidInputMessage(): String =
     when {
+        email.isBlank() -> "이메일을 입력해주세요"
         !isEmailValid -> "올바른 이메일을 입력해 주세요."
+        password.isBlank() -> "비밀번호를 입력해주세요"
         !isPasswordPolicySatisfied -> "비밀번호는 영문과 숫자를 포함해 8자 이상이어야 해요."
+        passwordConfirm.isBlank() -> "비밀번호 확인을 입력해주세요"
         !isPasswordMatched -> "비밀번호 확인이 일치하지 않아요."
         !agreedToTerms -> "이용약관 및 개인정보처리방침에 동의해 주세요."
         else -> "입력값을 다시 확인해 주세요."

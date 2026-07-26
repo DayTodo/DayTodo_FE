@@ -44,6 +44,7 @@ import com.team_daytodo.daytodo.feature.auth.presentation.component.AuthPassword
 import com.team_daytodo.daytodo.uikit.component.DayTodoAuthCheckbox
 import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextField
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.component.DayTodoSimpleHeader
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
@@ -60,6 +61,12 @@ fun LoginScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val loginButtonState = when {
+        uiState.isLoading -> DayTodoNextStepButtonState.Loading
+        uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+        else -> DayTodoNextStepButtonState.Incomplete
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -129,7 +136,7 @@ fun LoginScreen(
 
         DayTodoNextStepButton(
             text = "로그인",
-            enabled = uiState.canSubmit,
+            state = loginButtonState,
             onClick = onLoginClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

@@ -26,6 +26,7 @@ import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextField
 import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextFieldColors
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -42,6 +43,11 @@ fun SignupScreen(
     modifier: Modifier = Modifier,
 ) {
     val inputColors = DayTodoAuthTextFieldColors.filledWhenUnfocused()
+    val signupButtonState = when {
+        uiState.isLoading -> DayTodoNextStepButtonState.Loading
+        uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+        else -> DayTodoNextStepButtonState.Incomplete
+    }
 
     Box(
         modifier = modifier
@@ -124,8 +130,7 @@ fun SignupScreen(
 
         DayTodoNextStepButton(
             text = "가입하기",
-            enabled = uiState.canSubmit,
-            allowDisabledClick = true,
+            state = signupButtonState,
             onClick = onSignupClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)

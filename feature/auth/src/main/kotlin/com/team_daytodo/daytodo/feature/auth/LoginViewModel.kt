@@ -6,6 +6,7 @@ import com.team_daytodo.daytodo.domain.auth.model.LoginRequest
 import com.team_daytodo.daytodo.domain.auth.usecase.LoginUseCase
 import com.team_daytodo.daytodo.feature.auth.model.LoginEvent
 import com.team_daytodo.daytodo.feature.auth.model.LoginUiState
+import com.team_daytodo.daytodo.feature.auth.model.invalidInputMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,13 +46,23 @@ class LoginViewModel @Inject constructor(
 
     fun login() {
         val currentState = _uiState.value
-        if (!currentState.canSubmit) return
+        if (currentState.isLoading) return
+        if (!currentState.canSubmit) {
+            showMessage(currentState.invalidInputMessage())
+            return
+        }
 
         loginWith(
             email = currentState.email,
             password = currentState.password,
             keepLoggedIn = currentState.keepLoggedIn,
         )
+    }
+
+    private fun showMessage(message: String) {
+        viewModelScope.launch {
+            _event.emit(LoginEvent.ShowMessage(message))
+        }
     }
 
     fun loginWithNaver() {

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 private val ScreenHorizontalPadding = 20.dp
@@ -64,7 +65,11 @@ fun InviteCodeJoinScreen(
 
         DayTodoNextStepButton(
             text = "입장하기",
-            enabled = hasInviteCode,
+            state = if (hasInviteCode) {
+                DayTodoNextStepButtonState.Enabled
+            } else {
+                DayTodoNextStepButtonState.Disabled
+            },
             onClick = { onEnterClick(inviteCode) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
