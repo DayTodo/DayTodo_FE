@@ -27,6 +27,25 @@ enum class DayTodoNextStepButtonState {
 @Composable
 fun DayTodoNextStepButton(
     text: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    DayTodoNextStepButton(
+        text = text,
+        state = if (enabled) {
+            DayTodoNextStepButtonState.Enabled
+        } else {
+            DayTodoNextStepButtonState.Disabled
+        },
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun DayTodoNextStepButton(
+    text: String,
     state: DayTodoNextStepButtonState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
