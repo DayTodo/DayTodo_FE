@@ -1,5 +1,6 @@
 [versions]
 agp = "9.1.0"
+android-kakao-maps = "2.14.0"
 kotlin = "2.3.21"
 ksp = "2.3.9"
 composeBom = "2026.06.00"
@@ -24,6 +25,7 @@ desugarJdkLibs = "2.1.5"
 reorderable = "3.1.0"
 
 [libraries]
+android-kakao-maps = { module = "com.kakao.maps.open:android", version.ref = "android-kakao-maps" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }

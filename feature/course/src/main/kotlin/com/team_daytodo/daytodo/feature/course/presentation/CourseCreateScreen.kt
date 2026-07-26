@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +36,7 @@ import com.team_daytodo.daytodo.feature.course.model.CourseCreatePhase
 import com.team_daytodo.daytodo.feature.course.model.CourseCreateStep
 import com.team_daytodo.daytodo.feature.course.model.CourseCreateUiState
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.screenHorizontalPadding
-import com.team_daytodo.daytodo.feature.course.presentation.component.BudgetTextField
+import com.team_daytodo.daytodo.feature.course.presentation.component.CourseBudgetRangeFields
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseCreateProgressIndicator
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseDatePickerDialog
 import com.team_daytodo.daytodo.feature.course.presentation.component.CourseLocationDialog
@@ -52,7 +49,6 @@ import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreat
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.fieldContentColor
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.progressColor
 import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.secondaryTextColor
-import com.team_daytodo.daytodo.feature.course.presentation.defaults.CourseCreateDefaults.sundayColor
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
@@ -121,8 +117,7 @@ private fun CourseCreateInputFlow(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(DayTodoTheme.colors.backgroundDefault)
-            .statusBarsPadding(),
+            .background(DayTodoTheme.colors.backgroundDefault),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             DayTodoHeaderSection(
@@ -189,7 +184,6 @@ private fun CourseCreateInputFlow(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
                 .padding(horizontal = screenHorizontalPadding)
                 .padding(bottom = buttonBottomPadding),
         )
@@ -328,37 +322,13 @@ private fun BudgetStep(
     errorMessage: String?,
 ) {
     InputStepLayout(title = "코스 예산을\n설정해 주세요") {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            BudgetTextField(
-                value = minBudgetDigits,
-                onValueChange = onMinBudgetChange,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(modifier = Modifier.width(24.dp))
-            Icon(
-                painter = painterResource(id = R.drawable.ic_tilde),
-                contentDescription = null,
-                tint = fieldContentColor,
-                modifier = Modifier.size(16.dp),
-            )
-            Spacer(modifier = Modifier.width(24.dp))
-            BudgetTextField(
-                value = maxBudgetDigits,
-                onValueChange = onMaxBudgetChange,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        if (errorMessage != null) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = errorMessage,
-                style = DayTodoTheme.typography.caption2.copy(letterSpacing = 0.sp),
-                color = sundayColor,
-            )
-        }
+        CourseBudgetRangeFields(
+            minBudgetDigits = minBudgetDigits,
+            onMinBudgetChange = onMinBudgetChange,
+            maxBudgetDigits = maxBudgetDigits,
+            onMaxBudgetChange = onMaxBudgetChange,
+            errorMessage = errorMessage,
+        )
     }
 }
 

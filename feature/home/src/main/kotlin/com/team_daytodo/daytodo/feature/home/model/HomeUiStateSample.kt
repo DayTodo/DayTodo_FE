@@ -1,7 +1,7 @@
 package com.team_daytodo.daytodo.feature.home.model
 
 import com.team_daytodo.daytodo.core.model.Relationship
-import com.team_daytodo.daytodo.feature.home.R
+import com.team_daytodo.daytodo.uikit.R
 
 internal fun sampleHomeUiState(): HomeUiState =
     HomeUiState(

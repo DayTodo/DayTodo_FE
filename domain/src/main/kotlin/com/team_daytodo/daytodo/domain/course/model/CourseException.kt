@@ -9,6 +9,10 @@ class InvalidCourseCreateRequestException(
     message: String,
 ) : CourseException(message)
 
+class InvalidCourseEditRequestException(
+    message: String,
+) : CourseException(message)
+
 class CourseRegionLoadException(
     cause: Throwable? = null,
 ) : CourseException(

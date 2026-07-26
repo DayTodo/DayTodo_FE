@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -31,7 +32,8 @@ fun DayTodoHeaderSection(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 20.dp,
-    verticalPadding: Dp = 10.dp
+    verticalPadding: Dp = 10.dp,
+    rightContent: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -66,6 +68,13 @@ fun DayTodoHeaderSection(
                 ),
                 color = Color(0xFF616166),
             )
+            if (rightContent != null) {
+                Box(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    contentAlignment = Alignment.Center,
+                    content = rightContent,
+                )
+            }
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),

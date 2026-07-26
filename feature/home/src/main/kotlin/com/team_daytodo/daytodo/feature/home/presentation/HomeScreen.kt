@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -48,7 +47,10 @@ fun HomeScreen(
             }
             item { Spacer(modifier = Modifier.height(20.dp)) }
             item {
-                TodayCourseSection(todayCourse = uiState.todayCourse)
+                TodayCourseSection(
+                    todayCourse = uiState.todayCourse,
+                    onTodayCourseClick = onNavigateToCourseList,
+                )
             }
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item {
@@ -70,7 +72,6 @@ fun HomeScreen(
         HomeFloatingActionButton(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .navigationBarsPadding()
                 .padding(end = 20.dp, bottom = 148.dp),
             onCreateCourseClick = onNavigateToCourseCreate,
             onJoinCourseClick = onNavigateToCourseJoin,

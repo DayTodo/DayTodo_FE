@@ -29,7 +29,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.home.R
 import com.team_daytodo.daytodo.feature.home.model.HomeMagazineUiModel
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -126,7 +125,7 @@ private fun PreviewMagazineCard() {
             title = "비 오는 날에 딱 맞는 실내 데이트",
             location = "서울 성수",
             description = "날씨에 흔들리지 않는 전시, 카페, 작은 식당 코스를 골라봤어요.",
-            imageRes = R.drawable.ic_symbol,
+            imageRes = UIKitR.drawable.ic_symbol,
         ),
         onClick = {},
     )

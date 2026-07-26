@@ -16,8 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.home.R
 import com.team_daytodo.daytodo.feature.home.model.CourseMember
+import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -57,7 +57,7 @@ fun PreviewCourseMemberProfile() {
     CourseMemberProfile(
         member = CourseMember(
             name = "민지",
-            profileImage = R.drawable.ic_symbol
+            profileImage = UIKitR.drawable.ic_symbol
         )
     )
 }

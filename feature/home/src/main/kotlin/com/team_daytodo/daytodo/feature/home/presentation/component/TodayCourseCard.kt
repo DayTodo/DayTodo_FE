@@ -7,16 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.home.R
+import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.feature.home.model.CourseMember
 import com.team_daytodo.daytodo.feature.home.model.TodayCourse
@@ -25,11 +27,16 @@ import com.team_daytodo.daytodo.feature.home.presentation.courseCompanionLabel
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
-internal fun TodayCourseCard(todayCourse: TodayCourse) {
+internal fun TodayCourseCard(
+    todayCourse: TodayCourse,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(99.dp),
+            .height(99.dp)
+            .clickable(role = Role.Button, onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = todayCourse.relationship.accentColor(),
     ) {
@@ -75,9 +82,9 @@ private fun PreviewTodayCourseCard() {
             title = "성수 감성 산책",
             relationship = Relationship.FRIEND,
             members = listOf(
-                CourseMember(name = "민지", profileImage = R.drawable.ic_symbol),
-                CourseMember(name = "서연", profileImage = R.drawable.ic_symbol),
-                CourseMember(name = "하윤", profileImage = R.drawable.ic_symbol),
+                CourseMember(name = "민지", profileImage = UIKitR.drawable.ic_symbol),
+                CourseMember(name = "서연", profileImage = UIKitR.drawable.ic_symbol),
+                CourseMember(name = "하윤", profileImage = UIKitR.drawable.ic_symbol),
             ),
         ),
     )
