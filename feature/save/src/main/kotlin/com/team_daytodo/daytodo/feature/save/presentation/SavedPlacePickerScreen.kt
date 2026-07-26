@@ -20,6 +20,7 @@ import com.team_daytodo.daytodo.feature.save.presentation.component.SavedPlaceGr
 import com.team_daytodo.daytodo.feature.save.presentation.component.SavedPlaceSortBar
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
+import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -75,7 +76,11 @@ fun SavedPlacePickerScreen(
 
         DayTodoNextStepButton(
             text = "장소 불러오기",
-            enabled = uiState.canImport,
+            state = when {
+                uiState.isLoading -> DayTodoNextStepButtonState.Loading
+                uiState.canImport -> DayTodoNextStepButtonState.Enabled
+                else -> DayTodoNextStepButtonState.Disabled
+            },
             onClick = onImportClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
