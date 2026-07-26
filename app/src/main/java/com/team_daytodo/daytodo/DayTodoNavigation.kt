@@ -25,10 +25,8 @@ import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
 import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
-import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
 import com.team_daytodo.daytodo.feature.home.HomeRoute
-import com.team_daytodo.daytodo.feature.mypage.MypageScreen
 import com.team_daytodo.daytodo.feature.save.SaveRoute
 import com.team_daytodo.daytodo.feature.save.SavedPlacePickerRoute
 import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph

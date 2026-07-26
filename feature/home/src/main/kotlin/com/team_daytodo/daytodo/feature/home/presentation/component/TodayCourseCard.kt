@@ -22,8 +22,8 @@ import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.feature.home.model.CourseMember
 import com.team_daytodo.daytodo.feature.home.model.TodayCourse
-import com.team_daytodo.daytodo.feature.home.presentation.accentColor
 import com.team_daytodo.daytodo.feature.home.presentation.courseCompanionLabel
+import com.team_daytodo.daytodo.feature.home.presentation.homeRelationshipColors
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -32,13 +32,15 @@ internal fun TodayCourseCard(
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val colors = todayCourse.relationship.homeRelationshipColors()
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(99.dp)
             .clickable(role = Role.Button, onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = todayCourse.relationship.accentColor(),
+        color = colors.background,
     ) {
         Box(
             modifier = Modifier
