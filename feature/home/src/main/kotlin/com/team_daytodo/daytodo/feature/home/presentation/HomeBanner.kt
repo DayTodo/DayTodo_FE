@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.TurnedIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,7 +85,7 @@ internal fun HomeBanner(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 HomeHeaderActionButton(
-                    iconResId = R.drawable.ic_bookmark,
+                    icon = Icons.Filled.TurnedIn,
                     contentDescription = "저장한 항목 보기",
                     onClick = onBookmarkClick,
                 )
@@ -113,6 +116,25 @@ private fun LocationText(text: String) {
         style = DayTodoTheme.typography.label3,
         color = lineColor,
     )
+}
+
+@Composable
+private fun HomeHeaderActionButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        modifier = Modifier.size(32.dp),
+        onClick = onClick,
+    ) {
+        Icon(
+            modifier = Modifier.size(24.dp),
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = DayTodoTheme.colors.iconOnColor,
+        )
+    }
 }
 
 @Composable
