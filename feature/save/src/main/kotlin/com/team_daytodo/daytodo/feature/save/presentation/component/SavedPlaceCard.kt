@@ -5,9 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -44,26 +44,26 @@ internal fun SavedPlaceCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(243.dp)
+            .heightIn(min = SavedPlaceCardMinHeight)
             .clip(cardShape)
             .dayTodoPressedScaleClickable(
                 role = Role.Button,
                 onClick = onClick,
             ),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             SavedPlaceImage(
                 place = place,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(161.dp),
+                    .height(SavedPlaceImageHeight),
             )
             SavedPlaceInfo(
                 place = place,
                 selected = selected,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(82.dp),
+                    .heightIn(min = SavedPlaceInfoMinHeight),
             )
         }
 
@@ -175,3 +175,7 @@ private fun MagazinePlace.placeholderBrush(): Brush {
 
     return Brush.verticalGradient(colors)
 }
+
+private val SavedPlaceImageHeight = 161.dp
+private val SavedPlaceInfoMinHeight = 82.dp
+private val SavedPlaceCardMinHeight = SavedPlaceImageHeight + SavedPlaceInfoMinHeight
