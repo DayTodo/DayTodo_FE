@@ -24,10 +24,12 @@ fun DayTodoApp() {
     var hasTodaySchedule by rememberSaveable { mutableStateOf(true) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomNavigation = currentRoute !in setOf(
+    val routesWithoutBottomNavigation = DayTodoRoute.AuthRoutes + setOf(
         DayTodoRoute.CourseCreate,
         DayTodoRoute.CourseJoin,
     )
+    val showBottomNavigation = currentRoute != null &&
+        currentRoute !in routesWithoutBottomNavigation
 
     Box(modifier = Modifier.fillMaxSize()) {
         DayTodoNavHost(

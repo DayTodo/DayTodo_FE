@@ -3,9 +3,16 @@ package com.team_daytodo.daytodo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.team_daytodo.daytodo.feature.auth.FindPasswordRoute
+import com.team_daytodo.daytodo.feature.auth.LoginRoute
+import com.team_daytodo.daytodo.feature.auth.ProfileSetupRoute
+import com.team_daytodo.daytodo.feature.auth.ResetPasswordRoute
+import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.presentation.CourseScreen
@@ -24,8 +31,71 @@ internal fun DayTodoNavHost(
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = DayTodoRoute.Home,
+        startDestination = DayTodoRoute.Login,
     ) {
+        composable(DayTodoRoute.Login) {
+            LoginRoute(
+                onNavigateToSignup = { navController.navigateSingleTopTo(DayTodoRoute.Signup) },
+                onNavigateToFindPassword = {
+                    navController.navigateSingleTopTo(DayTodoRoute.FindPassword)
+                },
+                onLoginCompleted = { needsProfileSetup ->
+                    if (needsProfileSetup) {
+                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
+                    } else {
+                        navController.navigateToHomeClearingAuth()
+                    }
+                },
+            )
+        }
+        composable(DayTodoRoute.Signup) {
+            SignupRoute(
+                onBackClick = { navController.popBackStack() },
+                onSignupCompleted = { needsProfileSetup ->
+                    if (needsProfileSetup) {
+                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
+                    } else {
+                        navController.navigateToHomeClearingAuth()
+                    }
+                },
+            )
+        }
+        composable(DayTodoRoute.FindPassword) {
+            FindPasswordRoute(
+                onBackClick = { navController.popBackStack() },
+                onVerificationCompleted = { verificationToken ->
+                    navController.navigateSingleTopTo(
+                        DayTodoRoute.resetPasswordRoute(verificationToken),
+                    )
+                },
+            )
+        }
+        composable(
+            route = DayTodoRoute.ResetPassword,
+            arguments = listOf(
+                navArgument(DayTodoRoute.ResetPasswordTokenArg) {
+                    type = NavType.StringType
+                },
+            ),
+        ) { backStackEntry ->
+            ResetPasswordRoute(
+                verificationToken = backStackEntry.arguments
+                    ?.getString(DayTodoRoute.ResetPasswordTokenArg)
+                    .orEmpty(),
+                onPasswordResetCompleted = {
+                    navController.popBackStack(
+                        route = DayTodoRoute.Login,
+                        inclusive = false,
+                    )
+                },
+            )
+        }
+        composable(DayTodoRoute.ProfileSetup) {
+            ProfileSetupRoute(
+                onBackClick = { navController.navigateToHomeClearingAuth() },
+                onProfileSaved = { navController.navigateToHomeClearingAuth() },
+            )
+        }
         composable(DayTodoRoute.Home) {
             HomeRoute(
                 onNavigateToSave = { navController.navigateSingleTopTo(DayTodoRoute.Save) },
@@ -73,6 +143,15 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Mypage) {
             MypageScreen()
         }
+    }
+}
+
+private fun NavHostController.navigateToHomeClearingAuth() {
+    navigate(DayTodoRoute.Home) {
+        popUpTo(DayTodoRoute.Login) {
+            inclusive = true
+        }
+        launchSingleTop = true
     }
 }
 
