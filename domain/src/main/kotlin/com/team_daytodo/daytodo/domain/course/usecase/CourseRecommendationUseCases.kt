@@ -6,6 +6,7 @@ import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
 import com.team_daytodo.daytodo.domain.course.model.CourseSummary
 import com.team_daytodo.daytodo.domain.course.model.CourseUpdateRequest
 import com.team_daytodo.daytodo.domain.course.model.InvalidCourseEditRequestException
+import com.team_daytodo.daytodo.domain.course.model.PlaceRecommender
 import com.team_daytodo.daytodo.domain.course.model.validateForUpdateOrNull
 import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
 import javax.inject.Inject
@@ -59,6 +60,45 @@ class RecommendPlaceUseCase @Inject constructor(
         placeId: String,
     ): Result<CourseDetail> =
         courseRepository.recommendPlace(courseId, placeId)
+}
+
+class ImportSavedPlacesToCourseUseCase @Inject constructor(
+    private val courseRepository: CourseRepository,
+) {
+    suspend operator fun invoke(
+        courseId: String,
+        placeIds: List<String>,
+    ): Result<CourseDetail> =
+        runCatching {
+            val normalizedPlaceIds = placeIds
+                .map(String::trim)
+                .filter(String::isNotBlank)
+                .distinct()
+
+            require(normalizedPlaceIds.isNotEmpty()) {
+                "불러올 장소를 선택해주세요."
+            }
+
+            val currentDetail = courseRepository.getCourseDetail(courseId).getOrThrow()
+            val alreadyRecommendedPlaceIds = currentDetail.recommendedPlaces
+                .filter { recommendation ->
+                    val recommender = recommendation.recommender as? PlaceRecommender.Member
+                    recommender?.memberId == currentDetail.currentMemberId
+                }
+                .mapTo(mutableSetOf()) { recommendation -> recommendation.place.id }
+
+            val newPlaceIds = normalizedPlaceIds.filterNot(alreadyRecommendedPlaceIds::contains)
+            if (newPlaceIds.isEmpty()) {
+                throw AlreadyRecommendedSavedPlaceException()
+            }
+
+            newPlaceIds.fold(currentDetail) { _, placeId ->
+                courseRepository.recommendPlace(courseId, placeId).getOrThrow()
+            }
+        }
+
+    class AlreadyRecommendedSavedPlaceException :
+        IllegalStateException("이미 추가된 장소예요")
 }
 
 class ToggleCoursePlaceUseCase @Inject constructor(
