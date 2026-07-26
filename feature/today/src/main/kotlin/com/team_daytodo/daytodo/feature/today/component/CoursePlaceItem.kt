@@ -1,5 +1,7 @@
 package com.team_daytodo.daytodo.feature.today.component
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -30,7 +34,22 @@ fun CoursePlaceItem(
     order: Int,
     place: CoursePlace,
     modifier: Modifier = Modifier,
+    isDragging: Boolean = false,
+    dragHandleModifier: Modifier = Modifier,
 ) {
+    val elevation by animateDpAsState(
+        targetValue = if (isDragging) 8.dp else 0.dp,
+        label = "CoursePlaceItemElevation",
+    )
+    val containerColor by animateColorAsState(
+        targetValue = if (isDragging) {
+            DayTodoTheme.colors.backgroundTertiary
+        } else {
+            DayTodoTheme.colors.backgroundSecondary
+        },
+        label = "CoursePlaceItemContainerColor",
+    )
+
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -39,14 +58,16 @@ fun CoursePlaceItem(
         Icon(
             painter = painterResource(id = R.drawable.ic_drag_indicator),
             contentDescription = "항목 순서 변경",
+            modifier = dragHandleModifier,
         )
 
         Row(
             modifier = Modifier
                 .weight(1f)
                 .height(66.dp)
+                .shadow(elevation = elevation, shape = RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
-                .background(color = DayTodoTheme.colors.backgroundSecondary)
+                .background(color = containerColor)
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

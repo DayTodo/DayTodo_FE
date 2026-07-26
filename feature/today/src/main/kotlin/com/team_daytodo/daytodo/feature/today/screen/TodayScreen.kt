@@ -31,9 +31,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +51,8 @@ import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.feature.today.model.TodayTab
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
+import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableItem
 
 @Composable
 fun TodayScreen(
@@ -64,6 +68,8 @@ fun TodayScreen(
     var selectedTab by remember {
         mutableStateOf(if (startWithMemoryTab) TodayTab.MEMORY else TodayTab.COURSE)
     }
+
+    val coursePlaces = remember(places) { places.toMutableStateList() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -158,11 +164,23 @@ fun TodayScreen(
                         modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
                     )
 
-                    Column(
+                    ReorderableColumn(
+                        list = coursePlaces,
+                        onSettle = { fromIndex, toIndex ->
+                            coursePlaces.add(toIndex, coursePlaces.removeAt(fromIndex))
+                        },
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        places.forEachIndexed { index, place ->
-                            CoursePlaceItem(order = index + 1, place = place)
+                    ) { index, place, isDragging ->
+                        key(place.id) {
+                            ReorderableItem {
+                                CoursePlaceItem(
+                                    order = index + 1,
+                                    place = place,
+                                    isDragging = isDragging,
+                                    dragHandleModifier = Modifier.draggableHandle(),
+                                )
+                            }
                         }
                     }
 
@@ -252,7 +270,6 @@ private fun MemoryPhotoGrid(
                 Box(
                     modifier = Modifier
                         .size(itemSize)
-                        .clip(RoundedCornerShape(8.dp))
                         .background(color = DayTodoTheme.colors.backgroundSecondary),
                     contentAlignment = Alignment.Center,
                 ) {
