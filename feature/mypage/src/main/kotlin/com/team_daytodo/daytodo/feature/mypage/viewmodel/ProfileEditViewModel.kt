@@ -1,15 +1,21 @@
 package com.team_daytodo.daytodo.feature.mypage.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.team_daytodo.daytodo.domain.mypage.usecase.GetMypageProfileUseCase
 import com.team_daytodo.daytodo.feature.mypage.state.ProfileEditUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ProfileEditViewModel @Inject constructor() : ViewModel() {
+class ProfileEditViewModel @Inject constructor(
+    private val getMypageProfileUseCase: GetMypageProfileUseCase,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileEditUiState(isLoading = true))
     val uiState: StateFlow<ProfileEditUiState> = _uiState.asStateFlow()
 
@@ -18,14 +24,22 @@ class ProfileEditViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun loadProfile() {
-        _uiState.value = ProfileEditUiState(
-            name = "홍길동",
-            nickname = "데이투두",
-            email = "daytodo@example.com",
-            phoneNumber = "000-0000-0000",
-            linkedAccountProvider = "네이버",
-            linkedAccountId = "daytodo@naver.com",
-            isLoading = false,
-        )
+        viewModelScope.launch {
+            getMypageProfileUseCase()
+                .onSuccess { profile ->
+                    _uiState.value = ProfileEditUiState(
+                        name = profile.name,
+                        nickname = profile.nickname,
+                        email = profile.email,
+                        phoneNumber = profile.phoneNumber,
+                        linkedAccountProvider = profile.linkedAccountProvider,
+                        linkedAccountId = profile.linkedAccountId,
+                        isLoading = false,
+                    )
+                }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
+                }
+        }
     }
 }

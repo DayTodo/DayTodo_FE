@@ -62,14 +62,13 @@ private val defaultCoursesByDate = mapOf(
 
 @Composable
 fun CalendarScreen(
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    coursesByDate: Map<LocalDate, String>,
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
-    initialSelectedDate: LocalDate = LocalDate.now(),
-    coursesByDate: Map<LocalDate, String> = defaultCoursesByDate,
 ) {
-    var selectedDate by remember { mutableStateOf(initialSelectedDate) }
-
-    val currentMonth = remember(initialSelectedDate) { YearMonth.from(initialSelectedDate) }
+    val currentMonth = remember(selectedDate) { YearMonth.from(selectedDate) }
     val firstDayOfWeek = DayOfWeek.SUNDAY
     val state = rememberCalendarState(
         startMonth = currentMonth.minusMonths(12),
@@ -143,7 +142,7 @@ fun CalendarScreen(
                         day = day,
                         isSelected = day.date == selectedDate,
                         hasCourse = coursesByDate.containsKey(day.date),
-                        onClick = { selectedDate = it },
+                        onClick = onDateSelected,
                     )
                 },
             )
@@ -268,8 +267,11 @@ private fun SelectedCourseSection(
 @Composable
 private fun CalendarScreenPreview1() {
     DayTodoTheme {
+        var selectedDate by remember { mutableStateOf(LocalDate.of(2026, 7, 18)) }
         CalendarScreen(
-            initialSelectedDate = LocalDate.of(2026, 7, 18),
+            selectedDate = selectedDate,
+            onDateSelected = { selectedDate = it },
+            coursesByDate = defaultCoursesByDate,
         )
     }
 }
@@ -284,8 +286,10 @@ private fun CalendarScreenPreview1() {
 @Composable
 private fun CalendarScreenPreview2() {
     DayTodoTheme {
+        var selectedDate by remember { mutableStateOf(LocalDate.of(2026, 7, 18)) }
         CalendarScreen(
-            initialSelectedDate = LocalDate.of(2026, 7, 18),
+            selectedDate = selectedDate,
+            onDateSelected = { selectedDate = it },
             coursesByDate = defaultCoursesByDate + (LocalDate.of(2026, 7, 18) to "프리뷰 코스"),
         )
     }
