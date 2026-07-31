@@ -26,6 +26,8 @@ data class DayTodoColors(
     val iconDisabled: Color,
     val iconOnColor: Color,
 
+    val badgeColor: Color,
+
     val backgroundDefault: Color,
     val backgroundSecondary: Color,
     val backgroundTertiary: Color,
@@ -53,6 +55,8 @@ internal val lightDayTodoColors = DayTodoColors(
     iconSelected = iconColor,
     iconDisabled = iconDisabled,
     iconOnColor = iconW,
+
+    badgeColor = badgeColor,
 
     backgroundDefault = background1,
     backgroundSecondary = background2,
