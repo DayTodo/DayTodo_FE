@@ -61,8 +61,8 @@ fun TodayScreen(
     members: List<CourseMember> = emptyList(),
     places: List<CoursePlace> = emptyList(),
     onBackClick: () -> Unit = {},
-    onAddPlaceClick: () -> Unit = {},
-    onAddCourseClick: () -> Unit = {},
+    onCompleteCourseClick: () -> Unit = {},
+    onAddCourseClick: () -> Unit = {}, // TODO: BE 미구현(시작 전) - POST /courses/{id}/places
     modifier: Modifier = Modifier,
     startWithMemoryTab: Boolean = false,
 ) {
@@ -73,6 +73,7 @@ fun TodayScreen(
     val coursePlaces = remember(places) { places.toMutableStateList() }
 
     val lazyListState = rememberLazyListState()
+    // 드래그로 화면에서만 순서를 바꾼다. TODO: BE 미구현(시작 전) - PATCH /courses/{id}/places/order
     val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
         val fromIndex = coursePlaces.indexOfFirst { it.id == from.key }
         val toIndex = coursePlaces.indexOfFirst { it.id == to.key }
@@ -243,7 +244,7 @@ fun TodayScreen(
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(color = DayTodoTheme.colors.brandPrimary)
-                                .clickable(onClick = onAddPlaceClick),
+                                .clickable(onClick = onCompleteCourseClick),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {

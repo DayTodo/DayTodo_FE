@@ -18,6 +18,7 @@ fun TodayRoute(
         hasCourse = uiState.hasCourse,
         members = uiState.members,
         places = uiState.places,
+        onCompleteCourseClick = viewModel::completeCourse,
         modifier = modifier,
     )
 }
