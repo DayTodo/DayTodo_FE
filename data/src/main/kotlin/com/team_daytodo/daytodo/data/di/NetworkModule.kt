@@ -1,5 +1,9 @@
 package com.team_daytodo.daytodo.data.di
 
+import com.team_daytodo.daytodo.core.network.NetworkConfig
+import com.team_daytodo.daytodo.core.network.UserIdAuthInterceptor
+import com.team_daytodo.daytodo.data.api.TodayApi
+import com.team_daytodo.daytodo.data.network.RetrofitFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +34,13 @@ object NetworkModule {
         }
 
         return OkHttpClient.Builder()
+            .addInterceptor(UserIdAuthInterceptor())
             .addInterceptor(loggingInterceptor)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideTodayApi(retrofitFactory: RetrofitFactory): TodayApi =
+        retrofitFactory.create(NetworkConfig.BASE_URL).create(TodayApi::class.java)
 }
