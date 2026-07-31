@@ -6,6 +6,7 @@ import com.team_daytodo.daytodo.domain.onboarding.usecase.CompleteOnboardingUseC
 import com.team_daytodo.daytodo.domain.onboarding.usecase.GetOnboardingPagesUseCase
 import com.team_daytodo.daytodo.feature.onboarding.model.OnboardingEvent
 import com.team_daytodo.daytodo.feature.onboarding.model.OnboardingUiState
+import com.team_daytodo.daytodo.feature.onboarding.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -70,7 +71,7 @@ class OnboardingViewModel @Inject constructor(
                 .onSuccess { pages ->
                     _uiState.update {
                         it.copy(
-                            pages = pages,
+                            pages = pages.map { page -> page.toUiModel() },
                             currentPageIndex = 0,
                             isLoading = false,
                         )
