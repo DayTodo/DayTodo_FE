@@ -49,7 +49,7 @@ fun HomeScreen(
             item {
                 TodayCourseSection(
                     todayCourse = uiState.todayCourse,
-                    onTodayCourseClick = onNavigateToCourseList,
+                    onTodayCourseClick = {},
                 )
             }
             item { Spacer(modifier = Modifier.height(24.dp)) }

@@ -5,11 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,23 +21,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.home.model.CreatedCourse
-import com.team_daytodo.daytodo.feature.home.presentation.accentColor
-import com.team_daytodo.daytodo.feature.home.presentation.badgeColor
-import com.team_daytodo.daytodo.feature.home.presentation.emphasisColor
+import com.team_daytodo.daytodo.feature.home.presentation.homeRelationshipColors
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
 internal fun CreatedCourseCard(course: CreatedCourse) {
+    val colors = course.relationship.homeRelationshipColors()
+
     Surface(
         modifier = Modifier
             .width(217.dp)
-            .height(99.dp),
+            .heightIn(min = CreatedCourseCardMinHeight),
         shape = RoundedCornerShape(11.dp),
-        color = course.relationship.accentColor(),
+        color = colors.background,
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.5.dp),
         ) {
             Text(
@@ -62,28 +63,32 @@ internal fun CreatedCourseCard(course: CreatedCourse) {
             ) {
                 Surface(
                     modifier = Modifier
-                        .width(44.dp)
-                        .height(20.dp),
+                        .widthIn(min = CreatedCourseMemberBadgeMinWidth)
+                        .heightIn(min = CreatedCourseMemberBadgeMinHeight),
                     shape = RoundedCornerShape(8.dp),
-                    color = course.relationship.badgeColor(),
+                    color = colors.emphasis,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "${course.memberCount}명",
                             style = DayTodoTheme.typography.caption1,
-                            color = DayTodoTheme.colors.textPrimary,
+                            color = DayTodoTheme.colors.textQuaternary,
                         )
                     }
                 }
                 Text(
                     text = course.dDay,
                     style = DayTodoTheme.typography.headlineLarge,
-                    color = course.relationship.emphasisColor(),
+                    color = colors.emphasis,
                 )
             }
         }
     }
 }
+
+private val CreatedCourseCardMinHeight = 99.dp
+private val CreatedCourseMemberBadgeMinWidth = 44.dp
+private val CreatedCourseMemberBadgeMinHeight = 20.dp
 
 @Preview
 @Composable

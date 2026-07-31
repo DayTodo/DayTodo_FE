@@ -1,11 +1,12 @@
 package com.team_daytodo.daytodo.feature.home.presentation.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,8 +23,8 @@ import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.feature.home.model.CourseMember
 import com.team_daytodo.daytodo.feature.home.model.TodayCourse
-import com.team_daytodo.daytodo.feature.home.presentation.accentColor
 import com.team_daytodo.daytodo.feature.home.presentation.courseCompanionLabel
+import com.team_daytodo.daytodo.feature.home.presentation.homeRelationshipColors
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -32,46 +33,55 @@ internal fun TodayCourseCard(
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val colors = todayCourse.relationship.homeRelationshipColors()
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(99.dp)
+            .heightIn(min = TodayCourseCardMinHeight)
             .clickable(role = Role.Button, onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = todayCourse.relationship.accentColor(),
+        color = colors.background,
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(start = 20.dp, top = 10.5.dp, end = 20.dp, bottom = 12.dp),
         ) {
             Text(
-                modifier = Modifier.align(Alignment.TopStart),
                 text = "${todayCourse.title} 코스를 함께하는 ${todayCourse.relationship.courseCompanionLabel}",
                 style = DayTodoTheme.typography.title2,
                 color = DayTodoTheme.colors.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            Spacer(modifier = Modifier.height(7.dp))
             Row(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(end = 104.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
             ) {
-                todayCourse.members.forEach { member ->
-                    CourseMemberProfile(member = member)
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    todayCourse.members.forEach { member ->
+                        CourseMemberProfile(member = member)
+                    }
                 }
+                Text(
+                    text = todayCourse.date,
+                    style = DayTodoTheme.typography.title3,
+                    color = DayTodoTheme.colors.textSecondary,
+                    maxLines = 1,
+                )
             }
-            Text(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                text = todayCourse.date,
-                style = DayTodoTheme.typography.title3,
-                color = DayTodoTheme.colors.textSecondary,
-            )
         }
     }
 }
+
+private val TodayCourseCardMinHeight = 99.dp
 
 @Preview
 @Composable

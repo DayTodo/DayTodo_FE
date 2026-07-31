@@ -5,15 +5,15 @@ enum class Relationship(
     val companionLabel: String,
     val scheduleTargetLabel: String,
 ) {
-    FRIEND(
-        label = "친구",
-        companionLabel = "친구들",
-        scheduleTargetLabel = "친구와",
-    ),
     LOVER(
         label = "연인",
         companionLabel = "연인",
         scheduleTargetLabel = "연인과",
+    ),
+    FRIEND(
+        label = "친구",
+        companionLabel = "친구들",
+        scheduleTargetLabel = "친구와",
     ),
     FAMILY(
         label = "가족",

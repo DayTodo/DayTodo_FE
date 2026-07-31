@@ -45,22 +45,26 @@ MVVM + 멀티모듈
 ```
 
 # 플로우 정리
-| 화면 이름         | 스크린 ID           | 진입 경로                         | 담당자 |
-|---------------|------------------|-------------------------------|-----|
-| 로그인 화면        | LoginScreen      | 앱 최초 진입                       | 환   |
-| 온보딩 화면        | OnboardingScreen | 회원가입 후 첫 로그인 시                | 환   |
-| 회원가입 화면       | SignupScreen     | 로그인 화면                        | 환   |
-| 매거진 화면        | MagazineScreen   | 홈 화면에서 매거진 버튼 클릭 시            | 환   |
-| 홈 화면          | HomeScreen       | 다른 화면에서 뒤로가기, 로그인 후, 바텀 네비게이션 | 환   |
-| 코스 목록 화면      | CourseListScreen | 홈 화면에서 생성한 코스 보러가기 클릭 시       | 환   |
-| 저장 화면         | SaveScreen       | 홈 화면에서 책갈피 버튼 클릭 시            | 환   |
-| 캘린더 화면        | CalendarScreen   | 홈 화면에서 캘린더 버튼 클릭 시            | 레디  |
-| 새 코스 방 만들기 화면 | MakeGroupScreen  | 홈 화면 FAB                      | 환 |
-| 초대코드 입력하기 화면  | EnterGroupScreen | 홈 화면 FAB                      | 환 |
-| 장소 추천 화면      | RecommendScreen  | 코스 목록 화면에서 아이템 클릭 시           | 환 |
-| 투데이 화면        | TodayScreen      | 바텀 네비게이션 | 레디 |
-| 기록 화면         | RecordScreen     | 바텀 네비게이션 | 레디 |
-| 마이페이지 화면      | MypageScreen     | 바텀 네비게이션 | 레디 |
+| 화면 이름         | 스크린 ID           | 진입 경로                         | 담당자 |    1차 과제 완료 여부 |
+|---------------|------------------|-------------------------------|-----|------------|
+| 로그인 화면        | LoginScreen      | 앱 최초 진입                       | 환   |    완료     |
+| 온보딩 화면        | OnboardingScreen | 회원가입 후 첫 로그인 시                | 환   |           |
+| 회원가입 화면       | SignupScreen     | 로그인 화면                        | 환   |     완료     |
+| 비밀번호 재설정 화면       | ResetPasswordScreen     | 로그인 화면                        | 환   |     완료     |
+| 프로필 설정 화면       | ProfileSetupScreen     | 첫 로그인 시                        | 환   |     완료     |
+| 매거진 화면        | MagazineScreen   | 홈 화면에서 매거진 버튼 클릭 시            | 환   |     완료     |
+| 홈 화면          | HomeScreen       | 다른 화면에서 뒤로가기, 로그인 후, 바텀 네비게이션 | 환   |    완료    |
+| 코스 목록 화면      | CourseListScreen | 홈 화면에서 생성한 코스 보러가기 클릭 시       | 환   |    완료     |
+| 저장 화면         | SaveScreen       | 홈 화면에서 책갈피 버튼 클릭 시            | 환   |    완료     |
+| 캘린더 화면        | CalendarScreen   | 홈 화면에서 캘린더 버튼 클릭 시            | 레디  |    완료    |
+| 새 코스 방 만들기 화면 | CourseCreateScreen  | 홈 화면 FAB                      | 환 |    완료    |
+| 초대코드 입력하기 화면  | InviteCodeJoinScreen | 홈 화면 FAB                      | 환 |    완료    |
+| 장소 추천 & 추가 화면      | PlaceRecommendationScreen  | 코스 목록 화면에서 아이템 클릭 시           | 환 |    완료    |
+| 코스 설정 수정 화면      | CourseEditScreen  | 장소 추천 & 추가 화면에서 우상단 수정 아이콘 클릭 시           | 환 |    완료    |
+| 장소 댓글 화면      | PlaceCommentScreen  | 장소 추천 & 추가 화면에서 아이템 댓글 클릭 시           | 환 |    완료    |
+| 투데이 화면        | TodayScreen      | 바텀 네비게이션 | 레디 |    완료    |
+| 기록 화면         | RecordScreen     | 바텀 네비게이션 | 레디 |    완료    |
+| 마이페이지 화면      | MypageScreen     | 바텀 네비게이션 | 레디 |    완료    |
 
 ```mermaid
 flowchart TD
