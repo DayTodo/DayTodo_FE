@@ -37,6 +37,7 @@ include(":domain")
 include(":data")
 
 include(":feature:auth")
+include(":feature:onboarding")
 include(":feature:home")
 include(":feature:magazine")
 include(":feature:course")

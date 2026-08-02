@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.team_daytodo.daytodo.uikit.component.DayTodoCircleAddIcon
 import com.team_daytodo.daytodo.uikit.component.DayTodoFloatingActionMenu
 import com.team_daytodo.daytodo.uikit.component.DayTodoFloatingMenuItem
+import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
 internal fun HomeFloatingActionButton(
@@ -42,14 +43,13 @@ internal fun HomeFloatingActionButton(
         },
         expandedFabContent = {
             DayTodoCircleAddIcon(
-                containerColor = HomeExpandedFabColor,
+                containerColor = DayTodoTheme.colors.iconDisabled,
             )
         },
     )
 }
 
 private val HomeCollapsedFabColor = Color(0xFF8B8AF5)
-private val HomeExpandedFabColor = Color(0xFFC3C7C5)
 
 @Preview
 @Composable

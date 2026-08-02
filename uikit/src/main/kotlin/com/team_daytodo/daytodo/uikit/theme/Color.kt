@@ -42,6 +42,8 @@ internal val iconColor = Color(0xFF8B8AF5)
 internal val iconDisabled = Color(0xFFC4C7C5)
 internal val iconW = Color(0xFFFFFFFF)
 
+internal val badgeColor = Color(0xFFC3C7C5)
+
 internal val background1 = Color(0xFFFFFFFF)
 internal val background2 = Color(0xFFF3F4F6)
 internal val background3 = Color(0xFFF8F8FF)
