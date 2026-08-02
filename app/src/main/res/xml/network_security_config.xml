@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- dev 서버(Elastic Beanstalk)가 아직 HTTPS를 제공하지 않아 해당 도메인만 한시적으로 cleartext 허용.
+         운영 서버 전환 또는 dev 서버 HTTPS 적용 시 이 예외를 제거할 것. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">daytodo-be-dev-env.eba-vsqhct9k.ap-northeast-2.elasticbeanstalk.com</domain>
+    </domain-config>
+</network-security-config>
