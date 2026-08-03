@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,12 +56,16 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
+// 뒤로가기 버튼이 없어도(onBackClick == null) 메뉴바 높이가 줄어들지 않도록
+// MypageTopBar와 동일한 최소 높이를 유지한다.
+private val TopBarMinHeight = 48.dp
+
 @Composable
 fun TodayScreen(
     hasCourse: Boolean,
     members: List<CourseMember> = emptyList(),
     places: List<CoursePlace> = emptyList(),
-    onBackClick: () -> Unit = {},
+    onBackClick: (() -> Unit)? = null,
     onAddPlaceClick: () -> Unit = {},
     onAddCourseClick: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -89,15 +94,18 @@ fun TodayScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .defaultMinSize(minHeight = TopBarMinHeight)
                 ) {
-                    IconButton(
-                        onClick = onBackClick,
-                        modifier = Modifier.align(Alignment.CenterStart),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_arrow_back_ios),
-                            contentDescription = "뒤로가기",
-                        )
+                    if (onBackClick != null) {
+                        IconButton(
+                            onClick = onBackClick,
+                            modifier = Modifier.align(Alignment.CenterStart),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow_back_ios),
+                                contentDescription = "뒤로가기",
+                            )
+                        }
                     }
                     Text(
                         text = if (selectedTab == TodayTab.MEMORY) "추억 저장하기" else "투데이 코스",

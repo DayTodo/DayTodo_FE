@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,10 +33,14 @@ import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import java.time.LocalDate
 
+// 뒤로가기 버튼이 없어도(onBackClick == null) 메뉴바 높이가 줄어들지 않도록
+// MypageTopBar와 동일한 최소 높이를 유지한다.
+private val TopBarMinHeight = 48.dp
+
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
-    onBackClick: () -> Unit = {},
+    onBackClick: (() -> Unit)? = null,
     onDateClick: (LocalDate) -> Unit = {},
     onPreviousMonth: () -> Unit = {},
     onNextMonth: () -> Unit = {},
@@ -50,15 +55,21 @@ fun RecordScreen(
         containerColor = DayTodoTheme.colors.backgroundDefault,
         topBar = {
             Column {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    IconButton(
-                        onClick = onBackClick,
-                        modifier = Modifier.align(Alignment.CenterStart),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "뒤로가기",
-                        )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = TopBarMinHeight),
+                ) {
+                    if (onBackClick != null) {
+                        IconButton(
+                            onClick = onBackClick,
+                            modifier = Modifier.align(Alignment.CenterStart),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_back),
+                                contentDescription = "뒤로가기",
+                            )
+                        }
                     }
                     Text(
                         text = "기록",
