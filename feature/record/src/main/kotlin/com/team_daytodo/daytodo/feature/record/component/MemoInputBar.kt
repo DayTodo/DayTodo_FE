@@ -34,7 +34,7 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 /**
  * 하단 고정 메모 입력창.
  *
- * - "작성하기" placeholder 를 가진 알약형 입력 필드 + 우측 전송 버튼
+ * - "작성하기" placeholder 를 가진 입력 필드([MemoItem]과 동일한 12dp 라운드 사각형) + 우측 전송 버튼
  * - 입력 필드 영역 클릭 시 [focusRequester] 로 포커스를 이동하고 키보드를 표시
  * - 키보드의 Send 액션 또는 전송 버튼으로 [onSubmit] 호출
  *
@@ -64,7 +64,7 @@ fun MemoInputBar(
             modifier = Modifier
                 .weight(1f)
                 .height(55.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(DayTodoTheme.colors.backgroundSecondary)
                 .clickable {
                     focusRequester.requestFocus()
