@@ -78,6 +78,7 @@ fun ProfileEditScreen(
             LinkedAccountSection(
                 providerName = uiState.linkedAccountProvider,
                 accountId = uiState.linkedAccountId,
+                isLinked = uiState.isAccountLinked,
                 onUnlinkClick = onUnlinkAccountClick,
             )
 

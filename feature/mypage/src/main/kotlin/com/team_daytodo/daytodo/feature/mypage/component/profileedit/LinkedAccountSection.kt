@@ -26,6 +26,7 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 fun LinkedAccountSection(
     providerName: String,
     accountId: String,
+    isLinked: Boolean,
     onUnlinkClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -66,25 +67,37 @@ fun LinkedAccountSection(
                         color = DayTodoTheme.colors.textPrimary,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isLinked) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = CONNECTED_LABEL,
+                                style = DayTodoTheme.typography.caption2,
+                                color = DayTodoTheme.colors.textPrimary,
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = accountId,
+                                style = DayTodoTheme.typography.caption2,
+                                color = DayTodoTheme.colors.textPrimary,
+                            )
+                        }
+                    } else {
                         Text(
-                            text = CONNECTED_LABEL,
-                            style = DayTodoTheme.typography.caption2,
-                            color = DayTodoTheme.colors.textPrimary,
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = accountId,
+                            text = DISCONNECTED_LABEL,
                             style = DayTodoTheme.typography.caption2,
                             color = DayTodoTheme.colors.textPrimary,
                         )
                     }
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                ProfileGreyButton(text = "연동 해제", onClick = onUnlinkClick)
+                ProfileGreyButton(
+                    text = if (isLinked) "연동 해제" else "연동하기",
+                    onClick = onUnlinkClick,
+                )
             }
         }
     }
 }
 
 private const val CONNECTED_LABEL = "연동됨"
+private const val DISCONNECTED_LABEL = "연동 되지 않음"

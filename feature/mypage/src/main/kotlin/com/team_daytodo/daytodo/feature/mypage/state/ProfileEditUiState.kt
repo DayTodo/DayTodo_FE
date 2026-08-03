@@ -7,6 +7,7 @@ data class ProfileEditUiState(
     val phoneNumber: String = "",
     val linkedAccountProvider: String = "",
     val linkedAccountId: String = "",
+    val isAccountLinked: Boolean = true,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
