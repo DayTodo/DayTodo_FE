@@ -166,7 +166,9 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Calendar) {
-            CalendarScreen()
+            CalendarScreen(
+                onBackClick = { navController.popBackStack() },
+            )
         }
         composable(DayTodoRoute.Course) {
             CourseListRoute(
