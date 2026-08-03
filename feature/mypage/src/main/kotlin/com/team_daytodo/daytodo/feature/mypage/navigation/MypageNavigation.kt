@@ -8,12 +8,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.team_daytodo.daytodo.feature.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.feature.mypage.screen.MypageScreen
+import com.team_daytodo.daytodo.feature.mypage.screen.PhoneChangeRoute
 import com.team_daytodo.daytodo.feature.mypage.screen.ProfileEditRoute
 import com.team_daytodo.daytodo.feature.mypage.viewmodel.MypageViewModel
 
 object MypageRoute {
     const val Mypage = "mypage"
     const val ProfileEdit = "mypage/profile-edit"
+    const val PhoneChange = "mypage/phone-change"
 }
 
 fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
@@ -31,6 +33,12 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
     }
     composable(MypageRoute.ProfileEdit) {
         ProfileEditRoute(
+            onBackClick = { navController.popBackStack() },
+            onChangePhoneClick = { navController.navigate(MypageRoute.PhoneChange) },
+        )
+    }
+    composable(MypageRoute.PhoneChange) {
+        PhoneChangeRoute(
             onBackClick = { navController.popBackStack() },
         )
     }
