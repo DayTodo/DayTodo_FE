@@ -25,7 +25,7 @@ import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
 import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
-import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
+import com.team_daytodo.daytodo.feature.record.navigation.recordNavGraph
 import com.team_daytodo.daytodo.feature.home.HomeRoute
 import com.team_daytodo.daytodo.feature.onboarding.OnboardingGateRoute
 import com.team_daytodo.daytodo.feature.onboarding.OnboardingRoute
@@ -300,11 +300,7 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Today) {
             TodayRoute()
         }
-        composable(DayTodoRoute.Record) {
-            RecordNavHost()
-        }
-        // 마이페이지("mypage") + 프로필 관리 라우트를 함께 등록한다.
-        // MypageRoute.Mypage 값이 DayTodoRoute.Mypage 와 같아 바텀 네비와 그대로 호환된다.
+        recordNavGraph(navController)
         mypageNavGraph(navController)
     }
 }

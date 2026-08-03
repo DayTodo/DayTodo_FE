@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.team_daytodo.daytodo.feature.mypage.navigation.MypageRoute
+import com.team_daytodo.daytodo.feature.record.navigation.RecordRoute
 
 @Composable
 fun DayTodoApp() {
@@ -33,6 +35,11 @@ fun DayTodoApp() {
         DayTodoRoute.PlaceComment,
         DayTodoRoute.Save,
         DayTodoRoute.MagazineDetail,
+        DayTodoRoute.Calendar,
+        MypageRoute.ProfileEdit,
+        MypageRoute.PhoneChange,
+        RecordRoute.PhotoSelect,
+        RecordRoute.Memo,
     )
     val showBottomNavigation = currentRoute != null &&
         currentRoute !in routesWithoutBottomNavigation
