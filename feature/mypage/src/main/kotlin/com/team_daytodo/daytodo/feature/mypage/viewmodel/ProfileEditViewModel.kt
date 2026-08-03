@@ -23,6 +23,10 @@ class ProfileEditViewModel @Inject constructor(
         loadProfile()
     }
 
+    fun onToggleAccountLinkClick() {
+        _uiState.update { it.copy(isAccountLinked = !it.isAccountLinked) }
+    }
+
     private fun loadProfile() {
         viewModelScope.launch {
             getMypageProfileUseCase()
