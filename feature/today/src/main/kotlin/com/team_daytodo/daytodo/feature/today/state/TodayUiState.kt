@@ -10,4 +10,6 @@ data class TodayUiState(
     val places: List<CoursePlace> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val selectedMemoryPhotoUris: List<String> = emptyList(),
+    val isSavingMemoryPhotos: Boolean = false,
 )
