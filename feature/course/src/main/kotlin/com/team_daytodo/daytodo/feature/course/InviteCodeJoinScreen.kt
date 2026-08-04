@@ -85,16 +85,17 @@ private fun InviteCodeTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val textPrimaryColor = DayTodoTheme.colors.textPrimary
     val inputTextStyle = DayTodoTheme.typography.label2.copy(
         lineHeight = 16.sp,
         letterSpacing = 0.sp,
-        color = HeaderContentColor,
+        color = textPrimaryColor,
     )
     val placeholderTextStyle = inputTextStyle.copy(color = InviteFieldBorderColor)
     val selectionColors = remember {
         TextSelectionColors(
-            handleColor = HeaderContentColor,
-            backgroundColor = HeaderContentColor.copy(alpha = 0.25f),
+            handleColor = textPrimaryColor,
+            backgroundColor = textPrimaryColor.copy(alpha = 0.25f),
         )
     }
 
@@ -113,7 +114,7 @@ private fun InviteCodeTextField(
                 ),
             singleLine = true,
             textStyle = inputTextStyle,
-            cursorBrush = SolidColor(HeaderContentColor),
+            cursorBrush = SolidColor(DayTodoTheme.colors.textPrimary),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -134,7 +135,6 @@ private fun InviteCodeTextField(
     }
 }
 
-private val HeaderContentColor = Color(0xFF616166)
 private val InviteFieldBorderColor = Color(0xFFC1C1C1)
 
 @Preview

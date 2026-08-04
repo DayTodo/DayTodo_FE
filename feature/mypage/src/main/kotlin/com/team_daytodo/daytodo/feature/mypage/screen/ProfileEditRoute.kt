@@ -12,7 +12,6 @@ fun ProfileEditRoute(
     onChangePhotoClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
     onChangePhoneClick: () -> Unit = {},
-    onUnlinkAccountClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
     viewModel: ProfileEditViewModel = hiltViewModel(),
 ) {
@@ -24,7 +23,7 @@ fun ProfileEditRoute(
         onChangePhotoClick = onChangePhotoClick,
         onChangePasswordClick = onChangePasswordClick,
         onChangePhoneClick = onChangePhoneClick,
-        onUnlinkAccountClick = onUnlinkAccountClick,
+        onUnlinkAccountClick = viewModel::onToggleAccountLinkClick,
         onSaveClick = onSaveClick,
     )
 }

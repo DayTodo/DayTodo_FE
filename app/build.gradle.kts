@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":data"))
 
     implementation(project(":feature:auth"))
+    implementation(project(":feature:onboarding"))
     implementation(project(":feature:home"))
     implementation(project(":feature:magazine"))
     implementation(project(":feature:course"))

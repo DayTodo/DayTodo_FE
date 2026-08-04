@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -13,19 +12,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.team_daytodo.daytodo.feature.mypage.navigation.MypageRoute
+import com.team_daytodo.daytodo.feature.record.navigation.RecordRoute
 
 @Composable
 fun DayTodoApp() {
     val navController = rememberNavController()
-    val context = LocalContext.current
     var hasTodaySchedule by rememberSaveable { mutableStateOf(true) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val routesWithoutBottomNavigation = DayTodoRoute.AuthRoutes + setOf(
+        DayTodoRoute.OnboardingGate,
+        DayTodoRoute.Onboarding,
         DayTodoRoute.CourseCreate,
         DayTodoRoute.CourseJoin,
         DayTodoRoute.PlaceRecommendation,
@@ -34,10 +35,20 @@ fun DayTodoApp() {
         DayTodoRoute.PlaceComment,
         DayTodoRoute.Save,
         DayTodoRoute.MagazineDetail,
+        DayTodoRoute.Calendar,
+        MypageRoute.ProfileEdit,
+        MypageRoute.PhoneChange,
+        RecordRoute.PhotoSelect,
+        RecordRoute.Memo,
     )
     val showBottomNavigation = currentRoute != null &&
         currentRoute !in routesWithoutBottomNavigation
-    val navHostModifier = if (currentRoute == null || currentRoute in DayTodoRoute.AuthRoutes) {
+    val navHostModifier = if (
+        currentRoute == null ||
+        currentRoute == DayTodoRoute.OnboardingGate ||
+        currentRoute == DayTodoRoute.Onboarding ||
+        currentRoute in DayTodoRoute.AuthRoutes
+    ) {
         Modifier.fillMaxSize()
     } else {
         Modifier

@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 data class DayTodoFloatingMenuItem(
     val text: String,
@@ -44,7 +45,7 @@ fun DayTodoFloatingActionMenu(
     fabSize: Dp = 56.dp,
     menuSpacing: Dp = 4.dp,
     fabSpacing: Dp = 12.dp,
-    expandedFabContainerColor: Color = Color(0xFFC3C7C5),
+    expandedFabContainerColor: Color = DayTodoTheme.colors.iconDisabled,
 ) {
     val fabInteractionSource = remember { MutableInteractionSource() }
 

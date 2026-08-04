@@ -25,8 +25,10 @@ import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
 import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
-import com.team_daytodo.daytodo.feature.record.navigation.RecordNavHost
+import com.team_daytodo.daytodo.feature.record.navigation.recordNavGraph
 import com.team_daytodo.daytodo.feature.home.HomeRoute
+import com.team_daytodo.daytodo.feature.onboarding.OnboardingGateRoute
+import com.team_daytodo.daytodo.feature.onboarding.OnboardingRoute
 import com.team_daytodo.daytodo.feature.save.SaveRoute
 import com.team_daytodo.daytodo.feature.save.SavedPlacePickerRoute
 import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
@@ -41,12 +43,29 @@ internal fun DayTodoNavHost(
     NavHost(
         modifier = modifier.fillMaxSize(),
         navController = navController,
-        startDestination = DayTodoRoute.Login,
+        startDestination = DayTodoRoute.OnboardingGate,
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { ExitTransition.None },
     ) {
+        composable(DayTodoRoute.OnboardingGate) {
+            OnboardingGateRoute(
+                onShowOnboarding = {
+                    navController.navigateClearingOnboardingGate(DayTodoRoute.Onboarding)
+                },
+                onSkipOnboarding = {
+                    navController.navigateClearingOnboardingGate(DayTodoRoute.Login)
+                },
+            )
+        }
+        composable(DayTodoRoute.Onboarding) {
+            OnboardingRoute(
+                onOnboardingCompleted = {
+                    navController.navigateToLoginClearingOnboarding()
+                },
+            )
+        }
         composable(DayTodoRoute.Login) {
             LoginRoute(
                 onNavigateToSignup = { navController.navigateSingleTopTo(DayTodoRoute.Signup) },
@@ -147,7 +166,9 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Calendar) {
-            CalendarScreen()
+            CalendarScreen(
+                onBackClick = { navController.popBackStack() },
+            )
         }
         composable(DayTodoRoute.Course) {
             CourseListRoute(
@@ -279,11 +300,7 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Today) {
             TodayRoute()
         }
-        composable(DayTodoRoute.Record) {
-            RecordNavHost()
-        }
-        // 마이페이지("mypage") + 프로필 관리 라우트를 함께 등록한다.
-        // MypageRoute.Mypage 값이 DayTodoRoute.Mypage 와 같아 바텀 네비와 그대로 호환된다.
+        recordNavGraph(navController)
         mypageNavGraph(navController)
     }
 }
@@ -291,6 +308,24 @@ internal fun DayTodoNavHost(
 private fun NavHostController.navigateToHomeClearingAuth() {
     navigate(DayTodoRoute.Home) {
         popUpTo(DayTodoRoute.Login) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+}
+
+private fun NavHostController.navigateToLoginClearingOnboarding() {
+    navigate(DayTodoRoute.Login) {
+        popUpTo(DayTodoRoute.Onboarding) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+}
+
+private fun NavHostController.navigateClearingOnboardingGate(route: String) {
+    navigate(route) {
+        popUpTo(DayTodoRoute.OnboardingGate) {
             inclusive = true
         }
         launchSingleTop = true
