@@ -39,8 +39,6 @@ class TodayViewModel @Inject constructor(
         }
     }
 
-    // TODO: 사진 업로드(로컬 갤러리 -> URL 발급) 파이프라인이 아직 없어 UI 트리거가 연결돼 있지 않다.
-    // 이미 URL을 확보한 상태에서 저장만 하고 싶을 때 이 함수를 호출하면 된다.
     fun saveMemoryPhotos(imageUrls: List<String>) {
         val courseId = _uiState.value.courseId ?: return
         if (imageUrls.isEmpty()) return
@@ -60,8 +58,8 @@ class TodayViewModel @Inject constructor(
                         it.copy(
                             hasCourse = course != null,
                             courseId = course?.courseId,
-                            members = course?.members?.mapIndexed { index, member ->
-                                CourseMember(id = "member-$index", name = member.nickname)
+                            members = course?.members?.map { member ->
+                                CourseMember(id = member.nickname, name = member.nickname)
                             }.orEmpty(),
                             places = course?.places?.map { place ->
                                 CoursePlace(

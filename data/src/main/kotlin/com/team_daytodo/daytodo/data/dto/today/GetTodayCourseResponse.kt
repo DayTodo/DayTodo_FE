@@ -1,5 +1,8 @@
 package com.team_daytodo.daytodo.data.dto.today
 
+import com.team_daytodo.daytodo.domain.today.model.TodayCourse
+import com.team_daytodo.daytodo.domain.today.model.TodayCourseMember
+import com.team_daytodo.daytodo.domain.today.model.TodayCoursePlace
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,4 +30,25 @@ data class TodayCoursePlaceDto(
     val placeOrder: Int,
     val placeName: String,
     val category: String,
+)
+
+fun GetTodayCourseResponse.toDomain(): TodayCourse? = todayCourse?.toDomain()
+
+fun TodayCourseDto.toDomain(): TodayCourse = TodayCourse(
+    courseId = courseId,
+    courseName = courseName,
+    members = members.map { it.toDomain() },
+    places = places.map { it.toDomain() },
+)
+
+fun TodayCourseMemberDto.toDomain(): TodayCourseMember = TodayCourseMember(
+    nickname = nickname,
+    profileImageUrl = profileImageUrl,
+)
+
+fun TodayCoursePlaceDto.toDomain(): TodayCoursePlace = TodayCoursePlace(
+    coursePlaceId = coursePlaceId,
+    placeOrder = placeOrder,
+    placeName = placeName,
+    category = category,
 )
