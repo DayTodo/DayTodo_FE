@@ -9,8 +9,20 @@ data class LoginResponseDto(
     val accessToken: String,
     @SerialName("refreshToken")
     val refreshToken: String,
-    @SerialName("username")
-    val username: UserDto,
+    @SerialName("user")
+    val user: UserDto,
+)
+
+@Serializable
+data class LoginNaverResponseDto(
+    @SerialName("accessToken")
+    val accessToken: String,
+    @SerialName("refreshToken")
+    val refreshToken: String,
+    @SerialName("isNewUser")
+    val isNewUser: Boolean,
+    @SerialName("user")
+    val user: UserDto,
 )
 
 @Serializable

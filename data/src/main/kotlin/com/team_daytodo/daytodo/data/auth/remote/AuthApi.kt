@@ -4,6 +4,7 @@ import com.team_daytodo.daytodo.data.auth.remote.dto.EmailCheckResponseDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LinkNaverRequestDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LinkNaverResponseDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LoginNaverRequestDto
+import com.team_daytodo.daytodo.data.auth.remote.dto.LoginNaverResponseDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LoginRequestDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LoginResponseDto
 import com.team_daytodo.daytodo.data.auth.remote.dto.LogoutRequestDto
@@ -31,7 +32,7 @@ interface AuthApi {
     @POST("$AuthApiPrefix/login/naver")
     suspend fun loginNaver(
         @Body request: LoginNaverRequestDto,
-    ): Response<LoginResponseDto>
+    ): Response<LoginNaverResponseDto>
 
     /** 로그아웃 */
     @POST("$AuthApiPrefix/logout")
