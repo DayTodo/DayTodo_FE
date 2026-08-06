@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.data.di
 
 import com.team_daytodo.daytodo.core.network.UserIdAuthInterceptor
 import com.team_daytodo.daytodo.data.BuildConfig
+import com.team_daytodo.daytodo.data.api.MypageApi
 import com.team_daytodo.daytodo.data.api.TodayApi
 import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
 import com.team_daytodo.daytodo.data.network.RetrofitFactory
@@ -73,6 +74,13 @@ object NetworkModule {
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): TodayApi = retrofitFactory.create(baseUrl).create(TodayApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMypageApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): MypageApi = retrofitFactory.create(baseUrl).create(MypageApi::class.java)
 
     private const val AuthorizationHeaderName = "Authorization"
 }
