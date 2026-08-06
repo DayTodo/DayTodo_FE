@@ -1,5 +1,10 @@
 package com.team_daytodo.daytodo.feature.today.screen
 
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,8 +38,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
@@ -42,6 +49,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,11 +64,11 @@ import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.feature.today.model.TodayTab
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
-// 뒤로가기 버튼이 없어도(onBackClick == null) 메뉴바 높이가 줄어들지 않도록
-// MypageTopBar와 동일한 최소 높이를 유지한다.
 private val TopBarMinHeight = 48.dp
 
 @Composable
@@ -68,6 +79,11 @@ fun TodayScreen(
     onBackClick: (() -> Unit)? = null,
     onAddPlaceClick: () -> Unit = {},
     onAddCourseClick: () -> Unit = {},
+    onCompleteCourseClick: () -> Unit = {},
+    selectedMemoryPhotoUris: List<String> = emptyList(),
+    isSavingMemoryPhotos: Boolean = false,
+    onAddMemoryPhotosClick: () -> Unit = {},
+    onSaveMemoryPhotosClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     startWithMemoryTab: Boolean = false,
 ) {
@@ -251,7 +267,7 @@ fun TodayScreen(
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(color = DayTodoTheme.colors.brandPrimary)
-                                .clickable(onClick = onAddPlaceClick),
+                                .clickable(onClick = onCompleteCourseClick),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -267,11 +283,49 @@ fun TodayScreen(
             } else {
                 item {
                     MemoryPhotoGrid(
-                        photoCount = 8,
+                        selectedPhotoUris = selectedMemoryPhotoUris,
+                        onAddClick = onAddMemoryPhotosClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
                     )
+                }
+
+                item {
+                    val canSave = selectedMemoryPhotoUris.isNotEmpty() && !isSavingMemoryPhotos
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(
+                                    color = if (canSave) {
+                                        DayTodoTheme.colors.brandPrimary
+                                    } else {
+                                        DayTodoTheme.colors.backgroundSecondary
+                                    },
+                                )
+                                .clickable(enabled = canSave, onClick = onSaveMemoryPhotosClick),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = if (isSavingMemoryPhotos) "저장 중" else "저장하기",
+                                style = DayTodoTheme.typography.label2,
+                                color = if (canSave) {
+                                    DayTodoTheme.colors.textQuaternary
+                                } else {
+                                    DayTodoTheme.colors.textTertiary
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -282,11 +336,13 @@ fun TodayScreen(
 
 @Composable
 private fun MemoryPhotoGrid(
-    photoCount: Int,
+    selectedPhotoUris: List<String>,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val columns = 3
     val spacing = 6.dp
+    val photoCount = selectedPhotoUris.size
 
     BoxWithConstraints(modifier = modifier) {
         val itemSize = (maxWidth - spacing * (columns - 1)) / columns
@@ -306,7 +362,8 @@ private fun MemoryPhotoGrid(
                 Box(
                     modifier = Modifier
                         .size(itemSize)
-                        .background(color = DayTodoTheme.colors.backgroundSecondary),
+                        .background(color = DayTodoTheme.colors.backgroundSecondary)
+                        .clickable(onClick = onAddClick),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -317,13 +374,54 @@ private fun MemoryPhotoGrid(
                 }
             }
 
-            items(photoCount) {
-                Box(
-                    modifier = Modifier
-                        .size(itemSize)
-                        .background(color = DayTodoTheme.colors.backgroundSecondary),
+            items(selectedPhotoUris) { uri ->
+                MemoryPhotoThumbnail(
+                    uri = uri,
+                    modifier = Modifier.size(itemSize),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun MemoryPhotoThumbnail(
+    uri: String,
+    modifier: Modifier = Modifier,
+) {
+    val bitmap by rememberMemoryPhotoBitmap(uri)
+
+    Box(
+        modifier = modifier.background(color = DayTodoTheme.colors.backgroundSecondary),
+    ) {
+        bitmap?.let {
+            Image(
+                bitmap = it,
+                contentDescription = "선택한 추억 사진",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+    }
+}
+
+@Composable
+private fun rememberMemoryPhotoBitmap(uri: String): State<ImageBitmap?> {
+    val context = LocalContext.current
+
+    return produceState<ImageBitmap?>(initialValue = null, uri) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                val parsed = Uri.parse(uri)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val source = ImageDecoder.createSource(context.contentResolver, parsed)
+                    ImageDecoder.decodeBitmap(source).asImageBitmap()
+                } else {
+                    context.contentResolver.openInputStream(parsed)?.use { input ->
+                        BitmapFactory.decodeStream(input)?.asImageBitmap()
+                    }
+                }
+            }.getOrNull()
         }
     }
 }
