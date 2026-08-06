@@ -1,11 +1,10 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.core.network.NetworkConfig
-import com.team_daytodo.daytodo.core.network.UserIdAuthInterceptor
-import com.team_daytodo.daytodo.data.api.TodayApi
-import com.team_daytodo.daytodo.data.network.RetrofitFactory
+import com.team_daytodo.daytodo.data.BuildConfig
+import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
 import dagger.Module
 import dagger.Provides
+import javax.inject.Qualifier
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -13,6 +12,10 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import timber.log.Timber
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DayTodoBaseUrl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -26,21 +29,37 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    @DayTodoBaseUrl
+    fun provideDayTodoBaseUrl(): String = BuildConfig.DAYTODO_BASE_URL
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authTokenLocalDataSource: AuthTokenLocalDataSource,
+    ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Timber.tag("OkHttp").d(message)
         }.apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BASIC
         }
 
         return OkHttpClient.Builder()
-            .addInterceptor(UserIdAuthInterceptor())
+            .addInterceptor { chain ->
+                val accessToken = authTokenLocalDataSource.getAccessToken()
+                val request = if (accessToken.isNullOrBlank()) {
+                    chain.request()
+                } else {
+                    chain.request()
+                        .newBuilder()
+                        .header(AuthorizationHeaderName, "Bearer $accessToken")
+                        .build()
+                }
+
+                chain.proceed(request)
+            }
             .addInterceptor(loggingInterceptor)
             .build()
     }
 
-    @Provides
-    @Singleton
-    fun provideTodayApi(retrofitFactory: RetrofitFactory): TodayApi =
-        retrofitFactory.create(NetworkConfig.BASE_URL).create(TodayApi::class.java)
+    private const val AuthorizationHeaderName = "Authorization"
 }
