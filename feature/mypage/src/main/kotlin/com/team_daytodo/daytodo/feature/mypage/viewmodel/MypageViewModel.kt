@@ -37,10 +37,10 @@ class MypageViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             getMypageProfileUseCase()
                 .onSuccess { profile ->
+                    // notificationEnabled는 이번 작업 범위 밖(MypageProfile에서 필드 제거됨) — 기존 UI 상태 값을 그대로 둔다.
                     _uiState.update {
                         it.copy(
                             nickname = profile.nickname,
-                            notificationEnabled = profile.notificationEnabled,
                             isLoading = false,
                         )
                     }

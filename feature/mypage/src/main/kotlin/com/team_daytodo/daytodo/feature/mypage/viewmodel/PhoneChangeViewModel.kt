@@ -54,13 +54,7 @@ class PhoneChangeViewModel @Inject constructor(
     }
 
     private fun loadCurrentPhoneNumber() {
-        viewModelScope.launch {
-            getMypageProfileUseCase()
-                .onSuccess { profile ->
-                    _uiState.update { it.copy(currentPhoneNumber = profile.phoneNumber) }
-                }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
-        }
+        // MypageProfile에서 phoneNumber 필드가 제거됨(BE 미지원) — 표시할 현재 전화번호 소스가 없어 조회를 생략한다.
     }
 
     private fun submitPhoneChange(verificationCode: String) {
