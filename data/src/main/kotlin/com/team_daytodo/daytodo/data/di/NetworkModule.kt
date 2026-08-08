@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.core.network.UserIdAuthInterceptor
 import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.MypageApi
 import com.team_daytodo.daytodo.data.api.TodayApi
@@ -48,9 +47,6 @@ object NetworkModule {
         }
 
         return OkHttpClient.Builder()
-            // X-User-Id 방식이 아직 남아있는 API(today, mypage, place 등)를 위해 유지.
-            // JWT로 전환된 API는 아래 인터셉터가 Authorization 헤더를 실제 토큰으로 덮어쓴다.
-            .addInterceptor(UserIdAuthInterceptor())
             .addInterceptor { chain ->
                 val accessToken = authTokenLocalDataSource.getAccessToken()
                 val request = if (accessToken.isNullOrBlank()) {
