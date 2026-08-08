@@ -73,10 +73,11 @@ private fun FeedbackInputContent(
                 .padding(top = 44.dp, bottom = 132.dp),
         ) {
             Text(
-                text = "데이투두에 전하고 싶은\n 의견이 있나요?",
+                text = "데이투두에 전하고 싶은\n의견이 있나요?",
                 style = DayTodoTheme.typography.headlineLarge,
                 color = DayTodoTheme.colors.textPrimary,
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "데이투두에 전하고 싶은 의견이 있나요?\n남겨주신 의견은 다음 업데이트에 반영돼요",
                 style = DayTodoTheme.typography.body3,
