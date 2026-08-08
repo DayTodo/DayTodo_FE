@@ -38,6 +38,7 @@ fun DayTodoApp() {
         DayTodoRoute.Calendar,
         MypageRoute.ProfileEdit,
         MypageRoute.PhoneChange,
+        MypageRoute.PasswordChange,
         RecordRoute.PhotoSelect,
         RecordRoute.Memo,
     )
