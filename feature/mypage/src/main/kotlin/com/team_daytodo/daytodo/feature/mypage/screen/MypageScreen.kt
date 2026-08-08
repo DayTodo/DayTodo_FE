@@ -52,11 +52,12 @@ fun MypageScreen(
     onNavigateToLogin: () -> Unit = {},
     notificationEnabled: Boolean = false,
     onNotificationToggle: (Boolean) -> Unit = {},
+    dialogState: MypageDialogState = MypageDialogState.None,
+    onDialogStateChange: (MypageDialogState) -> Unit = {},
+    onWithdrawConfirmClick: () -> Unit = {},
     profile: MypageProfile = MypageProfile(nickname = "데이투두"),
     modifier: Modifier = Modifier,
 ) {
-    var dialogState by remember { mutableStateOf<MypageDialogState>(MypageDialogState.None) }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = DayTodoTheme.colors.backgroundDefault,
@@ -155,12 +156,12 @@ fun MypageScreen(
             ) {
                 MypageMenuRow(
                     text = "로그아웃",
-                    onClick = { dialogState = MypageDialogState.LogoutConfirm },
+                    onClick = { onDialogStateChange(MypageDialogState.LogoutConfirm) },
                 )
                 MypageMenuRow(
                     text = "탈퇴하기",
                     color = WithdrawTextColor,
-                    onClick = { dialogState = MypageDialogState.WithdrawConfirm },
+                    onClick = { onDialogStateChange(MypageDialogState.WithdrawConfirm) },
                 )
             }
 
@@ -171,7 +172,8 @@ fun MypageScreen(
 
     MypageDialogHost(
         state = dialogState,
-        onStateChange = { dialogState = it },
+        onStateChange = onDialogStateChange,
+        onWithdrawConfirmClick = onWithdrawConfirmClick,
         onNavigateToLogin = onNavigateToLogin,
     )
 }

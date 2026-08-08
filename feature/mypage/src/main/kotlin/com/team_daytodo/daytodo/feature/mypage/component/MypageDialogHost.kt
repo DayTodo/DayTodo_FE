@@ -11,6 +11,7 @@ import com.team_daytodo.daytodo.uikit.dialog.DayTodoMessageDialog
 internal fun MypageDialogHost(
     state: MypageDialogState,
     onStateChange: (MypageDialogState) -> Unit,
+    onWithdrawConfirmClick: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
     val dismiss = { onStateChange(MypageDialogState.None) }
@@ -37,7 +38,7 @@ internal fun MypageDialogHost(
         MypageDialogState.WithdrawConfirm -> DayTodoAlertDialog(
             title = "주의",
             message = stringResource(R.string.mypage_withdraw_confirm_message),
-            onConfirm = { onStateChange(MypageDialogState.WithdrawDone) },
+            onConfirm = onWithdrawConfirmClick,
             onDismiss = dismiss,
         )
 

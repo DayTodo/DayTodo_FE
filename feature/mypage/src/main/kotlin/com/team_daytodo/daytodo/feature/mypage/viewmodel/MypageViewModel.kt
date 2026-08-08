@@ -3,7 +3,10 @@ package com.team_daytodo.daytodo.feature.mypage.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.team_daytodo.daytodo.domain.mypage.usecase.GetMypageProfileUseCase
+import com.team_daytodo.daytodo.domain.mypage.usecase.GetNotificationSettingsUseCase
 import com.team_daytodo.daytodo.domain.mypage.usecase.SetNotificationEnabledUseCase
+import com.team_daytodo.daytodo.domain.mypage.usecase.WithdrawUseCase
+import com.team_daytodo.daytodo.feature.mypage.state.MypageDialogState
 import com.team_daytodo.daytodo.feature.mypage.state.MypageUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,13 +19,16 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MypageViewModel @Inject constructor(
     private val getMypageProfileUseCase: GetMypageProfileUseCase,
+    private val getNotificationSettingsUseCase: GetNotificationSettingsUseCase,
     private val setNotificationEnabledUseCase: SetNotificationEnabledUseCase,
+    private val withdrawUseCase: WithdrawUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MypageUiState())
     val uiState: StateFlow<MypageUiState> = _uiState.asStateFlow()
 
     init {
         loadProfile()
+        loadNotificationSettings()
     }
 
     fun toggleNotification(enabled: Boolean) {
@@ -37,7 +43,6 @@ class MypageViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             getMypageProfileUseCase()
                 .onSuccess { profile ->
-                    // notificationEnabled는 이번 작업 범위 밖(MypageProfile에서 필드 제거됨) — 기존 UI 상태 값을 그대로 둔다.
                     _uiState.update {
                         it.copy(
                             nickname = profile.nickname,
@@ -47,6 +52,31 @@ class MypageViewModel @Inject constructor(
                 }
                 .onFailure {
                     _uiState.update { it.copy(isLoading = false) }
+                }
+        }
+    }
+
+    private fun loadNotificationSettings() {
+        viewModelScope.launch {
+            getNotificationSettingsUseCase()
+                .onSuccess { pushEnabled ->
+                    _uiState.update { it.copy(notificationEnabled = pushEnabled) }
+                }
+        }
+    }
+
+    fun onDialogStateChange(state: MypageDialogState) {
+        _uiState.update { it.copy(dialogState = state) }
+    }
+
+    fun confirmWithdraw() {
+        viewModelScope.launch {
+            withdrawUseCase()
+                .onSuccess {
+                    _uiState.update { it.copy(dialogState = MypageDialogState.WithdrawDone) }
+                }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
                 }
         }
     }
