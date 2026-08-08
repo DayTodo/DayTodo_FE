@@ -18,6 +18,8 @@ object MypageRoute {
     const val ProfileEdit = "mypage/profile-edit"
     const val PhoneChange = "mypage/phone-change"
     const val PasswordChange = "mypage/password-change"
+
+    const val Login = "auth/login"
 }
 
 fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
@@ -27,11 +29,16 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
 
         MypageScreen(
             onEditProfileClick = { navController.navigate(MypageRoute.ProfileEdit) },
-            onNavigateToLogin = {},
+            onNavigateToLogin = {
+                navController.navigate(MypageRoute.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
             notificationEnabled = uiState.notificationEnabled,
             onNotificationToggle = viewModel::toggleNotification,
             dialogState = uiState.dialogState,
             onDialogStateChange = viewModel::onDialogStateChange,
+            onLogoutConfirmClick = viewModel::confirmLogout,
             onWithdrawConfirmClick = viewModel::confirmWithdraw,
             profile = MypageProfile(nickname = uiState.nickname),
         )

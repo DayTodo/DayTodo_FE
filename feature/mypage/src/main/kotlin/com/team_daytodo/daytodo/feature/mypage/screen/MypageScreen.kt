@@ -54,6 +54,7 @@ fun MypageScreen(
     onNotificationToggle: (Boolean) -> Unit = {},
     dialogState: MypageDialogState = MypageDialogState.None,
     onDialogStateChange: (MypageDialogState) -> Unit = {},
+    onLogoutConfirmClick: () -> Unit = {},
     onWithdrawConfirmClick: () -> Unit = {},
     profile: MypageProfile = MypageProfile(nickname = "데이투두"),
     modifier: Modifier = Modifier,
@@ -173,6 +174,7 @@ fun MypageScreen(
     MypageDialogHost(
         state = dialogState,
         onStateChange = onDialogStateChange,
+        onLogoutConfirmClick = onLogoutConfirmClick,
         onWithdrawConfirmClick = onWithdrawConfirmClick,
         onNavigateToLogin = onNavigateToLogin,
     )

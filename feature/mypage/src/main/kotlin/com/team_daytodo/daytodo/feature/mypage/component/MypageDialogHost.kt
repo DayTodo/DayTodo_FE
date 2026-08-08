@@ -11,6 +11,7 @@ import com.team_daytodo.daytodo.uikit.dialog.DayTodoMessageDialog
 internal fun MypageDialogHost(
     state: MypageDialogState,
     onStateChange: (MypageDialogState) -> Unit,
+    onLogoutConfirmClick: () -> Unit,
     onWithdrawConfirmClick: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
@@ -26,7 +27,7 @@ internal fun MypageDialogHost(
         MypageDialogState.LogoutConfirm -> DayTodoAlertDialog(
             title = "주의",
             message = stringResource(R.string.mypage_logout_confirm_message),
-            onConfirm = { onStateChange(MypageDialogState.LogoutDone) },
+            onConfirm = onLogoutConfirmClick,
             onDismiss = dismiss,
         )
 
