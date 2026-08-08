@@ -93,10 +93,10 @@ private fun FeedbackInputContent(
 
         DayTodoNextStepButton(
             text = "전달하기",
-            state = if (uiState.canSubmit) {
-                DayTodoNextStepButtonState.Enabled
-            } else {
-                DayTodoNextStepButtonState.Disabled
+            state = when {
+                uiState.isSubmitting -> DayTodoNextStepButtonState.Loading
+                uiState.canSubmit -> DayTodoNextStepButtonState.Enabled
+                else -> DayTodoNextStepButtonState.Disabled
             },
             onClick = onSubmitClick,
             modifier = Modifier

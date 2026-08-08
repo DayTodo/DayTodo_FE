@@ -8,6 +8,9 @@ import com.team_daytodo.daytodo.data.dto.mypage.SendFeedbackRequest
 import com.team_daytodo.daytodo.data.dto.mypage.UpdateInterestRegionsRequest
 import com.team_daytodo.daytodo.data.dto.mypage.UpdateNotificationSettingsRequest
 import com.team_daytodo.daytodo.data.dto.mypage.toDomain
+import com.team_daytodo.daytodo.domain.mypage.model.FeedbackSubmitFailedException
+import com.team_daytodo.daytodo.domain.mypage.model.FeedbackTooShortException
+import com.team_daytodo.daytodo.domain.mypage.model.FeedbackUnauthorizedException
 import com.team_daytodo.daytodo.domain.mypage.model.InterestRegion
 import com.team_daytodo.daytodo.domain.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.domain.mypage.model.Policies
@@ -72,7 +75,7 @@ class MypageRepositoryImpl @Inject constructor(
 
     override suspend fun sendFeedback(content: String): Result<Unit> = runCatching {
         mypageApi.sendFeedback(SendFeedbackRequest(content)).throwIfNotSuccessful()
-    }
+    }.recoverCatching { cause -> throw cause.toFeedbackException() }
 
     override suspend fun logout(refreshToken: String): Result<Unit> = runCatching {
         mypageApi.logout(LogoutRequest(refreshToken)).throwIfNotSuccessful()
@@ -88,6 +91,12 @@ class MypageRepositoryImpl @Inject constructor(
 
     private fun Response<Unit>.throwIfNotSuccessful() {
         if (!isSuccessful) throw HttpException(this)
+    }
+
+    private fun Throwable.toFeedbackException(): Throwable = when {
+        this is HttpException && code() == 401 -> FeedbackUnauthorizedException(this)
+        this is HttpException && code() == 400 -> FeedbackTooShortException(this)
+        else -> FeedbackSubmitFailedException(this)
     }
 
     private companion object {
