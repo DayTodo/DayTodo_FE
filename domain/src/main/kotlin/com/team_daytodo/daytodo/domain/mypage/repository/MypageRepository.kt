@@ -10,6 +10,8 @@ interface MypageRepository {
 
     suspend fun updateProfile(nickname: String, profileImage: File?): Result<MypageProfile>
 
+    suspend fun getNotificationSettings(): Result<Boolean>
+
     suspend fun setNotificationEnabled(enabled: Boolean): Result<Unit>
 
     suspend fun requestPhoneVerificationCode(phoneNumber: String): Result<Unit>
@@ -27,4 +29,8 @@ interface MypageRepository {
     suspend fun sendFeedback(content: String): Result<Unit>
 
     suspend fun logout(refreshToken: String): Result<Unit>
+
+    suspend fun registerFcmToken(token: String): Result<Unit>
+
+    suspend fun deleteFcmToken(token: String): Result<Unit>
 }
