@@ -20,19 +20,29 @@ private val ButtonHeight = 58.dp
 
 private val ButtonShape = RoundedCornerShape(999.dp)
 
+private const val DisabledAlpha = 0.48f
+
 @Composable
 fun ProfileSaveButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(ButtonHeight)
             .clip(ButtonShape)
-            .background(DayTodoTheme.colors.brandPrimary)
+            .background(
+                if (enabled) {
+                    DayTodoTheme.colors.brandPrimary
+                } else {
+                    DayTodoTheme.colors.brandPrimary.copy(alpha = DisabledAlpha)
+                },
+            )
             .clickable(
+                enabled = enabled,
                 role = Role.Button,
                 onClick = onClick,
             ),

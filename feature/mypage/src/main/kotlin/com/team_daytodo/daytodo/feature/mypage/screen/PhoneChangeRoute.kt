@@ -19,6 +19,7 @@ fun PhoneChangeRoute(
         onNewPhoneNumberChange = viewModel::onNewPhoneNumberChange,
         onVerificationCodeChange = viewModel::onVerificationCodeChange,
         onRequestVerificationCodeClick = viewModel::onRequestVerificationCodeClick,
+        onChangeClick = viewModel::onChangeClick,
         onSuccessDialogDismissed = viewModel::onSuccessDialogDismissed,
     )
 }
