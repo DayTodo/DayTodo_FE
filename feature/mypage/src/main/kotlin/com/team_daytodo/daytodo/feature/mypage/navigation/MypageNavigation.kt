@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.team_daytodo.daytodo.feature.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.feature.mypage.screen.FeedbackRoute
+import com.team_daytodo.daytodo.feature.mypage.screen.InterestRegionRoute
 import com.team_daytodo.daytodo.feature.mypage.screen.MypageScreen
 import com.team_daytodo.daytodo.feature.mypage.screen.PasswordChangeRoute
 import com.team_daytodo.daytodo.feature.mypage.screen.PolicyDocumentRoute
@@ -20,6 +21,7 @@ import com.team_daytodo.daytodo.feature.mypage.viewmodel.MypageViewModel
 object MypageRoute {
     const val Mypage = "mypage"
     const val ProfileEdit = "mypage/profile-edit"
+    const val InterestRegion = "mypage/interest-region"
     const val PasswordChange = "mypage/password-change"
     const val Terms = "mypage/terms"
     const val PolicyDocumentIndexArg = "documentIndex"
@@ -38,6 +40,7 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
 
         MypageScreen(
             onEditProfileClick = { navController.navigate(MypageRoute.ProfileEdit) },
+            onManageRegionClick = { navController.navigate(MypageRoute.InterestRegion) },
             onSendFeedbackClick = { navController.navigate(MypageRoute.Feedback) },
             onTermsClick = { navController.navigate(MypageRoute.Terms) },
             onNavigateToLogin = {
@@ -61,14 +64,19 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
             onProfileSaved = { navController.popBackStack() },
         )
     }
+    composable(MypageRoute.InterestRegion) {
+        InterestRegionRoute(
+            onBackClick = { navController.popBackStack() },
+            onSaved = { navController.popBackStack() },
+        )
+    }
     composable(MypageRoute.PasswordChange) {
         PasswordChangeRoute(
             onBackClick = { navController.popBackStack() },
             onPasswordChangeCompleted = {
-                navController.popBackStack(
-                    route = MypageRoute.ProfileEdit,
-                    inclusive = false,
-                )
+                navController.navigate(MypageRoute.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
             },
         )
     }
