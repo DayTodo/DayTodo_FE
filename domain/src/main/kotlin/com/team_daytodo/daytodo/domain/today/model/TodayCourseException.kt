@@ -29,3 +29,13 @@ class TodayCourseLoadException(cause: Throwable? = null) : TodayCourseException(
     message = "오늘의 코스 정보를 불러오지 못했어요.",
     cause = cause,
 )
+
+class InvalidPlaceOrderException(cause: Throwable? = null) : TodayCourseException(
+    message = "순서 정보가 올바르지 않아요.",
+    cause = cause,
+)
+
+class CoursePlaceNotFoundException(cause: Throwable? = null) : TodayCourseException(
+    message = "코스에 속하지 않는 장소가 포함되어 있어요.",
+    cause = cause,
+)
