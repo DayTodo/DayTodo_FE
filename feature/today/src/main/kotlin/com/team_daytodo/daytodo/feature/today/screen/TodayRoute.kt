@@ -19,6 +19,7 @@ private const val MaxMemoryPhotoSelection = 8
 @Composable
 fun TodayRoute(
     modifier: Modifier = Modifier,
+    onAddPlaceClick: (courseId: Long) -> Unit = {},
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -48,6 +49,10 @@ fun TodayRoute(
         members = uiState.members,
         places = uiState.places,
         onCompleteCourseClick = viewModel::completeCourse,
+        onAddPlaceClick = { uiState.courseId?.let(onAddPlaceClick) },
+        onDeletePlaceClick = viewModel::deleteCoursePlace,
+        onReorderDragStart = viewModel::onReorderDragStart,
+        onReorderCommit = viewModel::commitReorder,
         selectedMemoryPhotoUris = uiState.selectedMemoryPhotoUris,
         isSavingMemoryPhotos = uiState.isSavingMemoryPhotos,
         onAddMemoryPhotosClick = {
