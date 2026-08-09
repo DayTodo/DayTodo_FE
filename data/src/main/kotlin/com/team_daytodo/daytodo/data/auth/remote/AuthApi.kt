@@ -20,6 +20,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface AuthApi {
     /** 자체 로그인 */
@@ -55,6 +56,7 @@ interface AuthApi {
     /** 이메일 중복 확인 */
     @GET("$AuthApiPrefix/email-check")
     suspend fun emailCheck(
+        @Query("email") email: String,
     ): Response<EmailCheckResponseDto>
 
     /** 회원 가입 */
@@ -66,6 +68,7 @@ interface AuthApi {
     /** 이메일 인증 처리 */
     @GET("$AuthApiPrefix/verify-email")
     suspend fun verifyEmail(
+        @Query("token") token: String,
     ): Response<VerifyEmailResponseDto>
 
     /** 인증 메일 재전송 */
