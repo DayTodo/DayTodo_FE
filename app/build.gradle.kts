@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.daytodo.android.application)
     alias(libs.plugins.daytodo.android.compose)
     alias(libs.plugins.daytodo.hilt)
+    alias(libs.plugins.daytodo.firebase)
+
 }
 
 android {

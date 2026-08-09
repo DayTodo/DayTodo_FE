@@ -1,8 +1,8 @@
 package com.team_daytodo.daytodo.domain.calendar.model
 
-import java.time.LocalDate
-
 data class CalendarCourse(
-    val date: LocalDate,
-    val title: String,
+    val courseId: Long,
+    val courseName: String,
+    val participantType: ParticipantType,
+    val memberCount: Long,
 )

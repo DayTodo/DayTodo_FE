@@ -7,5 +7,5 @@ import javax.inject.Inject
 class GetTodayCourseUseCase @Inject constructor(
     private val todayRepository: TodayRepository,
 ) {
-    suspend operator fun invoke(): Result<TodayCourse> = todayRepository.getTodayCourse()
+    suspend operator fun invoke(): Result<TodayCourse?> = todayRepository.getTodayCourse()
 }

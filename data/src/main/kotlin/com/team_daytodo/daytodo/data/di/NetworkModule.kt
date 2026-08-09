@@ -1,7 +1,11 @@
 package com.team_daytodo.daytodo.data.di
 
 import com.team_daytodo.daytodo.data.BuildConfig
+import com.team_daytodo.daytodo.data.api.CalendarApi
+import com.team_daytodo.daytodo.data.api.MypageApi
+import com.team_daytodo.daytodo.data.api.TodayApi
 import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
+import com.team_daytodo.daytodo.data.network.RetrofitFactory
 import dagger.Module
 import dagger.Provides
 import javax.inject.Qualifier
@@ -40,7 +44,7 @@ object NetworkModule {
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Timber.tag("OkHttp").d(message)
         }.apply {
-            level = HttpLoggingInterceptor.Level.BASIC
+            level = HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()
@@ -60,6 +64,27 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideTodayApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): TodayApi = retrofitFactory.create(baseUrl).create(TodayApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMypageApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): MypageApi = retrofitFactory.create(baseUrl).create(MypageApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCalendarApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): CalendarApi = retrofitFactory.create(baseUrl).create(CalendarApi::class.java)
 
     private const val AuthorizationHeaderName = "Authorization"
 }

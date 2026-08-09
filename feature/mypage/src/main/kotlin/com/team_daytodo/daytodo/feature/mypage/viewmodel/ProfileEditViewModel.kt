@@ -31,13 +31,10 @@ class ProfileEditViewModel @Inject constructor(
         viewModelScope.launch {
             getMypageProfileUseCase()
                 .onSuccess { profile ->
+                    // name/email/phoneNumber/linkedAccountProvider/linkedAccountId는 MypageProfile에서 제거됨(BE 미지원) —
+                    // 화면 필드는 그대로 두되 값 소스가 없어 기본값(빈 문자열)으로 남는다.
                     _uiState.value = ProfileEditUiState(
-                        name = profile.name,
                         nickname = profile.nickname,
-                        email = profile.email,
-                        phoneNumber = profile.phoneNumber,
-                        linkedAccountProvider = profile.linkedAccountProvider,
-                        linkedAccountId = profile.linkedAccountId,
                         isLoading = false,
                     )
                 }

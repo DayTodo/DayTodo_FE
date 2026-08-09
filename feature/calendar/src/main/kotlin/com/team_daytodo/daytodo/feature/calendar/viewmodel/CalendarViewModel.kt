@@ -6,6 +6,7 @@ import com.team_daytodo.daytodo.domain.calendar.usecase.GetCalendarCoursesUseCas
 import com.team_daytodo.daytodo.feature.calendar.state.CalendarUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,31 +18,47 @@ import kotlinx.coroutines.launch
 class CalendarViewModel @Inject constructor(
     private val getCalendarCoursesUseCase: GetCalendarCoursesUseCase,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CalendarUiState())
+    private val today = LocalDate.now()
+
+    private val _uiState = MutableStateFlow(
+        CalendarUiState(
+            currentYear = today.year,
+            currentMonth = today.monthValue,
+            selectedDate = today,
+        ),
+    )
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
-    init {
-        loadCourses()
-    }
+    private var lastRequestedMonth: YearMonth? = null
 
     fun selectDate(date: LocalDate) {
         _uiState.update { it.copy(selectedDate = date) }
     }
 
-    private fun loadCourses() {
+    fun onMonthChanged(yearMonth: YearMonth) {
+        if (yearMonth == lastRequestedMonth) return
+        lastRequestedMonth = yearMonth
+
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            getCalendarCoursesUseCase()
-                .onSuccess { courses ->
+            _uiState.update {
+                it.copy(
+                    currentYear = yearMonth.year,
+                    currentMonth = yearMonth.monthValue,
+                    isLoading = true,
+                    errorMessage = null,
+                )
+            }
+            getCalendarCoursesUseCase(yearMonth.year, yearMonth.monthValue)
+                .onSuccess { calendarDates ->
                     _uiState.update {
                         it.copy(
-                            coursesByDate = courses.associate { course -> course.date to course.title },
+                            coursesByDate = calendarDates.associate { it.date to it.courses },
                             isLoading = false,
                         )
                     }
                 }
-                .onFailure {
-                    _uiState.update { it.copy(isLoading = false) }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
                 }
         }
     }
