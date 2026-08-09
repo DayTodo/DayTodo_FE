@@ -9,14 +9,12 @@ import androidx.navigation.compose.composable
 import com.team_daytodo.daytodo.feature.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.feature.mypage.screen.MypageScreen
 import com.team_daytodo.daytodo.feature.mypage.screen.PasswordChangeRoute
-import com.team_daytodo.daytodo.feature.mypage.screen.PhoneChangeRoute
 import com.team_daytodo.daytodo.feature.mypage.screen.ProfileEditRoute
 import com.team_daytodo.daytodo.feature.mypage.viewmodel.MypageViewModel
 
 object MypageRoute {
     const val Mypage = "mypage"
     const val ProfileEdit = "mypage/profile-edit"
-    const val PhoneChange = "mypage/phone-change"
     const val PasswordChange = "mypage/password-change"
 
     const val Login = "auth/login"
@@ -47,12 +45,7 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
         ProfileEditRoute(
             onBackClick = { navController.popBackStack() },
             onChangePasswordClick = { navController.navigate(MypageRoute.PasswordChange) },
-            onChangePhoneClick = { navController.navigate(MypageRoute.PhoneChange) },
-        )
-    }
-    composable(MypageRoute.PhoneChange) {
-        PhoneChangeRoute(
-            onBackClick = { navController.popBackStack() },
+            onProfileSaved = { navController.popBackStack() },
         )
     }
     composable(MypageRoute.PasswordChange) {

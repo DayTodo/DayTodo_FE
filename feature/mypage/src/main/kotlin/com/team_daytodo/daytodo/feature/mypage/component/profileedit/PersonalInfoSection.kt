@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.feature.mypage.component.profileedit
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.uikit.component.DayTodoAuthTextField
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -23,14 +25,22 @@ fun PersonalInfoSection(
     nickname: String,
     email: String,
     phoneNumber: String,
+    onNicknameChange: (String) -> Unit,
     onChangePasswordClick: () -> Unit,
-    onChangePhoneClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         ProfileInfoField(label = "이름", value = name)
         Spacer(modifier = Modifier.height(20.dp))
-        ProfileInfoField(label = "닉네임", value = nickname)
+        DayTodoAuthTextField(
+            label = "닉네임",
+            value = nickname,
+            onValueChange = onNicknameChange,
+            labelStyle = DayTodoTheme.typography.title2,
+            labelSpacing = 4.dp,
+            textStyle = DayTodoTheme.typography.caption1,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        )
         Spacer(modifier = Modifier.height(20.dp))
         ProfileInfoField(
             label = "이메일",
@@ -75,8 +85,6 @@ fun PersonalInfoSection(
                 style = DayTodoTheme.typography.label2,
                 color = DayTodoTheme.colors.textSecondary,
             )
-            Spacer(modifier = Modifier.weight(1f))
-            ProfileGreyButton(text = "변경하기", onClick = onChangePhoneClick)
         }
     }
 }
