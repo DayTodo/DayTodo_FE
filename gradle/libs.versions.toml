@@ -25,6 +25,7 @@ kizitonwoseCalendar = "2.10.1"
 desugarJdkLibs = "2.1.5"
 reorderable = "3.1.0"
 firebaseBom = "34.3.0"
+naverOauth = "5.11.2"
 
 [libraries]
 android-kakao-maps = { module = "com.kakao.maps.open:android", version.ref = "android-kakao-maps" }
@@ -79,6 +80,7 @@ androidx-material-icons-extended = { group = "androidx.compose.material", name =
 kizitonwose-calendar-compose = { module = "com.kizitonwose.calendar:compose", version.ref = "kizitonwoseCalendar" }
 android-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+naver-oauth = { module = "com.navercorp.nid:oauth", version.ref = "naverOauth" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
