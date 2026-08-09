@@ -97,12 +97,11 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Signup) {
             SignupRoute(
                 onBackClick = { navController.popBackStack() },
-                onSignupCompleted = { needsProfileSetup ->
-                    if (needsProfileSetup) {
-                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
-                    } else {
-                        navController.navigateToHomeClearingAuth()
-                    }
+                onSignupCompleted = {
+                    navController.popBackStack(
+                        route = DayTodoRoute.Login,
+                        inclusive = false,
+                    )
                 },
             )
         }
