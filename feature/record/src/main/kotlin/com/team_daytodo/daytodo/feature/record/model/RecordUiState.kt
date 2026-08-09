@@ -1,81 +1,64 @@
 package com.team_daytodo.daytodo.feature.record.model
 
-import com.team_daytodo.daytodo.feature.record.R
+import com.team_daytodo.daytodo.domain.calendar.model.CalendarCourse
+import com.team_daytodo.daytodo.domain.calendar.model.ParticipantType
+import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
+import com.team_daytodo.daytodo.domain.record.model.RecordPlace
 import java.time.LocalDate
-import java.time.YearMonth
 
 data class RecordUiState(
-    val selectedDate: LocalDate = LocalDate.now(),
-    val currentMonth: YearMonth = YearMonth.now(),
-    val courseDates: Set<LocalDate> = emptySet(),
-    val photosByDate: Map<LocalDate, List<RecordPhoto>> = emptyMap(),
-    val coursesByDate: Map<LocalDate, List<VisitedCourse>> = emptyMap(),
-    val memosByPhotoId: Map<String, List<MemoEntry>> = emptyMap(),
+    val currentYear: Int,
+    val currentMonth: Int,
+    val selectedDate: LocalDate,
+    val coursesByDate: Map<LocalDate, List<CalendarCourse>> = emptyMap(),
+    val selectedCourseId: Long? = null,
+    val places: List<RecordPlace> = emptyList(),
+    val photos: List<RecordPhoto> = emptyList(),
+    val diaryContent: String = "",
     val isLoading: Boolean = false,
-) {
-    val selectedPhotos: List<RecordPhoto>
-        get() = photosByDate[selectedDate].orEmpty()
-
-    val selectedCourses: List<VisitedCourse>
-        get() = coursesByDate[selectedDate].orEmpty()
-
-    fun memosOf(photoId: String): List<MemoEntry> = memosByPhotoId[photoId].orEmpty()
-}
-
-// 아래는 @Preview 전용 더미 데이터. 실제 실행 경로의 더미 데이터는 DummyRecordRepository 에 있다.
-private val previewCourseDates: Set<LocalDate> = setOf(
-    LocalDate.of(2026, 5, 5),
-    LocalDate.of(2026, 5, 12),
-    LocalDate.of(2026, 5, 19),
-    LocalDate.of(2026, 5, 26),
+    val errorMessage: String? = null,
 )
 
-private val previewPhotoResources = listOf(
-    R.drawable.dummypicture_1,
-    R.drawable.dummypicture_2,
-    R.drawable.dummypicture_3,
+// 아래는 @Preview 전용 더미 데이터. 실제 실행 경로 데이터는 RecordRepositoryImpl 이 BE 응답으로 채운다.
+private val previewPhotoUrls = listOf(
+    "https://picsum.photos/seed/daytodo-record-1/400",
+    "https://picsum.photos/seed/daytodo-record-2/400",
+    "https://picsum.photos/seed/daytodo-record-3/400",
 )
 
-private fun previewPhotos(idPrefix: String, count: Int): List<RecordPhoto> = List(count) { index ->
+private fun previewPhotos(count: Int): List<RecordPhoto> = List(count) { index ->
     RecordPhoto(
-        id = "$idPrefix-$index",
-        imageRes = previewPhotoResources[index % previewPhotoResources.size],
+        memoryPhotoId = index.toLong(),
+        imageUrl = previewPhotoUrls[index % previewPhotoUrls.size],
+        photoOrder = index,
     )
 }
 
 internal fun sampleRecordUiState(): RecordUiState = RecordUiState(
+    currentYear = 2026,
+    currentMonth = 5,
     selectedDate = LocalDate.of(2026, 5, 26),
-    currentMonth = YearMonth.of(2026, 5),
-    courseDates = previewCourseDates,
-    photosByDate = mapOf(
-        LocalDate.of(2026, 5, 5) to previewPhotos("0505", 4),
-        LocalDate.of(2026, 5, 12) to previewPhotos("0512", 3),
-        LocalDate.of(2026, 5, 19) to emptyList(),
-        LocalDate.of(2026, 5, 26) to previewPhotos("0526", 5),
-    ),
     coursesByDate = mapOf(
         LocalDate.of(2026, 5, 5) to listOf(
-            VisitedCourse(id = "0505-1", title = "연남동 브런치 코스"),
+            CalendarCourse(101L, "연남동 브런치 코스", ParticipantType.COUPLE, 2L),
         ),
         LocalDate.of(2026, 5, 12) to listOf(
-            VisitedCourse(id = "0512-1", title = "한강 피크닉 코스"),
-            VisitedCourse(id = "0512-2", title = "망원 카페 코스"),
+            CalendarCourse(102L, "한강 피크닉 코스", ParticipantType.FRIEND, 3L),
+            CalendarCourse(103L, "망원 카페 코스", ParticipantType.FRIEND, 3L),
         ),
         LocalDate.of(2026, 5, 19) to listOf(
-            VisitedCourse(id = "0519-1", title = "북촌 한옥 산책"),
+            CalendarCourse(104L, "북촌 한옥 산책", ParticipantType.ALONE, 1L),
         ),
         LocalDate.of(2026, 5, 26) to listOf(
-            VisitedCourse(id = "0526-1", title = "성수 데이트 코스"),
-            VisitedCourse(id = "0526-2", title = "서울숲 나들이"),
-            VisitedCourse(id = "0526-3", title = "건대 맛집 투어"),
-            VisitedCourse(id = "0526-4", title = "잠실 야경 코스"),
+            CalendarCourse(105L, "성수 데이트 코스", ParticipantType.COUPLE, 2L),
+            CalendarCourse(106L, "서울숲 나들이", ParticipantType.COUPLE, 2L),
         ),
     ),
-    memosByPhotoId = mapOf(
-        "0526-0" to listOf(
-            MemoEntry(id = "m1", author = "나", content = "소품샵 어때 😊"),
-            MemoEntry(id = "m2", author = "보라", content = "다음에 곰볼 갔다가 헤이티도 고고"),
-            MemoEntry(id = "m3", author = "나", content = "고고고"),
-        ),
+    selectedCourseId = 105L,
+    places = listOf(
+        RecordPlace(coursePlaceId = 1L, placeId = 201L, placeName = "성수 브런치 카페", placeOrder = 1),
+        RecordPlace(coursePlaceId = 2L, placeId = 202L, placeName = "서울숲", placeOrder = 2),
     ),
+    photos = previewPhotos(5),
+    diaryContent = "소품샵 어때 😊",
 )
