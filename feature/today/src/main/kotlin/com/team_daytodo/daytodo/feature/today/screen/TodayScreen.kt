@@ -80,6 +80,9 @@ fun TodayScreen(
     onAddPlaceClick: () -> Unit = {},
     onAddCourseClick: () -> Unit = {},
     onCompleteCourseClick: () -> Unit = {},
+    onDeletePlaceClick: (String) -> Unit = {},
+    onReorderDragStart: () -> Unit = {},
+    onReorderCommit: (List<String>) -> Unit = {},
     selectedMemoryPhotoUris: List<String> = emptyList(),
     isSavingMemoryPhotos: Boolean = false,
     onAddMemoryPhotosClick: () -> Unit = {},
@@ -217,11 +220,43 @@ fun TodayScreen(
                                 Modifier.padding(bottom = 10.dp)
                             },
                             isDragging = isDragging,
-                            dragHandleModifier = Modifier.draggableHandle(),
-                            onDeleteClick = { placeId ->
-                                coursePlaces.removeAll { it.id == placeId }
-                            },
+                            dragHandleModifier = Modifier.draggableHandle(
+                                onDragStarted = { onReorderDragStart() },
+                                onDragStopped = {
+                                    onReorderCommit(coursePlaces.map { place -> place.id })
+                                },
+                            ),
+                            onDeleteClick = onDeletePlaceClick,
                         )
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Row(
+                            modifier = Modifier.clickable(onClick = onAddPlaceClick),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = com.team_daytodo.daytodo.feature.today.R.drawable.ic_plus,
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Unspecified,
+                            )
+                            Text(
+                                text = "장소 추가",
+                                style = DayTodoTheme.typography.label2,
+                                color = DayTodoTheme.colors.brandPrimary,
+                            )
+                        }
                     }
                 }
 

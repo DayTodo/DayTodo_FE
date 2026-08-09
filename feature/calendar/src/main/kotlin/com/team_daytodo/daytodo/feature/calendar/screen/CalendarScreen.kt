@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.daysOfWeek
+import com.team_daytodo.daytodo.domain.calendar.model.CalendarCourse
+import com.team_daytodo.daytodo.domain.calendar.model.ParticipantType
 import com.team_daytodo.daytodo.feature.calendar.R
 import com.team_daytodo.daytodo.feature.calendar.component.CalendarDayCell
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -54,17 +57,22 @@ private val SundayColor = Color(0xFFFF5B00)
 // 코스 있음 박스 배경: 연보라. uikit 토큰 미노출로 임시 하드코딩
 private val CourseContainerColor = Color(0xFFECECFF)
 
-// 더미 데이터: 특정 날짜에만 코스가 존재
+// 프리뷰 전용 더미 데이터
 private val defaultCoursesByDate = mapOf(
-    LocalDate.of(2026, 7, 29) to "홍대거리 코스",
-    LocalDate.of(2026, 7, 16) to "성수 데이트 코스",
+    LocalDate.of(2026, 7, 29) to listOf(
+        CalendarCourse(1L, "홍대거리 코스", ParticipantType.COUPLE, 2L),
+    ),
+    LocalDate.of(2026, 7, 16) to listOf(
+        CalendarCourse(2L, "성수 데이트 코스", ParticipantType.COUPLE, 2L),
+    ),
 )
 
 @Composable
 fun CalendarScreen(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    coursesByDate: Map<LocalDate, String>,
+    coursesByDate: Map<LocalDate, List<CalendarCourse>>,
+    onMonthChanged: (YearMonth) -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -78,6 +86,10 @@ fun CalendarScreen(
     )
     val coroutineScope = rememberCoroutineScope()
     val visibleMonth = state.firstVisibleMonth.yearMonth
+
+    LaunchedEffect(visibleMonth) {
+        onMonthChanged(visibleMonth)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -141,7 +153,7 @@ fun CalendarScreen(
                     CalendarDayCell(
                         day = day,
                         isSelected = day.date == selectedDate,
-                        hasCourse = coursesByDate.containsKey(day.date),
+                        hasCourse = coursesByDate[day.date]?.isNotEmpty() == true,
                         onClick = onDateSelected,
                     )
                 },
@@ -149,7 +161,7 @@ fun CalendarScreen(
 
             SelectedCourseSection(
                 selectedDate = selectedDate,
-                courseName = coursesByDate[selectedDate],
+                courses = coursesByDate[selectedDate].orEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp),
@@ -218,10 +230,10 @@ private fun WeekDayHeader(
 @Composable
 private fun SelectedCourseSection(
     selectedDate: LocalDate,
-    courseName: String?,
+    courses: List<CalendarCourse>,
     modifier: Modifier = Modifier,
 ) {
-    val hasCourse = courseName != null
+    val hasCourse = courses.isNotEmpty()
     Column(modifier = modifier) {
         Text(
             text = selectedDate.format(selectedDateFormatter),
@@ -244,15 +256,26 @@ private fun SelectedCourseSection(
                 )
                 .padding(16.dp),
         ) {
-            Text(
-                text = courseName ?: "오늘의 코스가 없어요",
-                style = DayTodoTheme.typography.label2,
-                color = if (hasCourse) {
-                    DayTodoTheme.colors.textPrimary
-                } else {
-                    DayTodoTheme.colors.textSecondary
-                },
-            )
+            if (hasCourse) {
+                Column {
+                    courses.forEachIndexed { index, course ->
+                        if (index > 0) {
+                            Box(modifier = Modifier.padding(top = 8.dp))
+                        }
+                        Text(
+                            text = course.courseName,
+                            style = DayTodoTheme.typography.label2,
+                            color = DayTodoTheme.colors.textPrimary,
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = "오늘의 코스가 없어요",
+                    style = DayTodoTheme.typography.label2,
+                    color = DayTodoTheme.colors.textSecondary,
+                )
+            }
         }
     }
 }
@@ -290,7 +313,11 @@ private fun CalendarScreenPreview2() {
         CalendarScreen(
             selectedDate = selectedDate,
             onDateSelected = { selectedDate = it },
-            coursesByDate = defaultCoursesByDate + (LocalDate.of(2026, 7, 18) to "프리뷰 코스"),
+            coursesByDate = defaultCoursesByDate + (
+                LocalDate.of(2026, 7, 18) to listOf(
+                    CalendarCourse(3L, "프리뷰 코스", ParticipantType.COUPLE, 2L),
+                )
+            ),
         )
     }
 }
