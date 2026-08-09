@@ -9,6 +9,8 @@ interface MypageRepository {
 
     suspend fun updateProfile(nickname: String, profileImageUri: String?): Result<MypageProfile>
 
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit>
+
     suspend fun getNotificationSettings(): Result<Boolean>
 
     suspend fun setNotificationEnabled(enabled: Boolean): Result<Unit>

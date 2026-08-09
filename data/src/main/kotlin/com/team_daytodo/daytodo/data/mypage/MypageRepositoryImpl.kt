@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.data.mypage
 import android.content.Context
 import android.net.Uri
 import com.team_daytodo.daytodo.data.api.MypageApi
+import com.team_daytodo.daytodo.data.dto.mypage.ChangePasswordRequest
 import com.team_daytodo.daytodo.data.dto.mypage.DeleteFcmTokenRequest
 import com.team_daytodo.daytodo.data.dto.mypage.LogoutRequest
 import com.team_daytodo.daytodo.data.dto.mypage.RegisterFcmTokenRequest
@@ -10,12 +11,15 @@ import com.team_daytodo.daytodo.data.dto.mypage.SendFeedbackRequest
 import com.team_daytodo.daytodo.data.dto.mypage.UpdateInterestRegionsRequest
 import com.team_daytodo.daytodo.data.dto.mypage.UpdateNotificationSettingsRequest
 import com.team_daytodo.daytodo.data.dto.mypage.toDomain
+import com.team_daytodo.daytodo.domain.mypage.model.ChangePasswordFailedException
 import com.team_daytodo.daytodo.domain.mypage.model.FeedbackSubmitFailedException
 import com.team_daytodo.daytodo.domain.mypage.model.FeedbackTooShortException
 import com.team_daytodo.daytodo.domain.mypage.model.FeedbackUnauthorizedException
 import com.team_daytodo.daytodo.domain.mypage.model.InterestRegion
+import com.team_daytodo.daytodo.domain.mypage.model.InvalidCurrentPasswordException
 import com.team_daytodo.daytodo.domain.mypage.model.MypageProfile
 import com.team_daytodo.daytodo.domain.mypage.model.Policies
+import com.team_daytodo.daytodo.domain.mypage.model.SocialAccountPasswordChangeNotAllowedException
 import com.team_daytodo.daytodo.domain.mypage.repository.MypageRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -55,6 +59,10 @@ class MypageRepositoryImpl @Inject constructor(
             body = file.asRequestBody(ImageMediaType),
         )
     }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> = runCatching {
+        mypageApi.changePassword(ChangePasswordRequest(currentPassword, newPassword)).throwIfNotSuccessful()
+    }.recoverCatching { cause -> throw cause.toChangePasswordException() }
 
     override suspend fun getNotificationSettings(): Result<Boolean> = runCatching {
         mypageApi.getNotificationSettings().pushEnabled
@@ -105,6 +113,12 @@ class MypageRepositoryImpl @Inject constructor(
         this is HttpException && code() == 401 -> FeedbackUnauthorizedException(this)
         this is HttpException && code() == 400 -> FeedbackTooShortException(this)
         else -> FeedbackSubmitFailedException(this)
+    }
+
+    private fun Throwable.toChangePasswordException(): Throwable = when {
+        this is HttpException && code() == 401 -> InvalidCurrentPasswordException(this)
+        this is HttpException && code() == 409 -> SocialAccountPasswordChangeNotAllowedException(this)
+        else -> ChangePasswordFailedException(this)
     }
 
     private companion object {
