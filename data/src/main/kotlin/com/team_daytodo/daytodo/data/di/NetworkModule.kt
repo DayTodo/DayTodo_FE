@@ -50,16 +50,20 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val accessToken = authTokenLocalDataSource.getAccessToken()
-                val request = if (accessToken.isNullOrBlank()) {
-                    chain.request()
-                } else {
-                    chain.request()
-                        .newBuilder()
+                val originalRequest = chain.request()
+                val requestBuilder = originalRequest
+                    .newBuilder()
+                    .header(AcceptHeaderName, ApplicationJson)
+
+                if (
+                    !accessToken.isNullOrBlank() &&
+                    originalRequest.url.encodedPath.requiresAuthorization()
+                ) {
+                    requestBuilder
                         .header(AuthorizationHeaderName, "Bearer $accessToken")
-                        .build()
                 }
 
-                chain.proceed(request)
+                chain.proceed(requestBuilder.build())
             }
             .addInterceptor(loggingInterceptor)
             .build()
@@ -86,5 +90,22 @@ object NetworkModule {
         @DayTodoBaseUrl baseUrl: String,
     ): CalendarApi = retrofitFactory.create(baseUrl).create(CalendarApi::class.java)
 
+    private fun String.requiresAuthorization(): Boolean =
+        PublicAuthPaths.none { endsWith(it) }
+
+    private val PublicAuthPaths = setOf(
+        "/auth/login",
+        "/auth/login/naver",
+        "/auth/register",
+        "/auth/email-check",
+        "/auth/verify-email",
+        "/auth/verify-email/resend",
+        "/auth/password/reset-request",
+        "/auth/password/reset",
+        "/auth/token/refresh",
+    )
+
     private const val AuthorizationHeaderName = "Authorization"
+    private const val AcceptHeaderName = "Accept"
+    private const val ApplicationJson = "application/json"
 }
