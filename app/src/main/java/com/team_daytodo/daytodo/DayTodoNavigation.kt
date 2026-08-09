@@ -165,6 +165,13 @@ internal fun DayTodoNavHost(
                 onBackClick = { navController.popBackStack() },
             )
         }
+        composable(DayTodoRoute.Today) {
+            TodayRoute(
+                onAddPlaceClick = { courseId ->
+                    navController.navigate(DayTodoRoute.placeRecommendationRoute(courseId.toString()))
+                },
+            )
+        }
         composable(DayTodoRoute.Calendar) {
             CalendarScreen(
                 onBackClick = { navController.popBackStack() },
