@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.domain.record.repository
 import com.team_daytodo.daytodo.domain.record.model.RecordDiary
 import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
 import com.team_daytodo.daytodo.domain.record.model.RecordPlace
+import com.team_daytodo.daytodo.domain.record.model.RecordPlaceBookmark
 import java.time.LocalDate
 
 interface RecordRepository {
@@ -13,4 +14,8 @@ interface RecordRepository {
     suspend fun getDiaryByDate(date: LocalDate): Result<RecordDiary?>
 
     suspend fun writeDiary(courseId: Long, content: String): Result<RecordDiary>
+
+    suspend fun saveBookmark(placeId: Long): Result<RecordPlaceBookmark>
+
+    suspend fun removeBookmark(bookmarkId: Long): Result<Unit>
 }

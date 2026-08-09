@@ -45,6 +45,7 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
                 navController.navigate(RecordRoute.memo(photoIndex))
             },
             onMorePhotosClick = { navController.navigate(RecordRoute.PhotoSelect) },
+            onSavePlaceClick = viewModel::onSavePlaceClick,
         )
     }
 

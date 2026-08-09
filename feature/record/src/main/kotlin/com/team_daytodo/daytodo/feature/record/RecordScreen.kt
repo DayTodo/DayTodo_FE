@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.feature.record
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,9 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.record.component.RecordCalendarSection
 import com.team_daytodo.daytodo.feature.record.component.RecordPhotoRow
+import com.team_daytodo.daytodo.feature.record.component.RecordPlaceItem
 import com.team_daytodo.daytodo.feature.record.component.VisitedCourseItem
 import com.team_daytodo.daytodo.feature.record.model.RecordUiState
-import com.team_daytodo.daytodo.feature.record.model.VisitedCourse
 import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -50,7 +49,7 @@ fun RecordScreen(
     onCourseSelect: (Long) -> Unit = {},
     onPhotoClick: (Int) -> Unit = {},
     onMorePhotosClick: () -> Unit = {},
-    onSaveCourseClick: (VisitedCourse) -> Unit = {},
+    onSavePlaceClick: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -127,12 +126,21 @@ fun RecordScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(bottom = 24.dp),
             ) {
-                coursesOnSelectedDate.forEach { course ->
-                    VisitedCourseItem(
-                        course = VisitedCourse(id = course.courseId.toString(), title = course.courseName),
-                        onSaveClick = onSaveCourseClick,
-                        modifier = Modifier.clickable { onCourseSelect(course.courseId) },
-                    )
+                if (isChoosingCourse) {
+                    coursesOnSelectedDate.forEach { course ->
+                        VisitedCourseItem(
+                            title = course.courseName,
+                            onClick = { onCourseSelect(course.courseId) },
+                        )
+                    }
+                } else {
+                    uiState.places.forEach { place ->
+                        RecordPlaceItem(
+                            placeName = place.placeName,
+                            isSaved = place.placeId in uiState.savedPlaceIds,
+                            onSaveClick = { onSavePlaceClick(place.placeId) },
+                        )
+                    }
                 }
             }
 

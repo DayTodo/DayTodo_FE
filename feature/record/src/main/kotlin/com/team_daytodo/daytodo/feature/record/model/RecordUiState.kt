@@ -15,6 +15,11 @@ data class RecordUiState(
     val places: List<RecordPlace> = emptyList(),
     val photos: List<RecordPhoto> = emptyList(),
     val diaryContent: String = "",
+    // 낙관적으로 즉시 반영되는 "저장됨" 표시 상태. 실제 삭제(DELETE) 호출에는 bookmarkId가
+    // 필요해서 placeId만으로는 부족하므로, 확정된 매핑은 placeBookmarkIds에 별도로 둔다.
+    val savedPlaceIds: Set<Long> = emptySet(),
+    val placeBookmarkIds: Map<Long, Long> = emptyMap(),
+    val pendingBookmarkPlaceIds: Set<Long> = emptySet(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
@@ -59,6 +64,8 @@ internal fun sampleRecordUiState(): RecordUiState = RecordUiState(
         RecordPlace(coursePlaceId = 1L, placeId = 201L, placeName = "성수 브런치 카페", placeOrder = 1),
         RecordPlace(coursePlaceId = 2L, placeId = 202L, placeName = "서울숲", placeOrder = 2),
     ),
+    savedPlaceIds = setOf(201L),
+    placeBookmarkIds = mapOf(201L to 9001L),
     photos = previewPhotos(5),
     diaryContent = "소품샵 어때 😊",
 )
