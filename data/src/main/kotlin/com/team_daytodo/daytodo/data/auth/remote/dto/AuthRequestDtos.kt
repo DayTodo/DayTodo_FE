@@ -44,7 +44,7 @@ data class RegisterRequestDto(
     @SerialName("password")
     val password: String,
     @SerialName("nickname")
-    val nickname: String,
+    val nickname: String? = null,
 )
 
 @Serializable
@@ -62,7 +62,7 @@ data class PasswordResetRequestRequestDto(
 @Serializable
 data class PasswordResetRequestDto(
     @SerialName("email")
-    val email : String,
+    val email: String,
     @SerialName("code")
     val code: String,
     @SerialName("newPassword")
