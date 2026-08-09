@@ -1,6 +1,6 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.data.mypage.DummyMypageRepository
+import com.team_daytodo.daytodo.data.mypage.MypageRepositoryImpl
 import com.team_daytodo.daytodo.domain.mypage.repository.MypageRepository
 import dagger.Binds
 import dagger.Module
@@ -14,6 +14,6 @@ abstract class MypageDataModule {
     @Binds
     @Singleton
     abstract fun bindMypageRepository(
-        dummyMypageRepository: DummyMypageRepository,
+        mypageRepositoryImpl: MypageRepositoryImpl,
     ): MypageRepository
 }

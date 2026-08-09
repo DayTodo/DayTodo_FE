@@ -40,7 +40,28 @@ class AuthTokenLocalDataSource @Inject constructor(
         }
     }
 
+    fun getRefreshToken(): String? = runBlocking {
+        context.authTokenDataStore.data
+            .catch { cause ->
+                if (cause is IOException) emit(emptyPreferences()) else throw cause
+            }
+            .first()[RefreshTokenKey]
+    }
+
+    suspend fun saveRefreshToken(refreshToken: String) {
+        context.authTokenDataStore.edit { preferences ->
+            preferences[RefreshTokenKey] = refreshToken
+        }
+    }
+
+    suspend fun clearRefreshToken() {
+        context.authTokenDataStore.edit { preferences ->
+            preferences.remove(RefreshTokenKey)
+        }
+    }
+
     private companion object {
         val AccessTokenKey = stringPreferencesKey("access_token")
+        val RefreshTokenKey = stringPreferencesKey("refresh_token")
     }
 }
