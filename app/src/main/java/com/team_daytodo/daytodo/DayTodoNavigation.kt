@@ -58,8 +58,11 @@ internal fun DayTodoNavHost(
                 onShowOnboarding = {
                     navController.navigateClearingOnboardingGate(DayTodoRoute.Onboarding)
                 },
-                onSkipOnboarding = {
+                onShowLogin = {
                     navController.navigateClearingOnboardingGate(DayTodoRoute.Login)
+                },
+                onShowHome = {
+                    navController.navigateClearingOnboardingGate(DayTodoRoute.Home)
                 },
             )
         }
