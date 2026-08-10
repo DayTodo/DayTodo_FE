@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -24,7 +23,6 @@ fun PersonalInfoSection(
     name: String,
     nickname: String,
     email: String,
-    phoneNumber: String,
     onNicknameChange: (String) -> Unit,
     onChangePasswordClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -66,24 +64,6 @@ fun PersonalInfoSection(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 tint = DayTodoTheme.colors.iconDefault,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "전화번호",
-                style = DayTodoTheme.typography.title2,
-                color = DayTodoTheme.colors.textPrimary,
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            Text(
-                text = phoneNumber,
-                style = DayTodoTheme.typography.label2,
-                color = DayTodoTheme.colors.textSecondary,
             )
         }
     }

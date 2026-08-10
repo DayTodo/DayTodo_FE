@@ -70,7 +70,6 @@ fun ProfileEditScreen(
                 name = uiState.name,
                 nickname = uiState.nickname,
                 email = uiState.email,
-                phoneNumber = uiState.phoneNumber,
                 onNicknameChange = onNicknameChange,
                 onChangePasswordClick = onChangePasswordClick,
             )
@@ -100,7 +99,6 @@ private fun ProfileEditScreenPreview() {
                 name = "홍길동",
                 nickname = "데이투두",
                 email = "daytodo@example.com",
-                phoneNumber = "000-0000-0000",
                 linkedAccountProvider = "네이버",
                 linkedAccountId = "daytodo@naver.com",
             ),
