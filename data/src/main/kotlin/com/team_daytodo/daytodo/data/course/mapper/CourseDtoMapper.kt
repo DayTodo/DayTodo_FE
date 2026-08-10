@@ -9,7 +9,6 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSummaryDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentResponseDto
@@ -181,17 +180,6 @@ internal fun PlaceRecommendationCommentResponseDto.toComment(
         author = author,
         content = content.trim(),
         createdAtMillis = System.currentTimeMillis(),
-    )
-
-internal fun CourseSettingResponseDto.toSummary(regionName: String?): CourseSummary =
-    CourseSummary(
-        id = courseId.toString(),
-        name = courseName,
-        region = regionName.orEmpty(),
-        date = courseDate.toCourseDate(),
-        relationship = participantType.toRelationship(),
-        members = emptyList(),
-        placeCount = 0,
     )
 
 internal fun String.toCourseIdLong(): Long =
