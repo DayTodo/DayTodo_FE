@@ -164,6 +164,9 @@ class PlaceRecommendationViewModelTest {
         override suspend fun createCourseRoom(request: CourseCreateRequest): Result<CourseCreateResult> =
             unused()
 
+        override suspend fun joinCourse(inviteCode: String): Result<String> =
+            unused()
+
         override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
             unused()
 
