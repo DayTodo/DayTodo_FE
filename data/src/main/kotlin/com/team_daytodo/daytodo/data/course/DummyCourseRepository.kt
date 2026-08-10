@@ -226,6 +226,12 @@ class DummyCourseRepository @Inject constructor(
             throw CourseRoomCreateException(cause)
         }
 
+    override suspend fun joinCourse(inviteCode: String): Result<String> =
+        runCatching {
+            delay(ActionDelayMillis)
+            "Joined course"
+        }
+
     override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
         runCatching {
             delay(QueryDelayMillis)

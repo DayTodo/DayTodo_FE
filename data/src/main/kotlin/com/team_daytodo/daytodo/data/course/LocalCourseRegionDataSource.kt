@@ -6,7 +6,17 @@ import javax.inject.Inject
 class LocalCourseRegionDataSource @Inject constructor() {
     fun getRegions(): List<CourseRegionGroup> = courseRegions
 
+    fun getRegionId(regionName: String): Long? =
+        selectableRegions.indexOfFirst { it == regionName.trim() }
+            .takeIf { it >= 0 }
+            ?.let { it + RegionIdOffset }
+
+    fun getRegionName(regionId: Long): String? =
+        selectableRegions.getOrNull((regionId - RegionIdOffset).toInt())
+
     private companion object {
+        const val RegionIdOffset = 1L
+
         val courseRegions = listOf(
             CourseRegionGroup(
                 name = "전국",
@@ -130,5 +140,9 @@ class LocalCourseRegionDataSource @Inject constructor() {
                 ),
             ),
         )
+
+        val selectableRegions = courseRegions.flatMap { region ->
+            region.children.takeIf(List<String>::isNotEmpty) ?: listOf(region.name)
+        }
     }
 }

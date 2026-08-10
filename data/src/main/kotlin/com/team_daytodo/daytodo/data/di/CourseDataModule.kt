@@ -1,6 +1,6 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.data.course.DummyCourseRepository
+import com.team_daytodo.daytodo.data.course.CourseRepositoryImpl
 import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
 import dagger.Binds
 import dagger.Module
@@ -14,6 +14,6 @@ abstract class CourseDataModule {
     @Binds
     @Singleton
     abstract fun bindCourseRepository(
-        dummyCourseRepository: DummyCourseRepository,
+        courseRepositoryImpl: CourseRepositoryImpl,
     ): CourseRepository
 }
