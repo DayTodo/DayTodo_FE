@@ -68,39 +68,46 @@ class InterestRegionViewModel @Inject constructor(
     }
 
     private fun loadRegions() {
-        val options = getInterestRegionOptionsUseCase()
-        val groups = options
-            // "전국"처럼 하위지역이 없는 항목은 parentRegionName이 null이라 자기 자신을 유일한
-            // 자식으로 갖는 그룹이 된다 — 좌/우 2단 레이아웃을 특수 분기 없이 통일해서 처리하기 위함.
-            .groupBy { it.parentRegionName ?: it.regionName }
-            .map { (parentName, groupOptions) -> InterestRegionGroup(parentName, groupOptions) }
-
         viewModelScope.launch {
-            getInterestRegionsUseCase()
-                .onSuccess { serverRegions ->
-                    // 카탈로그가 하드코딩 가짜 regionId라 서버가 돌려준 진짜 regionId와 매칭이
-                    // 안 될 수 있다. 매칭되는 것만 초기 선택으로 반영하고 나머지는 조용히 무시한다
-                    // (크래시 없이, 매칭 실패 시 화면은 아무것도 선택 안 된 상태로 시작).
-                    val catalogIds = options.map { it.regionId }.toSet()
-                    val matchedIds = serverRegions.map { it.regionId }.filter { it in catalogIds }.toSet()
-                    _uiState.update {
-                        it.copy(
-                            groups = groups,
-                            selectedGroupName = groups.firstOrNull()?.parentName.orEmpty(),
-                            selectedRegionIds = matchedIds,
-                            isLoading = false,
-                        )
-                    }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            getInterestRegionOptionsUseCase()
+                .onSuccess { options ->
+                    val groups = options
+                        // 하위지역이 없는 항목(예: 하위 구가 없는 시/도)은 parentRegionName이
+                        // null이라 자기 자신을 유일한 자식으로 갖는 그룹이 된다 — 좌/우 2단
+                        // 레이아웃을 특수 분기 없이 통일해서 처리하기 위함.
+                        .groupBy { it.parentRegionName ?: it.regionName }
+                        .map { (parentName, groupOptions) -> InterestRegionGroup(parentName, groupOptions) }
+
+                    getInterestRegionsUseCase()
+                        .onSuccess { serverRegions ->
+                            // 서버가 돌려준 regionId가 현재 카탈로그에 없는 경우(예: 지역 개편으로
+                            // 카탈로그에서 빠진 지역을 과거에 저장해둔 경우)를 방어한다. 매칭되는
+                            // 것만 초기 선택으로 반영하고 나머지는 조용히 무시한다(크래시 없이).
+                            val catalogIds = options.map { it.regionId }.toSet()
+                            val matchedIds = serverRegions.map { it.regionId }.filter { it in catalogIds }.toSet()
+                            _uiState.update {
+                                it.copy(
+                                    groups = groups,
+                                    selectedGroupName = groups.firstOrNull()?.parentName.orEmpty(),
+                                    selectedRegionIds = matchedIds,
+                                    isLoading = false,
+                                )
+                            }
+                        }
+                        .onFailure { cause ->
+                            _uiState.update {
+                                it.copy(
+                                    groups = groups,
+                                    selectedGroupName = groups.firstOrNull()?.parentName.orEmpty(),
+                                    isLoading = false,
+                                    errorMessage = cause.message,
+                                )
+                            }
+                        }
                 }
                 .onFailure { cause ->
-                    _uiState.update {
-                        it.copy(
-                            groups = groups,
-                            selectedGroupName = groups.firstOrNull()?.parentName.orEmpty(),
-                            isLoading = false,
-                            errorMessage = cause.message,
-                        )
-                    }
+                    _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
                 }
         }
     }
