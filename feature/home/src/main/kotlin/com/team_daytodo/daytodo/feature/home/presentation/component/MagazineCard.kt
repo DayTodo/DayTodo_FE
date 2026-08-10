@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.feature.home.presentation.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -61,11 +60,12 @@ internal fun MagazineCard(
                 .background(Color(0xFFF3F3F3)),
             contentAlignment = Alignment.Center,
         ) {
-            Image(
+            RemoteImage(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id = magazine.imageRes),
+                imageUrl = magazine.thumbnailUrl,
+                fallbackResId = magazine.imageRes,
                 contentDescription = null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
             )
         }
         Spacer(modifier = Modifier.width(26.dp))
