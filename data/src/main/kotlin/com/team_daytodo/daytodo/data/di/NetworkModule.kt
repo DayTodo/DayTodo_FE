@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.data.di
 import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.CalendarApi
 import com.team_daytodo.daytodo.data.api.MypageApi
+import com.team_daytodo.daytodo.data.api.RegionApi
 import com.team_daytodo.daytodo.data.api.TodayApi
 import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
 import com.team_daytodo.daytodo.data.network.RetrofitFactory
@@ -85,6 +86,13 @@ object NetworkModule {
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): CalendarApi = retrofitFactory.create(baseUrl).create(CalendarApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRegionApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): RegionApi = retrofitFactory.create(baseUrl).create(RegionApi::class.java)
 
     private const val AuthorizationHeaderName = "Authorization"
 }
