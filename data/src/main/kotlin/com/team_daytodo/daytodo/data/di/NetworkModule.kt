@@ -96,6 +96,7 @@ object NetworkModule {
     private val PublicAuthPaths = setOf(
         "/auth/login",
         "/auth/login/naver",
+        "/auth/logout",
         "/auth/register",
         "/auth/email-check",
         "/auth/verify-email",

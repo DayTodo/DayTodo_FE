@@ -178,4 +178,4 @@ private data class PasswordResetToken(
 )
 
 private const val PasswordResetTokenSeparator = "::"
-private const val DefaultVerificationCodeExpiresInSeconds = 180
+private const val DefaultVerificationCodeExpiresInSeconds = 600
