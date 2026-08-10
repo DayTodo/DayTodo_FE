@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.data.di
 
 import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.CalendarApi
+import com.team_daytodo.daytodo.data.api.MagazineApi
 import com.team_daytodo.daytodo.data.api.MypageApi
 import com.team_daytodo.daytodo.data.api.RecordApi
 import com.team_daytodo.daytodo.data.api.TodayApi
@@ -93,6 +94,13 @@ object NetworkModule {
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): RecordApi = retrofitFactory.create(baseUrl).create(RecordApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMagazineApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): MagazineApi = retrofitFactory.create(baseUrl).create(MagazineApi::class.java)
 
     private const val AuthorizationHeaderName = "Authorization"
 }
