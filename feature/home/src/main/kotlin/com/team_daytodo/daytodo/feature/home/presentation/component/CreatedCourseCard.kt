@@ -1,0 +1,105 @@
+package com.team_daytodo.daytodo.feature.home.presentation.component
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.feature.home.model.CreatedCourse
+import com.team_daytodo.daytodo.feature.home.presentation.homeRelationshipColors
+import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
+
+@Composable
+internal fun CreatedCourseCard(course: CreatedCourse) {
+    val colors = course.relationship.homeRelationshipColors()
+
+    Surface(
+        modifier = Modifier
+            .width(217.dp)
+            .heightIn(min = CreatedCourseCardMinHeight),
+        shape = RoundedCornerShape(11.dp),
+        color = colors.background,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.5.dp),
+        ) {
+            Text(
+                text = course.title,
+                style = DayTodoTheme.typography.title2,
+                color = DayTodoTheme.colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = course.date,
+                style = DayTodoTheme.typography.title3,
+                color = DayTodoTheme.colors.textSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .widthIn(min = CreatedCourseMemberBadgeMinWidth)
+                        .heightIn(min = CreatedCourseMemberBadgeMinHeight),
+                    shape = RoundedCornerShape(8.dp),
+                    color = colors.emphasis,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "${course.memberCount}명",
+                            style = DayTodoTheme.typography.caption1,
+                            color = DayTodoTheme.colors.textQuaternary,
+                        )
+                    }
+                }
+                Text(
+                    text = course.dDay,
+                    style = DayTodoTheme.typography.headlineLarge,
+                    color = colors.emphasis,
+                )
+            }
+        }
+    }
+}
+
+private val CreatedCourseCardMinHeight = 99.dp
+private val CreatedCourseMemberBadgeMinWidth = 44.dp
+private val CreatedCourseMemberBadgeMinHeight = 20.dp
+
+@Preview
+@Composable
+fun PreviewCreatedCourseCard() {
+    CreatedCourseCard(
+        course = CreatedCourse(
+            title = "성수 감성 산책",
+            date = "2026.7.9. (목)",
+            memberCount = 3,
+            dDay = "D-1",
+            relationship = com.team_daytodo.daytodo.core.model.Relationship.FRIEND,
+        )
+    )
+}

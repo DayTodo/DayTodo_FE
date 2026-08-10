@@ -5,7 +5,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.team_daytodo.daytodo.uikit.R
 
-internal val pretendardFontFamily =
+val pretendardFontFamily =
     FontFamily(
         Font(R.font.pretendard_thin, FontWeight.Thin),
         Font(R.font.pretendard_extralight, FontWeight.ExtraLight),

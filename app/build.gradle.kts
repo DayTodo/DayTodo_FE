@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.daytodo.android.application)
     alias(libs.plugins.daytodo.android.compose)
     alias(libs.plugins.daytodo.hilt)
+    alias(libs.plugins.daytodo.firebase)
+
 }
 
 android {
@@ -30,16 +32,18 @@ dependencies {
     implementation(project(":data"))
 
     implementation(project(":feature:auth"))
+    implementation(project(":feature:onboarding"))
     implementation(project(":feature:home"))
     implementation(project(":feature:magazine"))
     implementation(project(":feature:course"))
     implementation(project(":feature:save"))
     implementation(project(":feature:calendar"))
     implementation(project(":feature:today"))
-    implementation(project(":feature:diary"))
+    implementation(project(":feature:record"))
     implementation(project(":feature:mypage"))
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.timber)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

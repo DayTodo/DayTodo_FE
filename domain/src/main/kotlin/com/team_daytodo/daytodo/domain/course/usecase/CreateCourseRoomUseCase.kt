@@ -1,0 +1,20 @@
+package com.team_daytodo.daytodo.domain.course.usecase
+
+import com.team_daytodo.daytodo.domain.course.model.CourseCreateRequest
+import com.team_daytodo.daytodo.domain.course.model.CourseCreateResult
+import com.team_daytodo.daytodo.domain.course.model.validateForCreateOrNull
+import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
+import javax.inject.Inject
+
+class CreateCourseRoomUseCase @Inject constructor(
+    private val courseRepository: CourseRepository,
+) {
+    suspend operator fun invoke(request: CourseCreateRequest): Result<CourseCreateResult> {
+        val validationError = request.validateForCreateOrNull()
+        if (validationError != null) {
+            return Result.failure(validationError)
+        }
+
+        return courseRepository.createCourseRoom(request)
+    }
+}

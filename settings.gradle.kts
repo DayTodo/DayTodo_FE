@@ -19,6 +19,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        maven {
+            url = uri(
+                "https://devrepo.kakao.com/nexus/repository/kakaomap-releases/"
+            )
+        }
     }
 }
 
@@ -31,11 +37,12 @@ include(":domain")
 include(":data")
 
 include(":feature:auth")
+include(":feature:onboarding")
 include(":feature:home")
 include(":feature:magazine")
 include(":feature:course")
 include(":feature:save")
 include(":feature:calendar")
 include(":feature:today")
-include(":feature:diary")
+include(":feature:record")
 include(":feature:mypage")

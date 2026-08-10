@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.uikit.theme
 
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -8,8 +7,14 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 data class DayTodoColors(
     val brandPrimary: Color,
+    val brandPrimaryStrong: Color,
+    val brandPrimaryEmphasis: Color,
     val brandSecondary: Color,
+    val brandSecondaryStrong: Color,
+    val brandSecondaryEmphasis: Color,
     val brandTertiary: Color,
+    val brandTertiaryStrong: Color,
+    val brandTertiaryEmphasis: Color,
 
     val textPrimary: Color,
     val textSecondary: Color,
@@ -21,6 +26,8 @@ data class DayTodoColors(
     val iconDisabled: Color,
     val iconOnColor: Color,
 
+    val badgeColor: Color,
+
     val backgroundDefault: Color,
     val backgroundSecondary: Color,
     val backgroundTertiary: Color,
@@ -30,8 +37,14 @@ data class DayTodoColors(
 
 internal val lightDayTodoColors = DayTodoColors(
     brandPrimary = purple500,
+    brandPrimaryStrong = purple600,
+    brandPrimaryEmphasis = purple700,
     brandSecondary = yellow500,
+    brandSecondaryStrong = yellow600,
+    brandSecondaryEmphasis = yellow700,
     brandTertiary = pink500,
+    brandTertiaryStrong = pink600,
+    brandTertiaryEmphasis = pink700,
 
     textPrimary = text1,
     textSecondary = text2,
@@ -42,6 +55,8 @@ internal val lightDayTodoColors = DayTodoColors(
     iconSelected = iconColor,
     iconDisabled = iconDisabled,
     iconOnColor = iconW,
+
+    badgeColor = badgeColor,
 
     backgroundDefault = background1,
     backgroundSecondary = background2,

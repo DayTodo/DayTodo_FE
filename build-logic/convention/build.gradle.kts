@@ -46,5 +46,10 @@ gradlePlugin {
             id = "daytodo.android.feature"
             implementationClass = "com.team_daytodo.daytodo.convention.FeatureConventionPlugin"
         }
+        register("firebase") {
+            id = "daytodo.firebase"
+            implementationClass =
+                "com.team_daytodo.daytodo.convention.FirebaseConventionPlugin"
+        }
     }
 }
