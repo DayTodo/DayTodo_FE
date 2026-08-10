@@ -24,8 +24,8 @@ import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
 import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.CourseEditRoute
+import com.team_daytodo.daytodo.feature.course.CourseJoinRoute
 import com.team_daytodo.daytodo.feature.course.CourseListRoute
-import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
 import com.team_daytodo.daytodo.feature.home.HomeRoute
@@ -217,8 +217,17 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.CourseJoin) {
-            InviteCodeJoinScreen(
+            CourseJoinRoute(
                 onBackClick = { navController.popBackStack() },
+                onJoinCompleted = {
+                    val didPopToHome = navController.popBackStack(
+                        route = DayTodoRoute.Home,
+                        inclusive = false,
+                    )
+                    if (!didPopToHome) {
+                        navController.navigateSingleTopTo(DayTodoRoute.Home)
+                    }
+                },
             )
         }
         composable(
