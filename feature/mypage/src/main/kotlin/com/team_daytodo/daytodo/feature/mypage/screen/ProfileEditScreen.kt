@@ -31,7 +31,7 @@ fun ProfileEditScreen(
     onBackClick: () -> Unit = {},
     onChangePhotoClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
-    onChangePhoneClick: () -> Unit = {},
+    onNicknameChange: (String) -> Unit = {},
     onUnlinkAccountClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
 ) {
@@ -53,6 +53,7 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.height(23.dp))
             ProfilePhotoPicker(
                 onClick = onChangePhotoClick,
+                imageUri = uiState.profileImageUri,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -69,9 +70,8 @@ fun ProfileEditScreen(
                 name = uiState.name,
                 nickname = uiState.nickname,
                 email = uiState.email,
-                phoneNumber = uiState.phoneNumber,
+                onNicknameChange = onNicknameChange,
                 onChangePasswordClick = onChangePasswordClick,
-                onChangePhoneClick = onChangePhoneClick,
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -83,7 +83,7 @@ fun ProfileEditScreen(
             )
 
             Spacer(modifier = Modifier.height(33.dp))
-            ProfileSaveButton(text = "저장하기", onClick = onSaveClick)
+            ProfileSaveButton(text = "저장하기", onClick = onSaveClick, enabled = uiState.canSave)
 
             Spacer(modifier = Modifier.height(40.dp))
         }
@@ -99,7 +99,6 @@ private fun ProfileEditScreenPreview() {
                 name = "홍길동",
                 nickname = "데이투두",
                 email = "daytodo@example.com",
-                phoneNumber = "000-0000-0000",
                 linkedAccountProvider = "네이버",
                 linkedAccountId = "daytodo@naver.com",
             ),
