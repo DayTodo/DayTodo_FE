@@ -15,6 +15,12 @@ fun LoginRoute(
     onNavigateToSignup: () -> Unit,
     onNavigateToFindPassword: () -> Unit,
     onLoginCompleted: (needsProfileSetup: Boolean) -> Unit,
+    onNaverLoginClick: (
+        onAccessTokenReceived: (String) -> Unit,
+        onFailure: (String) -> Unit,
+    ) -> Unit = { _, onFailure ->
+        onFailure("\ub124\uc774\ubc84 \ub85c\uadf8\uc778 \uc124\uc815\uc744 \ud655\uc778\ud574 \uc8fc\uc138\uc694.")
+    },
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -41,7 +47,12 @@ fun LoginRoute(
         onPasswordVisibilityClick = viewModel::togglePasswordVisibility,
         onSignupClick = onNavigateToSignup,
         onFindPasswordClick = onNavigateToFindPassword,
-        onNaverLoginClick = viewModel::loginWithNaver,
+        onNaverLoginClick = {
+            onNaverLoginClick(
+                { token -> viewModel.loginWithNaverToken(token) },
+                viewModel::showNaverLoginFailure,
+            )
+        },
         onLoginClick = viewModel::login,
     )
 }
