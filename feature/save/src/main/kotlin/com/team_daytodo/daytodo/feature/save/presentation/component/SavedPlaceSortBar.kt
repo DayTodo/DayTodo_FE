@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.domain.magazine.model.SavedPlaceSortType
+import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
 import com.team_daytodo.daytodo.feature.save.model.displayName
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme

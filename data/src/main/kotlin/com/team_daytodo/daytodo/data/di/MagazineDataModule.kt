@@ -1,7 +1,7 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.data.magazine.DummyMagazineRepository
-import com.team_daytodo.daytodo.domain.magazine.repository.MagazineRepository
+import com.team_daytodo.daytodo.data.magazine.MagazineListRepositoryImpl
+import com.team_daytodo.daytodo.domain.magazine.repository.MagazineListRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 abstract class MagazineDataModule {
     @Binds
     @Singleton
-    abstract fun bindMagazineRepository(
-        dummyMagazineRepository: DummyMagazineRepository,
-    ): MagazineRepository
+    abstract fun bindMagazineListRepository(
+        magazineListRepositoryImpl: MagazineListRepositoryImpl,
+    ): MagazineListRepository
 }

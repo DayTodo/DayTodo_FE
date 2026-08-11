@@ -1,6 +1,6 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.data.auth.DummyAuthRepository
+import com.team_daytodo.daytodo.data.auth.AuthRepositoryImpl
 import com.team_daytodo.daytodo.domain.auth.repository.AuthRepository
 import dagger.Binds
 import dagger.Module
@@ -14,6 +14,6 @@ abstract class AuthDataModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(
-        dummyAuthRepository: DummyAuthRepository,
+        authRepository: AuthRepositoryImpl,
     ): AuthRepository
 }

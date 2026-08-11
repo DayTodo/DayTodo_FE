@@ -79,7 +79,7 @@ fun PasswordChangeScreen(
                 item {
                     AuthIntroSection(
                         title = "안전한 비밀번호로\n변경해 주세요",
-                        description = "※ 영문과 숫자를 조합해 8자 이상 입력해주세요",
+                        description = "※ 영문과 숫자를 포함해 8자 이상, 특수문자는 !@#\$%^&*()_+ 만 사용할 수 있어요",
                         modifier = Modifier
                             .padding(horizontal = ScreenHorizontalPadding)
                             .padding(top = 44.dp),

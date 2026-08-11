@@ -8,11 +8,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.domain.magazine.model.MagazinePlace
+import com.team_daytodo.daytodo.domain.bookmark.model.Bookmark
 
 @Composable
 internal fun SavedPlaceGrid(
-    places: List<MagazinePlace>,
+    places: List<Bookmark>,
     onPlaceClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectedPlaceIds: Set<String> = emptySet(),
@@ -28,13 +28,14 @@ internal fun SavedPlaceGrid(
     ) {
         items(
             items = places,
-            key = MagazinePlace::id,
+            key = Bookmark::bookmarkId,
         ) { place ->
+            val placeId = place.magazineId.toString()
             SavedPlaceCard(
                 place = place,
-                selected = place.id in selectedPlaceIds,
+                selected = placeId in selectedPlaceIds,
                 selectionMode = selectionMode,
-                onClick = { onPlaceClick(place.id) },
+                onClick = { onPlaceClick(placeId) },
             )
         }
     }

@@ -1,10 +1,12 @@
 package com.team_daytodo.daytodo.feature.magazine.model
 
-import com.team_daytodo.daytodo.domain.magazine.model.MagazinePlace
+import com.team_daytodo.daytodo.domain.magazine.model.MagazineDetail
 
 data class MagazineUiState(
     val isLoading: Boolean = false,
-    val place: MagazinePlace? = null,
+    val detail: MagazineDetail? = null,
+    val isSaved: Boolean = false,
+    val bookmarkId: Long? = null,
     val errorMessage: String? = null,
 )
 
