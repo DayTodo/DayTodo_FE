@@ -12,14 +12,16 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 @Composable
 fun OnboardingGateRoute(
     onShowOnboarding: () -> Unit,
-    onSkipOnboarding: () -> Unit,
+    onShowLogin: () -> Unit,
+    onShowHome: () -> Unit,
     viewModel: OnboardingGateViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 OnboardingGateEvent.ShowOnboarding -> onShowOnboarding()
-                OnboardingGateEvent.SkipOnboarding -> onSkipOnboarding()
+                OnboardingGateEvent.ShowLogin -> onShowLogin()
+                OnboardingGateEvent.ShowHome -> onShowHome()
             }
         }
     }

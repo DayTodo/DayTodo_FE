@@ -12,6 +12,7 @@ data class GetBookmarksResponse(
 data class BookmarkItemDto(
     val bookmarkId: Long,
     val magazineId: Long,
+    val placeId: Long? = null,
     val thumbnailUrl: String? = null,
     val placeName: String,
     val regionName: String,
@@ -32,6 +33,7 @@ data class CreateBookmarkResponse(
 fun BookmarkItemDto.toDomain(): Bookmark = Bookmark(
     bookmarkId = bookmarkId,
     magazineId = magazineId,
+    placeId = placeId,
     thumbnailUrl = thumbnailUrl,
     placeName = placeName,
     regionName = regionName,

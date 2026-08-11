@@ -2,7 +2,9 @@ package com.team_daytodo.daytodo.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team_daytodo.daytodo.domain.auth.model.EmailCheckRequest
 import com.team_daytodo.daytodo.domain.auth.model.SignupRequest
+import com.team_daytodo.daytodo.domain.auth.usecase.CheckEmailUseCase
 import com.team_daytodo.daytodo.domain.auth.usecase.SignupUseCase
 import com.team_daytodo.daytodo.feature.auth.model.SignupEvent
 import com.team_daytodo.daytodo.feature.auth.model.SignupUiState
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SignupViewModel @Inject constructor(
+    private val checkEmailUseCase: CheckEmailUseCase,
     private val signupUseCase: SignupUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SignupUiState())
@@ -61,6 +64,21 @@ class SignupViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+
+            val emailCheckResult = checkEmailUseCase(
+                EmailCheckRequest(email = currentState.email),
+            ).getOrElse { cause ->
+                _event.emit(SignupEvent.ShowMessage(cause.userFacingMessage(EmailCheckFailureMessage)))
+                _uiState.update { it.copy(isLoading = false) }
+                return@launch
+            }
+
+            if (!emailCheckResult.available) {
+                _event.emit(SignupEvent.ShowMessage(EmailDuplicatedMessage))
+                _uiState.update { it.copy(isLoading = false) }
+                return@launch
+            }
+
             signupUseCase(
                 SignupRequest(
                     email = currentState.email,
@@ -68,6 +86,7 @@ class SignupViewModel @Inject constructor(
                     agreedToTerms = currentState.agreedToTerms,
                 ),
             ).onSuccess { result ->
+                _event.emit(SignupEvent.ShowMessage(SignupSuccessMessage))
                 _event.emit(SignupEvent.SignupCompleted(result.needsProfileSetup))
             }.onFailure { cause ->
                 _event.emit(SignupEvent.ShowMessage(cause.userFacingMessage(SignupFailureMessage)))
@@ -83,6 +102,9 @@ class SignupViewModel @Inject constructor(
     }
 
     private companion object {
+        const val EmailCheckFailureMessage = "이메일 중복 확인에 실패했어요."
+        const val EmailDuplicatedMessage = "이미 가입된 이메일입니다."
+        const val SignupSuccessMessage = "가입이 완료됐어요. 이메일 인증 후 로그인해 주세요."
         const val SignupFailureMessage = "회원가입에 실패했어요. 입력값을 확인해 주세요."
     }
 }
