@@ -1,37 +1,41 @@
 package com.team_daytodo.daytodo
 
+import android.content.Context
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavType
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.navercorp.nid.NidOAuth
+import com.navercorp.nid.oauth.util.NidOAuthCallback
 import com.team_daytodo.daytodo.feature.auth.FindPasswordRoute
 import com.team_daytodo.daytodo.feature.auth.LoginRoute
 import com.team_daytodo.daytodo.feature.auth.ProfileSetupRoute
 import com.team_daytodo.daytodo.feature.auth.ResetPasswordRoute
 import com.team_daytodo.daytodo.feature.auth.SignupRoute
 import com.team_daytodo.daytodo.feature.calendar.CalendarScreen
+import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.CourseEditRoute
 import com.team_daytodo.daytodo.feature.course.CourseListRoute
-import com.team_daytodo.daytodo.feature.course.CourseCreateRoute
 import com.team_daytodo.daytodo.feature.course.InviteCodeJoinScreen
 import com.team_daytodo.daytodo.feature.course.PlaceCommentRoute
 import com.team_daytodo.daytodo.feature.course.PlaceRecommendationRoute
-import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
-import com.team_daytodo.daytodo.feature.record.navigation.recordNavGraph
 import com.team_daytodo.daytodo.feature.home.HomeRoute
+import com.team_daytodo.daytodo.feature.magazine.MagazineRoute
+import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
 import com.team_daytodo.daytodo.feature.onboarding.OnboardingGateRoute
 import com.team_daytodo.daytodo.feature.onboarding.OnboardingRoute
+import com.team_daytodo.daytodo.feature.record.navigation.recordNavGraph
 import com.team_daytodo.daytodo.feature.save.SaveRoute
 import com.team_daytodo.daytodo.feature.save.SavedPlacePickerRoute
-import com.team_daytodo.daytodo.feature.mypage.navigation.mypageNavGraph
 import com.team_daytodo.daytodo.feature.today.screen.TodayRoute
 
 @Composable
@@ -54,8 +58,11 @@ internal fun DayTodoNavHost(
                 onShowOnboarding = {
                     navController.navigateClearingOnboardingGate(DayTodoRoute.Onboarding)
                 },
-                onSkipOnboarding = {
+                onShowLogin = {
                     navController.navigateClearingOnboardingGate(DayTodoRoute.Login)
+                },
+                onShowHome = {
+                    navController.navigateClearingOnboardingGate(DayTodoRoute.Home)
                 },
             )
         }
@@ -67,10 +74,19 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Login) {
+            val context = LocalContext.current
+
             LoginRoute(
                 onNavigateToSignup = { navController.navigateSingleTopTo(DayTodoRoute.Signup) },
                 onNavigateToFindPassword = {
                     navController.navigateSingleTopTo(DayTodoRoute.FindPassword)
+                },
+                onNaverLoginClick = { onAccessTokenReceived, onFailure ->
+                    authenticateWithNaver(
+                        context = context,
+                        onAccessTokenReceived = onAccessTokenReceived,
+                        onFailure = onFailure,
+                    )
                 },
                 onLoginCompleted = { needsProfileSetup ->
                     if (needsProfileSetup) {
@@ -84,12 +100,11 @@ internal fun DayTodoNavHost(
         composable(DayTodoRoute.Signup) {
             SignupRoute(
                 onBackClick = { navController.popBackStack() },
-                onSignupCompleted = { needsProfileSetup ->
-                    if (needsProfileSetup) {
-                        navController.navigateSingleTopTo(DayTodoRoute.ProfileSetup)
-                    } else {
-                        navController.navigateToHomeClearingAuth()
-                    }
+                onSignupCompleted = {
+                    navController.popBackStack(
+                        route = DayTodoRoute.Login,
+                        inclusive = false,
+                    )
                 },
             )
         }
@@ -310,6 +325,52 @@ internal fun DayTodoNavHost(
         recordNavGraph(navController)
         mypageNavGraph(navController)
     }
+}
+
+private fun authenticateWithNaver(
+    context: Context,
+    onAccessTokenReceived: (String) -> Unit,
+    onFailure: (String) -> Unit,
+) {
+    val clientId = BuildConfig.NAVER_CLIENT_ID
+    val clientSecret = BuildConfig.NAVER_CLIENT_SECRET
+    val clientName = BuildConfig.NAVER_CLIENT_NAME
+
+    if (clientId.isBlank() || clientSecret.isBlank() || clientName.isBlank()) {
+        onFailure("\ub124\uc774\ubc84 \ub85c\uadf8\uc778 \uc124\uc815\uac12\uc744 \ud655\uc778\ud574 \uc8fc\uc138\uc694.")
+        return
+    }
+
+    NidOAuth.initialize(
+        context.applicationContext,
+        clientId,
+        clientSecret,
+        clientName,
+    )
+
+    NidOAuth.requestLogin(
+        context,
+        object : NidOAuthCallback {
+            override fun onSuccess() {
+                val accessToken = NidOAuth.getAccessToken()
+                if (accessToken.isNullOrBlank()) {
+                    onFailure("\ub124\uc774\ubc84 \ub85c\uadf8\uc778 \uc815\ubcf4\ub97c \uac00\uc838\uc624\uc9c0 \ubabb\ud588\uc5b4\uc694.")
+                    return
+                }
+
+                onAccessTokenReceived(accessToken)
+            }
+
+            override fun onFailure(errorCode: String, errorDesc: String) {
+                val description = NidOAuth.getLastErrorDescription().orEmpty()
+                onFailure(
+                    description.takeIf(String::isNotBlank)
+                        ?: errorDesc.takeIf(String::isNotBlank)
+                        ?: "\ub124\uc774\ubc84 \ub85c\uadf8\uc778\uc5d0 \uc2e4\ud328\ud588\uc5b4\uc694.",
+                )
+            }
+        },
+    )
 }
 
 private fun NavHostController.navigateToHomeClearingAuth() {

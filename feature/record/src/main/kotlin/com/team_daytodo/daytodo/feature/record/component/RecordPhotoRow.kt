@@ -1,12 +1,10 @@
 package com.team_daytodo.daytodo.feature.record.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,9 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import coil.compose.AsyncImage
+import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
@@ -58,7 +56,6 @@ private fun PhotoThumbnail(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val imageRes = photo.imageRes
     Box(
         modifier = modifier
             .size(84.dp)
@@ -66,14 +63,12 @@ private fun PhotoThumbnail(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        if (imageRes != null) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        AsyncImage(
+            model = photo.imageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(84.dp),
+        )
     }
 }
 

@@ -6,7 +6,9 @@ data class HomeUiState(
     val todayCourse: TodayCourse?,
     val upcomingCourse: UpcomingCourse?,
     val createdCourses: List<CreatedCourse>,
-    val todayPickMagazines: List<HomeMagazineUiModel>,
+    val todayPickMagazines: List<HomeMagazineUiModel> = emptyList(),
+    val isMagazineLoading: Boolean = false,
+    val magazineErrorMessage: String? = null,
 ) {
     val hasTodaySchedule: Boolean
         get() = todayCourse != null
