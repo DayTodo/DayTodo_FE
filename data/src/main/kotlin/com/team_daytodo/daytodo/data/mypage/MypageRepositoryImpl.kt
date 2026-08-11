@@ -33,7 +33,7 @@ import retrofit2.Response
 
 class MypageRepositoryImpl @Inject constructor(
     private val mypageApi: MypageApi,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : MypageRepository {
     override suspend fun getProfile(): Result<MypageProfile> = runCatching {
         mypageApi.getProfile().toDomain()

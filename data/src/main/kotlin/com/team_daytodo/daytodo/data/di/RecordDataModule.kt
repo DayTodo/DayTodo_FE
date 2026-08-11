@@ -1,6 +1,6 @@
 package com.team_daytodo.daytodo.data.di
 
-import com.team_daytodo.daytodo.data.record.DummyRecordRepository
+import com.team_daytodo.daytodo.data.record.RecordRepositoryImpl
 import com.team_daytodo.daytodo.domain.record.repository.RecordRepository
 import dagger.Binds
 import dagger.Module
@@ -14,6 +14,6 @@ abstract class RecordDataModule {
     @Binds
     @Singleton
     abstract fun bindRecordRepository(
-        dummyRecordRepository: DummyRecordRepository,
+        recordRepositoryImpl: RecordRepositoryImpl,
     ): RecordRepository
 }

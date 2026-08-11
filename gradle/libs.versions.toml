@@ -25,6 +25,7 @@ kizitonwoseCalendar = "2.10.1"
 desugarJdkLibs = "2.1.5"
 reorderable = "3.1.0"
 firebaseBom = "34.3.0"
+coil = "2.7.0"
 naverOauth = "5.11.2"
 
 [libraries]
@@ -84,6 +85,7 @@ naver-oauth = { module = "com.navercorp.nid:oauth", version.ref = "naverOauth" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
