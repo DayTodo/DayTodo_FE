@@ -166,7 +166,7 @@ data class CourseEditUiState(
     val canSubmit: Boolean
         get() = !isSaving &&
             name.isNotBlank() &&
-            selectedRegion.isNotBlank() &&
+            regionOptions.containsRegion(selectedRegion) &&
             selectedDate != null &&
             minBudget != null &&
             maxBudget != null &&

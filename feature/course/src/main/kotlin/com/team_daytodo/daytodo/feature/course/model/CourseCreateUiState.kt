@@ -43,10 +43,13 @@ data class CourseCreateUiState(
             }
         }
 
+    val hasKnownSelectedRegion: Boolean
+        get() = regionOptions.containsRegion(selectedRegion)
+
     val isPrimaryButtonEnabled: Boolean
         get() = phase == CourseCreatePhase.Input && when (currentStep) {
             CourseCreateStep.RoomName -> roomName.isNotBlank()
-            CourseCreateStep.Region -> selectedRegion.isNotBlank()
+            CourseCreateStep.Region -> hasKnownSelectedRegion
             CourseCreateStep.Date -> selectedDate != null
             CourseCreateStep.Budget -> {
                 val minBudget = minBudget
@@ -55,6 +58,15 @@ data class CourseCreateUiState(
             }
             CourseCreateStep.Relationship -> selectedRelationship != null
         }
+}
+
+fun List<CourseRegionGroup>.containsRegion(region: String): Boolean {
+    val normalizedRegion = region.trim()
+    if (normalizedRegion.isBlank()) return false
+
+    return any { group ->
+        normalizedRegion == group.name || normalizedRegion in group.children
+    }
 }
 
 sealed interface CourseCreatePhase {

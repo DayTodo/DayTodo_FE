@@ -101,7 +101,7 @@ class DummyCourseRepository @Inject constructor(
         "course-seongsu" to StoredCourseRoom(
             id = "course-seongsu",
             name = "성수 감성 산책",
-            region = "성수/건대/왕십리",
+            region = "성동구",
             regionCoordinate = CourseCoordinate(latitude = 37.5446, longitude = 127.0557),
             date = CourseDate(year = 2026, month = 7, day = 27),
             minBudget = 10000,
@@ -146,7 +146,7 @@ class DummyCourseRepository @Inject constructor(
         "course-hannam" to StoredCourseRoom(
             id = "course-hannam",
             name = "기념일 한남 코스",
-            region = "용산/이태원/한남",
+            region = "용산구",
             regionCoordinate = CourseCoordinate(latitude = 37.5350, longitude = 127.0018),
             date = CourseDate(year = 2026, month = 8, day = 3),
             minBudget = 20000,
@@ -171,7 +171,7 @@ class DummyCourseRepository @Inject constructor(
         "course-family" to StoredCourseRoom(
             id = "course-family",
             name = "가족 한강 나들이",
-            region = "여의도/영등포",
+            region = "영등포구",
             regionCoordinate = CourseCoordinate(latitude = 37.5259, longitude = 126.9256),
             date = CourseDate(year = 2026, month = 8, day = 16),
             minBudget = 0,
@@ -512,13 +512,16 @@ class DummyCourseRepository @Inject constructor(
         val DefaultRegionCoordinate = CourseCoordinate(latitude = 37.5665, longitude = 126.9780)
         val RegionCenterCoordinates = mapOf(
             "성수" to CourseCoordinate(latitude = 37.5446, longitude = 127.0557),
+            "성동구" to CourseCoordinate(latitude = 37.5446, longitude = 127.0557),
             "건대" to CourseCoordinate(latitude = 37.5404, longitude = 127.0692),
             "왕십리" to CourseCoordinate(latitude = 37.5615, longitude = 127.0378),
             "용산" to CourseCoordinate(latitude = 37.5326, longitude = 126.9900),
+            "용산구" to CourseCoordinate(latitude = 37.5326, longitude = 126.9900),
             "이태원" to CourseCoordinate(latitude = 37.5348, longitude = 126.9944),
             "한남" to CourseCoordinate(latitude = 37.5344, longitude = 127.0107),
             "여의도" to CourseCoordinate(latitude = 37.5259, longitude = 126.9256),
             "영등포" to CourseCoordinate(latitude = 37.5172, longitude = 126.9071),
+            "영등포구" to CourseCoordinate(latitude = 37.5172, longitude = 126.9071),
             "홍대" to CourseCoordinate(latitude = 37.5575, longitude = 126.9245),
             "연남" to CourseCoordinate(latitude = 37.5626, longitude = 126.9237),
             "망원" to CourseCoordinate(latitude = 37.5568, longitude = 126.9019),

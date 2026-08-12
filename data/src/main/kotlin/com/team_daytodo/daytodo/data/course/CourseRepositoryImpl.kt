@@ -20,6 +20,7 @@ import com.team_daytodo.daytodo.domain.course.model.CourseCreateRequest
 import com.team_daytodo.daytodo.domain.course.model.CourseCreateResult
 import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.domain.course.model.CourseDetail
+import com.team_daytodo.daytodo.domain.course.model.CourseException
 import com.team_daytodo.daytodo.domain.course.model.CourseMember
 import com.team_daytodo.daytodo.domain.course.model.CoursePlace
 import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
@@ -29,6 +30,7 @@ import com.team_daytodo.daytodo.domain.course.model.CourseRoomCreateException
 import com.team_daytodo.daytodo.domain.course.model.CourseSummary
 import com.team_daytodo.daytodo.domain.course.model.CourseUpdateRequest
 import com.team_daytodo.daytodo.domain.course.model.PlaceRecommender
+import com.team_daytodo.daytodo.domain.course.model.UnknownCourseRegionException
 import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
 import javax.inject.Inject
 
@@ -51,7 +53,7 @@ class CourseRepositoryImpl @Inject constructor(
             val regionId = requireRegionId(request.region)
             remoteDataSource.createCourse(request.toDto(regionId)).toDomain()
         }.recoverCatching { cause ->
-            throw CourseRoomCreateException(cause)
+            throw cause.toCourseCreateException()
         }
 
     override suspend fun joinCourse(inviteCode: String): Result<String> =
@@ -65,7 +67,9 @@ class CourseRepositoryImpl @Inject constructor(
                 .sortedWith(compareBy({ it.courseDate }, { it.courseId }))
                 .map { course ->
                     course.toDomain(
-                        regionName = course.regionId?.let(localCourseRegionDataSource::getRegionName),
+                        regionName = course.regionId?.let { regionId ->
+                            localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
+                        },
                     )
                 }
         }
@@ -266,7 +270,9 @@ class CourseRepositoryImpl @Inject constructor(
             name = summary?.courseName.orEmpty(),
             region = summary?.region?.regionName
                 ?: summary?.regionName
-                ?: summary?.regionId?.let(localCourseRegionDataSource::getRegionName)
+                ?: summary?.regionId?.let { regionId ->
+                    localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
+                }
                 ?: "",
             regionCoordinate = coursePlaces.firstOrNull()?.coordinate ?: DefaultCoordinate,
             date = summary?.courseDate?.toCourseDateOrDefault() ?: DefaultCourseDate,
@@ -297,7 +303,10 @@ class CourseRepositoryImpl @Inject constructor(
 
     private fun requireRegionId(region: String): Long =
         localCourseRegionDataSource.getRegionId(region)
-            ?: throw IllegalArgumentException("Unknown region: $region")
+            ?: throw UnknownCourseRegionException(region)
+
+    private fun Throwable.toCourseCreateException(): Throwable =
+        if (this is CourseException) this else CourseRoomCreateException(this)
 
     private fun String?.toRelationshipOrDefault(): Relationship =
         when (orEmpty().trim().uppercase()) {
@@ -328,5 +337,6 @@ class CourseRepositoryImpl @Inject constructor(
         val DefaultCoordinate = CourseCoordinate(latitude = 37.5665, longitude = 126.9780)
         val DefaultCourseDate = CourseDate(year = 1970, month = 1, day = 1)
         val AnonymousMember = CourseMember(id = "member-current", name = "")
+        const val UnknownRegionName = "알 수 없는 지역"
     }
 }
