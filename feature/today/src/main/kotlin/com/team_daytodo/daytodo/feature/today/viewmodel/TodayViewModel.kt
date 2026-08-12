@@ -50,7 +50,10 @@ class TodayViewModel @Inject constructor(
         viewModelScope.launch {
             completeCourseUseCase(courseId)
                 .onSuccess { loadTodayCourse() }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "코스를 종료하지 못했어요."))
+                }
         }
     }
 
@@ -103,6 +106,7 @@ class TodayViewModel @Inject constructor(
                     } else {
                         _uiState.update { it.copy(errorMessage = cause.message) }
                     }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "장소 순서를 변경하지 못했어요."))
                 }
         }
     }
@@ -114,7 +118,10 @@ class TodayViewModel @Inject constructor(
         viewModelScope.launch {
             deleteTodayPlaceUseCase(courseId, coursePlaceId)
                 .onSuccess { places -> _uiState.update { it.copy(places = places.toUiPlaces()) } }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "장소를 삭제하지 못했어요."))
+                }
         }
     }
 
@@ -137,6 +144,7 @@ class TodayViewModel @Inject constructor(
                 }
                 .onFailure { cause ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "투데이 코스를 불러오지 못했어요."))
                 }
         }
     }

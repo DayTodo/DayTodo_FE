@@ -9,6 +9,7 @@ import com.team_daytodo.daytodo.domain.record.usecase.GetRecordPhotosUseCase
 import com.team_daytodo.daytodo.domain.record.usecase.RemoveRecordPlaceBookmarkUseCase
 import com.team_daytodo.daytodo.domain.record.usecase.SaveRecordPlaceBookmarkUseCase
 import com.team_daytodo.daytodo.domain.record.usecase.WriteRecordDiaryUseCase
+import com.team_daytodo.daytodo.feature.record.model.RecordEvent
 import com.team_daytodo.daytodo.feature.record.model.RecordUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -16,8 +17,11 @@ import java.time.YearMonth
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,6 +46,9 @@ class RecordViewModel @Inject constructor(
         ),
     )
     val uiState: StateFlow<RecordUiState> = _uiState.asStateFlow()
+
+    private val _event = MutableSharedFlow<RecordEvent>()
+    val event: SharedFlow<RecordEvent> = _event.asSharedFlow()
 
     // onMonthChanged의 최초 진입 호출과 이후 월 이동 호출을 모두 이 값으로 구분한다.
     private var lastRequestedMonth: YearMonth? = null
@@ -74,6 +81,7 @@ class RecordViewModel @Inject constructor(
                 }
                 .onFailure { cause ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
+                    _event.emit(RecordEvent.ShowMessage(cause.message ?: "캘린더를 불러오지 못했어요."))
                 }
         }
     }
@@ -130,6 +138,9 @@ class RecordViewModel @Inject constructor(
                     errorMessage = failure?.message,
                 )
             }
+            if (failure != null) {
+                _event.emit(RecordEvent.ShowMessage(failure.message ?: "기록을 불러오지 못했어요."))
+            }
         }
     }
 
@@ -144,7 +155,10 @@ class RecordViewModel @Inject constructor(
         viewModelScope.launch {
             writeRecordDiaryUseCase(courseId, content)
                 .onSuccess { diary -> _uiState.update { it.copy(diaryContent = diary.content) } }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
+                    _event.emit(RecordEvent.ShowMessage(cause.message ?: "일기를 저장하지 못했어요."))
+                }
         }
     }
 
@@ -188,6 +202,7 @@ class RecordViewModel @Inject constructor(
                             errorMessage = cause.message,
                         )
                     }
+                    _event.emit(RecordEvent.ShowMessage(cause.message ?: "장소를 저장하지 못했어요."))
                 }
         }
     }
@@ -218,6 +233,7 @@ class RecordViewModel @Inject constructor(
                             errorMessage = cause.message,
                         )
                     }
+                    _event.emit(RecordEvent.ShowMessage(cause.message ?: "저장을 취소하지 못했어요."))
                 }
         }
     }
