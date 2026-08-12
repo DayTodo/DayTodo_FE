@@ -40,7 +40,7 @@ class DeleteBookmarkUseCase @Inject constructor(
 
 private fun Bookmark.toMagazinePlace(): MagazinePlace =
     MagazinePlace(
-        id = (placeId ?: magazineId).toString(),
+        id = (placeId ?: magazineId ?: bookmarkId).toString(),
         name = placeName,
         region = regionName,
         address = "",

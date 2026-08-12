@@ -11,11 +11,11 @@ data class GetBookmarksResponse(
 @Serializable
 data class BookmarkItemDto(
     val bookmarkId: Long,
-    val magazineId: Long,
+    val magazineId: Long? = null,
     val placeId: Long? = null,
     val thumbnailUrl: String? = null,
     val placeName: String,
-    val regionName: String,
+    val regionName: String? = null,
     val category: String,
 )
 
@@ -36,6 +36,6 @@ fun BookmarkItemDto.toDomain(): Bookmark = Bookmark(
     placeId = placeId,
     thumbnailUrl = thumbnailUrl,
     placeName = placeName,
-    regionName = regionName,
+    regionName = regionName.orEmpty(),
     category = category,
 )
