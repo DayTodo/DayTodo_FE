@@ -45,7 +45,7 @@ data class HomeUpcomingCourseDto(
     val courseId: Long,
     val courseName: String,
     val courseDate: String,
-    val relationType: String,
+    val participantType: String,
     val memberCount: Int,
     val dDay: Int,
 )
@@ -79,7 +79,7 @@ private fun HomeUpcomingCourseDto.toDomain(): HomeUpcomingCourse = HomeUpcomingC
     courseId = courseId,
     courseName = courseName,
     courseDate = LocalDate.parse(courseDate),
-    relationship = relationType.toRelationship(),
+    relationship = participantType.toRelationship(),
     memberCount = memberCount,
     dDay = dDay,
 )
