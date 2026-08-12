@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.feature.record.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -13,6 +14,7 @@ import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.record.RecordViewModel
 import com.team_daytodo.daytodo.feature.record.screen.MemoScreen
 import com.team_daytodo.daytodo.feature.record.screen.PhotoSelectScreen
+import java.time.YearMonth
 
 object RecordRoute {
     const val Record = "record"
@@ -29,15 +31,21 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
         val viewModel: RecordViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+        LaunchedEffect(Unit) {
+            viewModel.onMonthChanged(YearMonth.of(uiState.currentYear, uiState.currentMonth))
+        }
+
         RecordScreen(
             uiState = uiState,
-            onDateClick = viewModel::selectDate,
+            onDateClick = viewModel::onDateSelected,
             onPreviousMonth = viewModel::showPreviousMonth,
             onNextMonth = viewModel::showNextMonth,
+            onCourseSelect = viewModel::onCourseSelected,
             onPhotoClick = { photoIndex ->
                 navController.navigate(RecordRoute.memo(photoIndex))
             },
             onMorePhotosClick = { navController.navigate(RecordRoute.PhotoSelect) },
+            onSavePlaceClick = viewModel::onSavePlaceClick,
         )
     }
 
@@ -49,7 +57,7 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         PhotoSelectScreen(
-            photos = uiState.selectedPhotos,
+            photos = uiState.photos,
             onBackClick = { navController.popBackStack() },
             onPhotoClick = { photoIndex ->
                 navController.navigate(RecordRoute.memo(photoIndex))
@@ -73,11 +81,12 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
             ?: 0
 
         MemoScreen(
-            photos = uiState.selectedPhotos,
-            memosByPhotoId = uiState.memosByPhotoId,
+            photos = uiState.photos,
+            diaryContent = uiState.diaryContent,
             initialPhotoIndex = photoIndex,
             onBackClick = { navController.popBackStack() },
-            onSubmitMemo = viewModel::addMemo,
+            onDiaryContentChange = viewModel::onDiaryContentChanged,
+            onSaveDiaryClick = viewModel::onSaveDiaryClick,
         )
     }
 }

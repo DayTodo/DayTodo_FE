@@ -6,3 +6,7 @@ plugins {
 android {
     namespace = "com.team_daytodo.daytodo.feature.home"
 }
+
+dependencies {
+    implementation(libs.coil.compose)
+}

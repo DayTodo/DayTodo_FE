@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.team_daytodo.daytodo.feature.home.model.HomeMagazineUiModel
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -60,12 +61,13 @@ internal fun MagazineCard(
                 .background(Color(0xFFF3F3F3)),
             contentAlignment = Alignment.Center,
         ) {
-            RemoteImage(
+            AsyncImage(
                 modifier = Modifier.fillMaxSize(),
-                imageUrl = magazine.thumbnailUrl,
-                fallbackResId = magazine.imageRes,
+                model = magazine.thumbnailUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = UIKitR.drawable.ic_symbol),
+                error = painterResource(id = UIKitR.drawable.ic_symbol),
             )
         }
         Spacer(modifier = Modifier.width(26.dp))
@@ -126,7 +128,7 @@ private fun PreviewMagazineCard() {
             title = "비 오는 날에도 걷기 좋은 실내 정원",
             location = "서울 강서구",
             description = "온실과 산책 동선을 함께 즐길 수 있는 서울 식물원 코스를 둘러보세요.",
-            imageRes = UIKitR.drawable.ic_symbol,
+            thumbnailUrl = null,
         ),
         onClick = {},
     )

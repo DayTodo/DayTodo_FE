@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.data.api
 
+import com.team_daytodo.daytodo.data.dto.mypage.ChangePasswordRequest
 import com.team_daytodo.daytodo.data.dto.mypage.DeleteFcmTokenRequest
 import com.team_daytodo.daytodo.data.dto.mypage.InterestRegionsResponse
 import com.team_daytodo.daytodo.data.dto.mypage.LogoutRequest
@@ -31,6 +32,9 @@ interface MypageApi {
         @Part("nickname") nickname: RequestBody,
         @Part profileImage: MultipartBody.Part?,
     ): ProfileResponse
+
+    @PATCH("users/password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
 
     @GET("users/interest-region")
     suspend fun getInterestRegions(): InterestRegionsResponse
