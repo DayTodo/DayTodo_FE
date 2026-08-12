@@ -134,6 +134,7 @@ class TodayViewModel @Inject constructor(
                         it.copy(
                             hasCourse = course != null,
                             courseId = course?.courseId,
+                            courseName = course?.courseName,
                             members = course?.members?.map { member ->
                                 CourseMember(id = member.nickname, name = member.nickname)
                             }.orEmpty(),
