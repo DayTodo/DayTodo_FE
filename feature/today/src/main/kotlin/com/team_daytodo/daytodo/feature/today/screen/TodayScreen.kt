@@ -1,10 +1,5 @@
 package com.team_daytodo.daytodo.feature.today.screen
 
-import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,15 +28,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
@@ -49,13 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.team_daytodo.daytodo.domain.today.model.MemoryPhoto
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.feature.today.component.CourseMemberRow
 import com.team_daytodo.daytodo.feature.today.component.CoursePlaceItem
@@ -65,8 +58,6 @@ import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.feature.today.model.TodayTab
 import com.team_daytodo.daytodo.uikit.dialog.DayTodoAlertDialog
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -84,10 +75,9 @@ fun TodayScreen(
     onDeletePlaceClick: (String) -> Unit = {},
     onReorderDragStart: () -> Unit = {},
     onReorderCommit: (List<String>) -> Unit = {},
-    selectedMemoryPhotoUris: List<String> = emptyList(),
-    isSavingMemoryPhotos: Boolean = false,
+    memoryPhotos: List<MemoryPhoto> = emptyList(),
+    pendingMemoryPhotoUris: List<String> = emptyList(),
     onAddMemoryPhotosClick: () -> Unit = {},
-    onSaveMemoryPhotosClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     startWithMemoryTab: Boolean = false,
 ) {
@@ -254,35 +244,6 @@ fun TodayScreen(
                                 tint = Color.Unspecified,
                             )
                             Text(
-                                text = "장소 추가",
-                                style = DayTodoTheme.typography.label2,
-                                color = DayTodoTheme.colors.brandPrimary,
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 14.dp),
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        Row(
-                            modifier = Modifier.clickable(onClick = onAddPlaceClick),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Icon(
-                                painter = painterResource(
-                                    id = com.team_daytodo.daytodo.feature.today.R.drawable.ic_plus,
-                                ),
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Unspecified,
-                            )
-                            Text(
                                 text = "코스 추가",
                                 style = DayTodoTheme.typography.label2,
                                 color = DayTodoTheme.colors.brandPrimary,
@@ -320,49 +281,13 @@ fun TodayScreen(
             } else {
                 item {
                     MemoryPhotoGrid(
-                        selectedPhotoUris = selectedMemoryPhotoUris,
+                        photos = memoryPhotos,
+                        pendingPhotoUris = pendingMemoryPhotoUris,
                         onAddClick = onAddMemoryPhotosClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
                     )
-                }
-
-                item {
-                    val canSave = selectedMemoryPhotoUris.isNotEmpty() && !isSavingMemoryPhotos
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 24.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .width(100.dp)
-                                .height(50.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(
-                                    color = if (canSave) {
-                                        DayTodoTheme.colors.brandPrimary
-                                    } else {
-                                        DayTodoTheme.colors.backgroundSecondary
-                                    },
-                                )
-                                .clickable(enabled = canSave, onClick = onSaveMemoryPhotosClick),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = if (isSavingMemoryPhotos) "저장 중" else "저장하기",
-                                style = DayTodoTheme.typography.label2,
-                                color = if (canSave) {
-                                    DayTodoTheme.colors.textQuaternary
-                                } else {
-                                    DayTodoTheme.colors.textTertiary
-                                },
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -384,13 +309,14 @@ fun TodayScreen(
 
 @Composable
 private fun MemoryPhotoGrid(
-    selectedPhotoUris: List<String>,
+    photos: List<MemoryPhoto>,
+    pendingPhotoUris: List<String>,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val columns = 3
     val spacing = 6.dp
-    val photoCount = selectedPhotoUris.size
+    val photoCount = photos.size + pendingPhotoUris.size
 
     BoxWithConstraints(modifier = modifier) {
         val itemSize = (maxWidth - spacing * (columns - 1)) / columns
@@ -422,9 +348,18 @@ private fun MemoryPhotoGrid(
                 }
             }
 
-            items(selectedPhotoUris) { uri ->
+            items(photos, key = { it.memoryPhotoId }) { photo ->
                 MemoryPhotoThumbnail(
-                    uri = uri,
+                    imageUrl = photo.imageUrl,
+                    isUploading = false,
+                    modifier = Modifier.size(itemSize),
+                )
+            }
+
+            items(pendingPhotoUris) { uri ->
+                MemoryPhotoThumbnail(
+                    imageUrl = uri,
+                    isUploading = true,
                     modifier = Modifier.size(itemSize),
                 )
             }
@@ -434,42 +369,32 @@ private fun MemoryPhotoGrid(
 
 @Composable
 private fun MemoryPhotoThumbnail(
-    uri: String,
+    imageUrl: String,
+    isUploading: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val bitmap by rememberMemoryPhotoBitmap(uri)
-
     Box(
         modifier = modifier.background(color = DayTodoTheme.colors.backgroundSecondary),
+        contentAlignment = Alignment.Center,
     ) {
-        bitmap?.let {
-            Image(
-                bitmap = it,
-                contentDescription = "선택한 추억 사진",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
-    }
-}
-
-@Composable
-private fun rememberMemoryPhotoBitmap(uri: String): State<ImageBitmap?> {
-    val context = LocalContext.current
-
-    return produceState<ImageBitmap?>(initialValue = null, uri) {
-        value = withContext(Dispatchers.IO) {
-            runCatching {
-                val parsed = Uri.parse(uri)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    val source = ImageDecoder.createSource(context.contentResolver, parsed)
-                    ImageDecoder.decodeBitmap(source).asImageBitmap()
-                } else {
-                    context.contentResolver.openInputStream(parsed)?.use { input ->
-                        BitmapFactory.decodeStream(input)?.asImageBitmap()
-                    }
-                }
-            }.getOrNull()
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "추억 사진",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+        if (isUploading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Black.copy(alpha = 0.35f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                )
+            }
         }
     }
 }
@@ -656,7 +581,7 @@ private fun TempTodayScreenApiFailurePreview() {
 }
 
 // TODO: 확인용 임시 Preview, 확인 후 삭제
-// 상태 6 — 추억사진 저장 화면(선택된 사진이 있고 저장 중인 상태)
+// 상태 6 — 추억사진 저장 화면(업로드 완료된 사진 + 방금 골라 업로드 중인 사진이 함께 있는 상태)
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun TempTodayScreenSavingMemoryPhotosPreview() {
@@ -664,12 +589,13 @@ private fun TempTodayScreenSavingMemoryPhotosPreview() {
         TodayScreen(
             hasCourse = true,
             startWithMemoryTab = true,
-            selectedMemoryPhotoUris = listOf(
-                "content://media/external/images/media/1001",
-                "content://media/external/images/media/1002",
+            memoryPhotos = listOf(
+                MemoryPhoto(memoryPhotoId = 1L, imageUrl = "https://picsum.photos/seed/daytodo-memory-1/400", photoOrder = 1),
+                MemoryPhoto(memoryPhotoId = 2L, imageUrl = "https://picsum.photos/seed/daytodo-memory-2/400", photoOrder = 2),
+            ),
+            pendingMemoryPhotoUris = listOf(
                 "content://media/external/images/media/1003",
             ),
-            isSavingMemoryPhotos = true,
         )
     }
 }
