@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.feature.mypage.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,6 +22,7 @@ import com.team_daytodo.daytodo.feature.mypage.viewmodel.MypageViewModel
 object MypageRoute {
     const val Mypage = "mypage"
     const val ProfileEdit = "mypage/profile-edit"
+    const val ProfileUpdatedArg = "profileUpdated"
     const val InterestRegion = "mypage/interest-region"
     const val PasswordChange = "mypage/password-change"
     const val Terms = "mypage/terms"
@@ -34,9 +36,19 @@ object MypageRoute {
 }
 
 fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
-    composable(MypageRoute.Mypage) {
+    composable(MypageRoute.Mypage) { backStackEntry ->
         val viewModel: MypageViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val profileUpdated by backStackEntry.savedStateHandle
+            .getStateFlow(MypageRoute.ProfileUpdatedArg, false)
+            .collectAsStateWithLifecycle()
+
+        LaunchedEffect(profileUpdated) {
+            if (profileUpdated) {
+                viewModel.refreshProfile()
+                backStackEntry.savedStateHandle[MypageRoute.ProfileUpdatedArg] = false
+            }
+        }
 
         MypageScreen(
             onEditProfileClick = { navController.navigate(MypageRoute.ProfileEdit) },
@@ -61,7 +73,12 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
         ProfileEditRoute(
             onBackClick = { navController.popBackStack() },
             onChangePasswordClick = { navController.navigate(MypageRoute.PasswordChange) },
-            onProfileSaved = { navController.popBackStack() },
+            onProfileSaved = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set(MypageRoute.ProfileUpdatedArg, true)
+                navController.popBackStack()
+            },
         )
     }
     composable(MypageRoute.InterestRegion) {
