@@ -7,6 +7,7 @@ import com.team_daytodo.daytodo.domain.home.model.HomeMagazine
 import com.team_daytodo.daytodo.domain.home.model.HomeTodayCourse
 import com.team_daytodo.daytodo.domain.home.model.HomeUpcomingCourse
 import com.team_daytodo.daytodo.domain.home.usecase.GetHomeDataUseCase
+import com.team_daytodo.daytodo.domain.mypage.usecase.GetMypageProfileUseCase
 import com.team_daytodo.daytodo.feature.home.model.CourseMember
 import com.team_daytodo.daytodo.feature.home.model.CreatedCourse
 import com.team_daytodo.daytodo.feature.home.model.HomeMagazineUiModel
@@ -18,6 +19,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getHomeDataUseCase: GetHomeDataUseCase,
+    private val getMypageProfileUseCase: GetMypageProfileUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState(isLoading = true))
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -38,11 +41,20 @@ class HomeViewModel @Inject constructor(
     fun loadHome() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getHomeDataUseCase()
-                .onSuccess { dashboard ->
-                    _uiState.value = dashboard.toUiState()
-                }
-                .onFailure { cause ->
+            val homeDataDeferred = async { getHomeDataUseCase() }
+            val profileDeferred = async { getMypageProfileUseCase() }
+            val homeDataResult = homeDataDeferred.await()
+
+            if (homeDataResult.isSuccess) {
+                val username = profileDeferred.await()
+                    .getOrNull()
+                    ?.nickname
+                    .orEmpty()
+
+                _uiState.value = homeDataResult.getOrThrow().toUiState(username)
+            } else {
+                profileDeferred.cancel()
+                homeDataResult.exceptionOrNull()?.let { cause ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -50,16 +62,18 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+            }
         }
     }
 }
 
-private fun HomeDashboard.toUiState(): HomeUiState {
+private fun HomeDashboard.toUiState(username: String): HomeUiState {
     val nearestUpcomingCourse = courses.upcomingCourses.firstOrNull()
     val magazineUiModels = magazines.map { it.toUiModel() }
 
     return HomeUiState(
-        username = courses.banner.nickname,
+        username = username.ifBlank { courses.banner.nickname.orEmpty() },
+        bannerMessage = courses.banner.message,
         interestLocation = magazineUiModels.firstOrNull()?.location ?: DefaultInterestLocation,
         todayCourse = courses.todayCourse?.toUiModel(),
         upcomingCourse = nearestUpcomingCourse?.toUpcomingCourseUiModel(),

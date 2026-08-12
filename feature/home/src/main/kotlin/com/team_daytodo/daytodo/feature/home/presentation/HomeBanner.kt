@@ -68,15 +68,17 @@ internal fun HomeBanner(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                if (uiState.username.isNotBlank()) {
+                    Text(
+                        text = "안녕하세요, ${uiState.username}님",
+                        style = DayTodoTheme.typography.headlineSmall,
+                        color = DayTodoTheme.colors.textQuaternary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Text(
-                    text = "안녕하세요, ${uiState.username}님",
-                    style = DayTodoTheme.typography.headlineSmall,
-                    color = DayTodoTheme.colors.textQuaternary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = uiState.scheduleMessage(),
+                    text = uiState.bannerMessage.ifBlank { uiState.scheduleMessage() },
                     style = DayTodoTheme.typography.headlineLarge,
                     color = DayTodoTheme.colors.textQuaternary,
                     maxLines = 1,
