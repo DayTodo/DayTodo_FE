@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802581915028",
+    "project_id": "daytodo-55a89",
+    "storage_bucket": "daytodo-55a89.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802581915028:android:9071c9d5312478604edb81",
+        "android_client_info": {
+          "package_name": "com.team_daytodo.daytodo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYtO1qsq7GjrwKhim_PJxSGTDoyf_LAIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
