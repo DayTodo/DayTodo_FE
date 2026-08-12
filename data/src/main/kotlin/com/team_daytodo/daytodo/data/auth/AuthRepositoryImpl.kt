@@ -10,7 +10,6 @@ import com.team_daytodo.daytodo.data.auth.mapper.toLoginResult
 import com.team_daytodo.daytodo.data.auth.mapper.toLogoutDto
 import com.team_daytodo.daytodo.data.auth.mapper.toNaverLoginResult
 import com.team_daytodo.daytodo.data.auth.mapper.toPasswordResetDto
-import com.team_daytodo.daytodo.data.auth.mapper.toProfileSetupResult
 import com.team_daytodo.daytodo.data.auth.mapper.toQueryEmail
 import com.team_daytodo.daytodo.data.auth.mapper.toQueryToken
 import com.team_daytodo.daytodo.data.auth.mapper.toRegisterDto
@@ -59,12 +58,14 @@ import com.team_daytodo.daytodo.domain.auth.model.VerifyEmailResult
 import com.team_daytodo.daytodo.domain.auth.model.VerifyPasswordCodeRequest
 import com.team_daytodo.daytodo.domain.auth.model.VerifyPasswordCodeResult
 import com.team_daytodo.daytodo.domain.auth.repository.AuthRepository
+import com.team_daytodo.daytodo.domain.mypage.repository.MypageRepository
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val remoteDataSource: AuthRemoteDataSource,
     private val tokenLocalDataSource: AuthTokenLocalDataSource,
     private val signupEmailLocalDataSource: SignupEmailLocalDataSource,
+    private val mypageRepository: MypageRepository,
 ) : AuthRepository {
     override suspend fun login(request: LoginRequest): Result<LoginResult> =
         authResult(AuthOperation.Login) {
@@ -184,7 +185,14 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun saveProfile(request: ProfileSetupRequest): Result<ProfileSetupResult> =
         authResult(AuthOperation.SaveProfile) {
-            request.toProfileSetupResult()
+            val profile = mypageRepository
+                .updateProfile(
+                    nickname = request.nickname,
+                    profileImageUri = request.profileImageUri,
+                )
+                .getOrThrow()
+
+            ProfileSetupResult(nickname = profile.nickname)
         }
 
     private suspend fun <T> authResult(
