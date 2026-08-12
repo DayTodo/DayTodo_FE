@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.data.di
 
 import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.CalendarApi
+import com.team_daytodo.daytodo.data.api.HomeApi
 import com.team_daytodo.daytodo.data.api.MagazineApi
 import com.team_daytodo.daytodo.data.api.MypageApi
 import com.team_daytodo.daytodo.data.api.RecordApi
@@ -92,6 +93,13 @@ object NetworkModule {
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): CalendarApi = retrofitFactory.create(baseUrl).create(CalendarApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideHomeApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): HomeApi = retrofitFactory.create(baseUrl).create(HomeApi::class.java)
 
     @Provides
     @Singleton

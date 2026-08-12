@@ -9,6 +9,7 @@ import com.team_daytodo.daytodo.domain.course.usecase.GetCourseRegionsUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.UpdateCourseSettingsUseCase
 import com.team_daytodo.daytodo.feature.course.model.CourseEditEvent
 import com.team_daytodo.daytodo.feature.course.model.CourseEditUiState
+import com.team_daytodo.daytodo.feature.course.model.containsRegion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -73,7 +74,14 @@ class CourseEditViewModel @Inject constructor(
     }
 
     fun selectRegion(region: String) {
-        _uiState.update { it.copy(selectedRegion = region.trim()) }
+        val normalizedRegion = region.trim()
+        _uiState.update { state ->
+            if (state.regionOptions.containsRegion(normalizedRegion)) {
+                state.copy(selectedRegion = normalizedRegion)
+            } else {
+                state.copy(selectedRegion = "")
+            }
+        }
     }
 
     fun selectDate(date: CourseDate) {

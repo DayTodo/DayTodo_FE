@@ -1,14 +1,15 @@
 package com.team_daytodo.daytodo.feature.home.model
 
 data class HomeUiState(
-    val username: String,
-    val interestLocation: String,
-    val todayCourse: TodayCourse?,
-    val upcomingCourse: UpcomingCourse?,
-    val createdCourses: List<CreatedCourse>,
+    val username: String = "",
+    val bannerMessage: String = "",
+    val interestLocation: String = "",
+    val todayCourse: TodayCourse? = null,
+    val upcomingCourse: UpcomingCourse? = null,
+    val createdCourses: List<CreatedCourse> = emptyList(),
     val todayPickMagazines: List<HomeMagazineUiModel> = emptyList(),
-    val isMagazineLoading: Boolean = false,
-    val magazineErrorMessage: String? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
 ) {
     val hasTodaySchedule: Boolean
         get() = todayCourse != null
