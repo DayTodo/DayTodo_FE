@@ -1,10 +1,15 @@
 package com.team_daytodo.daytodo.core.model
 
 sealed interface DataResult<out T> {
-    data class Success<T>(val value: T) : DataResult<T>
+    data object Loading : DataResult<Nothing>
 
-    data class Error(
-        val cause: Throwable,
-        val message: String? = cause.message,
-    ) : DataResult<Nothing>
+    data class Success<T>(
+        val value: T,
+        val isFromCache: Boolean = false,
+    ) : DataResult<T>
+
+    data class Error<T>(
+        val error: DayTodoException,
+        val cachedValue: T? = null,
+    ) : DataResult<T>
 }

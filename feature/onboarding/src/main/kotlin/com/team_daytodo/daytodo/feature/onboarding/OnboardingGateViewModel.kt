@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.feature.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team_daytodo.daytodo.domain.auth.usecase.CheckAutoLoginUseCase
 import com.team_daytodo.daytodo.domain.onboarding.usecase.IsOnboardingCompletedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class OnboardingGateViewModel @Inject constructor(
     private val isOnboardingCompletedUseCase: IsOnboardingCompletedUseCase,
+    private val checkAutoLoginUseCase: CheckAutoLoginUseCase,
 ) : ViewModel() {
     private val _event = MutableSharedFlow<OnboardingGateEvent>(replay = 1)
     val event: SharedFlow<OnboardingGateEvent> = _event.asSharedFlow()
@@ -23,10 +25,17 @@ class OnboardingGateViewModel @Inject constructor(
 
     private fun resolveStartDestination() {
         viewModelScope.launch {
-            val event = isOnboardingCompletedUseCase()
-                .getOrDefault(false)
-                .toGateEvent()
-            _event.emit(event)
+            if (!isOnboardingCompletedUseCase().getOrDefault(false)) {
+                _event.emit(OnboardingGateEvent.ShowOnboarding)
+                return@launch
+            }
+
+            val autoLoginResult = checkAutoLoginUseCase().getOrNull()
+            if (autoLoginResult?.isLoggedIn == true) {
+                _event.emit(OnboardingGateEvent.ShowHome)
+            } else {
+                _event.emit(OnboardingGateEvent.ShowLogin)
+            }
         }
     }
 }
@@ -34,12 +43,7 @@ class OnboardingGateViewModel @Inject constructor(
 sealed interface OnboardingGateEvent {
     data object ShowOnboarding : OnboardingGateEvent
 
-    data object SkipOnboarding : OnboardingGateEvent
-}
+    data object ShowLogin : OnboardingGateEvent
 
-private fun Boolean.toGateEvent(): OnboardingGateEvent =
-    if (this) {
-        OnboardingGateEvent.SkipOnboarding
-    } else {
-        OnboardingGateEvent.ShowOnboarding
-    }
+    data object ShowHome : OnboardingGateEvent
+}

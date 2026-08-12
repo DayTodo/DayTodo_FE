@@ -50,27 +50,5 @@ internal fun sampleHomeUiState(): HomeUiState =
                     relationship = Relationship.FAMILY,
                 ),
             ),
-        todayPickMagazines = listOf(
-            HomeMagazineUiModel(
-                placeId = "place-seoul-forest",
-                title = "비 오는 날에도 걷기 좋은 실내 정원",
-                location = "서울 강서구",
-                description = "온실과 산책 동선을 함께 즐길 수 있는 서울 식물원 코스를 둘러보세요.",
-                imageRes = R.drawable.ic_symbol,
-            ),
-            HomeMagazineUiModel(
-                placeId = "place-gallery",
-                title = "친구와 가볍게 보기 좋은 성수 전시",
-                location = "서울 성동구",
-                description = "전시 관람 후 성수 골목까지 이어지는 반나절 데이트 루트예요.",
-                imageRes = R.drawable.ic_symbol,
-            ),
-            HomeMagazineUiModel(
-                placeId = "place-bookshop",
-                title = "취향을 나누기 좋은 독립서점",
-                location = "서울 용산구",
-                description = "작은 책과 사진집을 보며 오래 이야기하기 좋은 공간을 추천해요.",
-                imageRes = R.drawable.ic_symbol,
-            ),
-        ),
+        todayPickMagazines = emptyList(),
     )

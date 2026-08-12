@@ -2,7 +2,9 @@ package com.team_daytodo.daytodo.data.di
 
 import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.CalendarApi
+import com.team_daytodo.daytodo.data.api.MagazineApi
 import com.team_daytodo.daytodo.data.api.MypageApi
+import com.team_daytodo.daytodo.data.api.RecordApi
 import com.team_daytodo.daytodo.data.api.RegionApi
 import com.team_daytodo.daytodo.data.api.TodayApi
 import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
@@ -51,16 +53,20 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val accessToken = authTokenLocalDataSource.getAccessToken()
-                val request = if (accessToken.isNullOrBlank()) {
-                    chain.request()
-                } else {
-                    chain.request()
-                        .newBuilder()
+                val originalRequest = chain.request()
+                val requestBuilder = originalRequest
+                    .newBuilder()
+                    .header(AcceptHeaderName, ApplicationJson)
+
+                if (
+                    !accessToken.isNullOrBlank() &&
+                    originalRequest.url.encodedPath.requiresAuthorization()
+                ) {
+                    requestBuilder
                         .header(AuthorizationHeaderName, "Bearer $accessToken")
-                        .build()
                 }
 
-                chain.proceed(request)
+                chain.proceed(requestBuilder.build())
             }
             .addInterceptor(loggingInterceptor)
             .build()
@@ -89,10 +95,42 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideRecordApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): RecordApi = retrofitFactory.create(baseUrl).create(RecordApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMagazineApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): MagazineApi = retrofitFactory.create(baseUrl).create(MagazineApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideRegionApi(
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): RegionApi = retrofitFactory.create(baseUrl).create(RegionApi::class.java)
 
+    private fun String.requiresAuthorization(): Boolean =
+        PublicAuthPaths.none { endsWith(it) }
+
+    private val PublicAuthPaths = setOf(
+        "/auth/login",
+        "/auth/login/naver",
+        "/auth/logout",
+        "/auth/register",
+        "/auth/email-check",
+        "/auth/verify-email",
+        "/auth/verify-email/resend",
+        "/auth/password/reset-request",
+        "/auth/password/reset",
+        "/auth/token/refresh",
+    )
+
     private const val AuthorizationHeaderName = "Authorization"
+    private const val AcceptHeaderName = "Accept"
+    private const val ApplicationJson = "application/json"
 }
