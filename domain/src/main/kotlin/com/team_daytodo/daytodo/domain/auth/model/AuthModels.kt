@@ -32,6 +32,7 @@ data class SignupRequest(
 
 data class SignupResult(
     val needsProfileSetup: Boolean,
+    val email: String,
 )
 
 /** 자동 로그인 */

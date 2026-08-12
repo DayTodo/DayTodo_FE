@@ -125,7 +125,7 @@ fun TokenRefreshResponseDto.toTokenValues(): AuthTokenValues =
     )
 
 fun RegisterResponseDto.toSignupResult(): SignupResult =
-    SignupResult(needsProfileSetup = nickname.isBlank())
+    SignupResult(needsProfileSetup = nickname.isBlank(), email = email)
 
 fun LinkNaverResponseDto.toLinkNaverResult(): LinkNaverResult =
     LinkNaverResult(

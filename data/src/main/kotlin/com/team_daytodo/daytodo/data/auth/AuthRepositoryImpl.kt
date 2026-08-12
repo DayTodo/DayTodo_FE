@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.data.auth
 
 import com.team_daytodo.daytodo.core.model.CommonError
 import com.team_daytodo.daytodo.data.auth.local.AuthTokenLocalDataSource
+import com.team_daytodo.daytodo.data.auth.local.SignupEmailLocalDataSource
 import com.team_daytodo.daytodo.data.auth.mapper.toDto
 import com.team_daytodo.daytodo.data.auth.mapper.toEmailCheckResult
 import com.team_daytodo.daytodo.data.auth.mapper.toLinkNaverResult
@@ -63,6 +64,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val remoteDataSource: AuthRemoteDataSource,
     private val tokenLocalDataSource: AuthTokenLocalDataSource,
+    private val signupEmailLocalDataSource: SignupEmailLocalDataSource,
 ) : AuthRepository {
     override suspend fun login(request: LoginRequest): Result<LoginResult> =
         authResult(AuthOperation.Login) {
@@ -128,7 +130,11 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signup(request: SignupRequest): Result<SignupResult> =
         authResult(AuthOperation.Signup) {
-            remoteDataSource.register(request.toRegisterDto()).toSignupResult()
+            val result = remoteDataSource.register(request.toRegisterDto()).toSignupResult()
+            // BE는 재조회 가능한 이메일 응답이 없어(회원가입 응답에만 1회성으로 내려옴),
+            // 마이페이지 표시용으로 로컬에 저장해둔다. 재로그인/재설치 시엔 값이 없을 수 있다.
+            signupEmailLocalDataSource.saveEmail(result.email)
+            result
         }
 
     override suspend fun linkNaver(request: LinkNaverRequest): Result<LinkNaverResult> =
