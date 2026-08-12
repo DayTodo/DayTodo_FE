@@ -103,12 +103,15 @@ internal fun RecommendationBottomSheet(
                 items = uiState.visibleRecommendations,
                 key = { _, item -> "${item.place.id}-${item.recommender.displayName()}" },
             ) { index, recommendation ->
-                val coursePlaceIds = uiState.course?.coursePlaces.orEmpty().map { it.id }
+                val coursePlaces = uiState.course?.coursePlaces.orEmpty()
                 RecommendationPlaceCard(
                     index = index + 1,
                     recommendation = recommendation,
                     currentMemberId = uiState.course?.currentMemberId.orEmpty(),
-                    isInCourse = recommendation.place.id in coursePlaceIds,
+                    isInCourse = coursePlaces.any { coursePlace ->
+                        coursePlace.id == recommendation.place.id ||
+                            coursePlace.name == recommendation.place.name
+                    },
                     onClick = { onPlaceClick(recommendation.place.id) },
                     onLikeClick = { onLikeClick(recommendation.place.id) },
                     onCommentClick = { onCommentClick(recommendation.place.id) },

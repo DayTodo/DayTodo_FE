@@ -31,10 +31,10 @@ class CourseListViewModel @Inject constructor(
         loadCourses()
     }
 
-    fun loadCourses() {
+    fun loadCourses(date: CourseDate? = _uiState.value.selectedDate) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getUpcomingCoursesUseCase()
+            getUpcomingCoursesUseCase(date)
                 .onSuccess { courses ->
                     _uiState.update {
                         it.copy(
@@ -58,6 +58,7 @@ class CourseListViewModel @Inject constructor(
 
     fun selectDate(date: CourseDate?) {
         _uiState.update { it.copy(selectedDate = date) }
+        loadCourses(date)
     }
 }
 
