@@ -15,15 +15,17 @@ data class HomeCourses(
 )
 
 data class HomeCourseBanner(
-    val nickname: String,
-    val type: HomeBannerType,
-    val courseName: String?,
+    val status: HomeBannerStatus,
+    val message: String,
+    val courseId: Long?,
+    val nickname: String? = null,
 )
 
-enum class HomeBannerType {
+enum class HomeBannerStatus {
     ONGOING,
     DDAY,
     NONE,
+    UNKNOWN,
 }
 
 data class HomeTodayCourse(

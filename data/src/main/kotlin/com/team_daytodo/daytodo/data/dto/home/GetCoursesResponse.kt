@@ -1,7 +1,7 @@
 package com.team_daytodo.daytodo.data.dto.home
 
 import com.team_daytodo.daytodo.core.model.Relationship
-import com.team_daytodo.daytodo.domain.home.model.HomeBannerType
+import com.team_daytodo.daytodo.domain.home.model.HomeBannerStatus
 import com.team_daytodo.daytodo.domain.home.model.HomeCourseBanner
 import com.team_daytodo.daytodo.domain.home.model.HomeCourseMember
 import com.team_daytodo.daytodo.domain.home.model.HomeCourses
@@ -20,8 +20,11 @@ data class GetCoursesResponse(
 
 @Serializable
 data class HomeCourseBannerDto(
-    val nickname: String,
-    val type: String,
+    val status: String? = null,
+    val message: String? = null,
+    val courseId: Long? = null,
+    val nickname: String? = null,
+    val type: String? = null,
     val courseName: String? = null,
 )
 
@@ -56,11 +59,16 @@ fun GetCoursesResponse.toDomain(): HomeCourses = HomeCourses(
     upcomingCourses = upcomingCourses.map { it.toDomain() },
 )
 
-private fun HomeCourseBannerDto.toDomain(): HomeCourseBanner = HomeCourseBanner(
-    nickname = nickname,
-    type = type.toHomeBannerType(),
-    courseName = courseName,
-)
+private fun HomeCourseBannerDto.toDomain(): HomeCourseBanner {
+    val bannerStatus = (status ?: type.orEmpty()).toHomeBannerStatus()
+
+    return HomeCourseBanner(
+        status = bannerStatus,
+        message = message.orEmpty(),
+        courseId = courseId,
+        nickname = nickname,
+    )
+}
 
 private fun HomeTodayCourseDto.toDomain(): HomeTodayCourse = HomeTodayCourse(
     courseId = courseId,
@@ -84,12 +92,16 @@ private fun HomeUpcomingCourseDto.toDomain(): HomeUpcomingCourse = HomeUpcomingC
     dDay = dDay,
 )
 
-private fun String.toHomeBannerType(): HomeBannerType =
-    runCatching { HomeBannerType.valueOf(trim().uppercase()) }
-        .getOrElse {
-            Timber.w("Unknown HomeBannerType '%s', using NONE", this)
-            HomeBannerType.NONE
+private fun String.toHomeBannerStatus(): HomeBannerStatus =
+    when (trim().uppercase()) {
+        "ONGOING", "ON_GOING" -> HomeBannerStatus.ONGOING
+        "DDAY", "D_DAY" -> HomeBannerStatus.DDAY
+        "NONE", "EMPTY", "NO_COURSE" -> HomeBannerStatus.NONE
+        else -> {
+            Timber.w("Unknown HomeBannerStatus '%s', using UNKNOWN", this)
+            HomeBannerStatus.UNKNOWN
         }
+    }
 
 private fun String.toRelationship(): Relationship =
     when (trim().uppercase()) {

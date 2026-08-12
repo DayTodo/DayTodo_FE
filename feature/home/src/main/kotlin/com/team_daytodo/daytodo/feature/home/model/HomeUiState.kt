@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.feature.home.model
 
 data class HomeUiState(
     val username: String = "",
+    val bannerMessage: String = "",
     val interestLocation: String = "",
     val todayCourse: TodayCourse? = null,
     val upcomingCourse: UpcomingCourse? = null,
