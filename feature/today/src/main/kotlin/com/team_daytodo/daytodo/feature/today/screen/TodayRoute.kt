@@ -20,7 +20,6 @@ private const val MaxMemoryPhotoSelection = 8
 fun TodayRoute(
     modifier: Modifier = Modifier,
     onAddPlaceClick: (courseId: Long) -> Unit = {},
-    onAddCourseClick: () -> Unit = {},
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -47,11 +46,11 @@ fun TodayRoute(
 
     TodayScreen(
         hasCourse = uiState.hasCourse,
+        courseName = uiState.courseName,
         members = uiState.members,
         places = uiState.places,
         onCompleteCourseClick = viewModel::completeCourse,
         onAddPlaceClick = { uiState.courseId?.let(onAddPlaceClick) },
-        onAddCourseClick = onAddCourseClick,
         onDeletePlaceClick = viewModel::deleteCoursePlace,
         onReorderDragStart = viewModel::onReorderDragStart,
         onReorderCommit = viewModel::commitReorder,

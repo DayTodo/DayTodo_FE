@@ -63,6 +63,7 @@ import com.team_daytodo.daytodo.feature.today.component.TodayEmptyContent
 import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.feature.today.model.CoursePlace
 import com.team_daytodo.daytodo.feature.today.model.TodayTab
+import com.team_daytodo.daytodo.uikit.dialog.DayTodoAlertDialog
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -74,11 +75,11 @@ private val TopBarMinHeight = 48.dp
 @Composable
 fun TodayScreen(
     hasCourse: Boolean,
+    courseName: String? = null,
     members: List<CourseMember> = emptyList(),
     places: List<CoursePlace> = emptyList(),
     onBackClick: (() -> Unit)? = null,
     onAddPlaceClick: () -> Unit = {},
-    onAddCourseClick: () -> Unit = {},
     onCompleteCourseClick: () -> Unit = {},
     onDeletePlaceClick: (String) -> Unit = {},
     onReorderDragStart: () -> Unit = {},
@@ -95,6 +96,7 @@ fun TodayScreen(
     }
 
     val coursePlaces = remember(places) { places.toMutableStateList() }
+    var placeIdPendingDelete by remember { mutableStateOf<String?>(null) }
 
     val lazyListState = rememberLazyListState()
     val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -184,7 +186,7 @@ fun TodayScreen(
                     ) {
                         Column {
                             Text(
-                                text = "홍대거리 코스 멤버",
+                                text = "${courseName.orEmpty()} 코스 멤버",
                                 style = DayTodoTheme.typography.label3,
                                 color = DayTodoTheme.colors.textPrimary,
                             )
@@ -226,7 +228,7 @@ fun TodayScreen(
                                     onReorderCommit(coursePlaces.map { place -> place.id })
                                 },
                             ),
-                            onDeleteClick = onDeletePlaceClick,
+                            onDeleteClick = { placeId -> placeIdPendingDelete = placeId },
                         )
                     }
                 }
@@ -268,7 +270,7 @@ fun TodayScreen(
                         horizontalArrangement = Arrangement.End,
                     ) {
                         Row(
-                            modifier = Modifier.clickable(onClick = onAddCourseClick),
+                            modifier = Modifier.clickable(onClick = onAddPlaceClick),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
@@ -365,9 +367,20 @@ fun TodayScreen(
             }
         }
     }
+
+    val pendingDeletePlaceId = placeIdPendingDelete
+    if (pendingDeletePlaceId != null) {
+        DayTodoAlertDialog(
+            title = "장소 삭제",
+            message = "이 장소를 삭제할까요?",
+            onConfirm = {
+                onDeletePlaceClick(pendingDeletePlaceId)
+                placeIdPendingDelete = null
+            },
+            onDismiss = { placeIdPendingDelete = null },
+        )
+    }
 }
-
-
 
 @Composable
 private fun MemoryPhotoGrid(
@@ -544,6 +557,119 @@ private fun TodayScreenMemoryTabPreview() {
                 CoursePlace(id = "2", name = "서울숲", category = "공원"),
                 CoursePlace(id = "3", name = "레스토랑 예약", category = "맛집"),
             ),
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 1 — 오늘 코스가 없는 상태
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun TempTodayScreenNoCoursePreview() {
+    DayTodoTheme {
+        TodayScreen(
+            hasCourse = false,
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 2 — 오늘 코스가 있고 장소가 여러 개(5개) 있는 정상 상태
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun TempTodayScreenWithPlacesPreview() {
+    DayTodoTheme {
+        TodayScreen(
+            hasCourse = true,
+            courseName = "홍대 데이트 코스",
+            members = listOf(
+                CourseMember(id = "1", name = "나"),
+                CourseMember(id = "2", name = "수아"),
+            ),
+            places = listOf(
+                CoursePlace(id = "1", name = "성수 카페거리", category = "카페"),
+                CoursePlace(id = "2", name = "서울숲", category = "공원"),
+                CoursePlace(id = "3", name = "레스토랑 예약", category = "맛집"),
+                CoursePlace(id = "4", name = "한강 피크닉", category = "야외"),
+                CoursePlace(id = "5", name = "노포 술집", category = "술집"),
+            ),
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 3 — 장소 삭제 확인 다이얼로그가 떠 있는 상태.
+// TodayScreen의 다이얼로그는 내부 private 상태(placeIdPendingDelete)로만 열려서 TodayScreen
+// 파라미터로는 강제로 띄울 수 없다. 실제 호출부(TodayScreen.kt)와 동일한 title/message로
+// 하위 컴포넌트 DayTodoAlertDialog를 직접 사용해 같은 모습을 재현한다.
+@Preview(showBackground = true)
+@Composable
+private fun TempTodayScreenDeleteConfirmDialogPreview() {
+    DayTodoTheme {
+        DayTodoAlertDialog(
+            title = "장소 삭제",
+            message = "이 장소를 삭제할까요?",
+            onConfirm = {},
+            onDismiss = {},
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 4 — 코스 종료 완료 후 상태.
+// 코스 종료 성공 시 별도의 "완료" 전용 화면은 없고, ViewModel이 투데이 코스를 다시 조회해
+// (BE가 더 이상 오늘 코스를 내려주지 않으므로) hasCourse=false인 빈 상태로 되돌아간다.
+// 그래서 이 Preview는 빈 상태와 동일한 파라미터를 사용한다.
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun TempTodayScreenAfterCompleteCoursePreview() {
+    DayTodoTheme {
+        TodayScreen(
+            hasCourse = false,
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 5 — API 실패 시 Toast가 뜨는 상태.
+// 실패 Toast는 TodayRoute가 viewModel.event(TodayEvent.ShowMessage)를 구독해 띄우는 시스템
+// 오버레이라 @Preview 렌더링(실제 Activity/Window 없음)에는 나타나지 않는다. errorMessage/이벤트는
+// TodayUiState/TodayViewModel에만 있고 TodayScreen 파라미터로 노출되지 않으므로, 실패해도 화면
+// 자체는 직전 상태(장소 목록 등)를 그대로 유지한다는 점만 이 UiState로 재현한다.
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun TempTodayScreenApiFailurePreview() {
+    DayTodoTheme {
+        TodayScreen(
+            hasCourse = true,
+            courseName = "홍대 데이트 코스",
+            members = listOf(
+                CourseMember(id = "1", name = "나"),
+                CourseMember(id = "2", name = "수아"),
+            ),
+            places = listOf(
+                CoursePlace(id = "1", name = "성수 카페거리", category = "카페"),
+                CoursePlace(id = "2", name = "서울숲", category = "공원"),
+            ),
+        )
+    }
+}
+
+// TODO: 확인용 임시 Preview, 확인 후 삭제
+// 상태 6 — 추억사진 저장 화면(선택된 사진이 있고 저장 중인 상태)
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun TempTodayScreenSavingMemoryPhotosPreview() {
+    DayTodoTheme {
+        TodayScreen(
+            hasCourse = true,
+            startWithMemoryTab = true,
+            selectedMemoryPhotoUris = listOf(
+                "content://media/external/images/media/1001",
+                "content://media/external/images/media/1002",
+                "content://media/external/images/media/1003",
+            ),
+            isSavingMemoryPhotos = true,
         )
     }
 }
