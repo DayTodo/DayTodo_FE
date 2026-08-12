@@ -25,8 +25,6 @@ import com.team_daytodo.daytodo.domain.auth.model.LoginRequest
 import com.team_daytodo.daytodo.domain.auth.model.LoginResult
 import com.team_daytodo.daytodo.domain.auth.model.NaverLoginRequest
 import com.team_daytodo.daytodo.domain.auth.model.NaverLoginResult
-import com.team_daytodo.daytodo.domain.auth.model.ProfileSetupRequest
-import com.team_daytodo.daytodo.domain.auth.model.ProfileSetupResult
 import com.team_daytodo.daytodo.domain.auth.model.ResendEmailVerificationRequest
 import com.team_daytodo.daytodo.domain.auth.model.ResetPasswordRequest
 import com.team_daytodo.daytodo.domain.auth.model.ResetPasswordResult
@@ -151,9 +149,6 @@ fun Unit.toSendPasswordVerificationCodeResult(): SendPasswordVerificationCodeRes
 
 fun Unit.toResetPasswordResult(): ResetPasswordResult =
     ResetPasswordResult(changed = true)
-
-fun ProfileSetupRequest.toProfileSetupResult(): ProfileSetupResult =
-    ProfileSetupResult(nickname = nickname.trim())
 
 private object PasswordResetTokenCodec {
     fun encode(
