@@ -5,8 +5,30 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CoursesResponseDto(
+    @SerialName("banner")
+    val banner: CourseBannerDto? = null,
+    @SerialName("inProgressCourses")
+    val inProgressCourses: List<CourseSummaryDto> = emptyList(),
+    @SerialName("upcomingCourses")
+    val upcomingCourses: List<CourseSummaryDto> = emptyList(),
+    @SerialName("createdCourses")
+    val createdCourses: List<CourseSummaryDto> = emptyList(),
     @SerialName("courses")
-    val courses: List<CourseSummaryDto> = emptyList(),
+    val legacyCourses: List<CourseSummaryDto> = emptyList(),
+) {
+    val courses: List<CourseSummaryDto>
+        get() = (inProgressCourses + upcomingCourses + createdCourses + legacyCourses)
+            .distinctBy(CourseSummaryDto::courseId)
+}
+
+@Serializable
+data class CourseBannerDto(
+    @SerialName("status")
+    val status: String? = null,
+    @SerialName("message")
+    val message: String? = null,
+    @SerialName("courseId")
+    val courseId: Long? = null,
 )
 
 @Serializable
@@ -21,6 +43,18 @@ data class CourseSummaryDto(
     val memberCount: Int = 0,
     @SerialName("placeCount")
     val placeCount: Int = 0,
+    @SerialName("dDay")
+    val dDay: Long? = null,
+    @SerialName("participantType")
+    val participantType: String? = null,
+    @SerialName("minPrice")
+    val minPrice: Int? = null,
+    @SerialName("maxPrice")
+    val maxPrice: Int? = null,
+    @SerialName("minBudget")
+    val minBudget: Int? = null,
+    @SerialName("maxBudget")
+    val maxBudget: Int? = null,
     @SerialName("relationType")
     val relationType: String? = null,
     @SerialName("frameColor")
@@ -46,11 +80,11 @@ data class CourseCreateResponseDto(
     @SerialName("courseId")
     val courseId: Long,
     @SerialName("courseName")
-    val courseName: String,
+    val courseName: String = "",
     @SerialName("region")
     val region: CourseRegionDto? = null,
     @SerialName("courseDate")
-    val courseDate: String,
+    val courseDate: String = "",
     @SerialName("minBudget")
     val minBudget: Int? = null,
     @SerialName("maxBudget")
@@ -65,6 +99,8 @@ data class CourseCreateResponseDto(
     val participantType: String? = null,
     @SerialName("inviteCode")
     val inviteCode: String? = null,
+    @SerialName("inviteCodeExpiredAt")
+    val inviteCodeExpiredAt: String? = null,
     @SerialName("inviteLink")
     val inviteLink: String? = null,
     @SerialName("shareLink")
@@ -78,65 +114,35 @@ data class CourseJoinResponseDto(
     @SerialName("courseName")
     val courseName: String,
     @SerialName("role")
-    val role: String,
+    val role: String? = null,
     @SerialName("joinedAt")
-    val joinedAt: String,
-)
-
-@Serializable
-data class CourseMembersResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
-    @SerialName("result")
-    val result: List<CourseMemberDto> = emptyList(),
+    val joinedAt: String? = null,
 )
 
 @Serializable
 data class CourseMemberDto(
     @SerialName("memberId")
-    val memberId: Long,
+    val memberId: Long? = null,
+    @SerialName("courseMemberId")
+    val courseMemberId: Long? = null,
+    @SerialName("userId")
+    val userId: Long? = null,
     @SerialName("nickname")
-    val nickname: String,
+    val nickname: String = "",
     @SerialName("memberRole")
-    val memberRole: String,
+    val memberRole: String? = null,
+    @SerialName("memberStatus")
+    val memberStatus: String? = null,
     @SerialName("profileImageUrl")
     val profileImageUrl: String? = null,
 )
 
 @Serializable
-data class RemoveCourseMemberResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
-    @SerialName("result")
-    val result: String? = null,
-)
-
-@Serializable
-data class CoursePlacesResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
-    @SerialName("result")
-    val result: List<CoursePlaceDto> = emptyList(),
-)
-
-@Serializable
 data class CoursePlaceDto(
     @SerialName("coursePlaceId")
-    val coursePlaceId: Long,
+    val coursePlaceId: Long? = null,
     @SerialName("placeId")
-    val placeId: Long,
+    val placeId: Long? = null,
     @SerialName("placeName")
     val placeName: String,
     @SerialName("placeOrder")
@@ -174,49 +180,37 @@ data class CourseSettingResponseDto(
 )
 
 @Serializable
-data class CourseRecommendationsResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
-    @SerialName("result")
-    val result: List<CourseRecommendationDto> = emptyList(),
-)
-
-@Serializable
 data class CourseRecommendationDto(
     @SerialName("recommendationId")
     val recommendationId: Long,
     @SerialName("placeId")
-    val placeId: Long,
+    val placeId: Long? = null,
     @SerialName("source")
-    val source: String,
+    val source: String = "",
     @SerialName("placeName")
     val placeName: String,
     @SerialName("category")
-    val category: String,
+    val category: String = "",
     @SerialName("minPrice")
     val minPrice: Int? = null,
     @SerialName("maxPrice")
     val maxPrice: Int? = null,
     @SerialName("address")
-    val address: String,
+    val address: String = "",
     @SerialName("description")
-    val description: String,
+    val description: String = "",
     @SerialName("isOpen")
     val isOpen: Boolean? = null,
     @SerialName("recommender")
-    val recommender: String,
+    val recommender: String = "",
     @SerialName("likeCount")
-    val likeCount: Int,
+    val likeCount: Int = 0,
     @SerialName("commentCount")
-    val commentCount: Int,
+    val commentCount: Int = 0,
     @SerialName("isLiked")
-    val isLiked: Boolean,
+    val isLiked: Boolean = false,
     @SerialName("isSelected")
-    val isSelected: Boolean,
+    val isSelected: Boolean = false,
     @SerialName("roadAddress")
     val roadAddress: String? = null,
     @SerialName("latitude")
@@ -289,6 +283,18 @@ data class PlaceRecommendationCommentResultDto(
 data class PlacesSearchResponseDto(
     @SerialName("places")
     val places: List<PlaceSearchDto> = emptyList(),
+)
+
+@Serializable
+data class CoursePlaceAddedResponseDto(
+    @SerialName("coursePlaceId")
+    val coursePlaceId: Long,
+)
+
+@Serializable
+data class CoursePlacesBodyDto(
+    @SerialName("places")
+    val places: List<CoursePlaceDto> = emptyList(),
 )
 
 @Serializable

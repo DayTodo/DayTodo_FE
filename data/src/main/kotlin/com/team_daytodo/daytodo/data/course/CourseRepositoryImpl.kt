@@ -2,16 +2,21 @@ package com.team_daytodo.daytodo.data.course
 
 import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.data.course.mapper.successMessage
+import com.team_daytodo.daytodo.data.course.mapper.toAddCoursePlaceDto
 import com.team_daytodo.daytodo.data.course.mapper.toComment
 import com.team_daytodo.daytodo.data.course.mapper.toCommentDto
 import com.team_daytodo.daytodo.data.course.mapper.toCourseIdLong
 import com.team_daytodo.daytodo.data.course.mapper.toDomain
+import com.team_daytodo.daytodo.data.course.mapper.toDomainRecommendations
 import com.team_daytodo.daytodo.data.course.mapper.toDto
+import com.team_daytodo.daytodo.data.course.mapper.toDtoDate
 import com.team_daytodo.daytodo.data.course.mapper.toJoinCourseDto
 import com.team_daytodo.daytodo.data.course.mapper.toMapRecommendationDto
 import com.team_daytodo.daytodo.data.course.mapper.toPlace
 import com.team_daytodo.daytodo.data.course.mapper.toPlaceIdLong
+import com.team_daytodo.daytodo.data.course.mapper.toReorderCoursePlacesDto
 import com.team_daytodo.daytodo.data.course.remote.CourseRemoteDataSource
+import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.domain.course.model.CourseComment
 import com.team_daytodo.daytodo.domain.course.model.CourseCommentThread
@@ -23,6 +28,7 @@ import com.team_daytodo.daytodo.domain.course.model.CourseDetail
 import com.team_daytodo.daytodo.domain.course.model.CourseException
 import com.team_daytodo.daytodo.domain.course.model.CourseMember
 import com.team_daytodo.daytodo.domain.course.model.CoursePlace
+import com.team_daytodo.daytodo.domain.course.model.CoursePlaceRecommendation
 import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
 import com.team_daytodo.daytodo.domain.course.model.CourseRegionGroup
 import com.team_daytodo.daytodo.domain.course.model.CourseRegionLoadException
@@ -34,11 +40,15 @@ import com.team_daytodo.daytodo.domain.course.model.UnknownCourseRegionException
 import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
 import javax.inject.Inject
 
+private const val DefaultAiRegionId = 1L
+private const val DefaultAiMaxPrice = 1_000_000_000
+
 class CourseRepositoryImpl @Inject constructor(
     private val remoteDataSource: CourseRemoteDataSource,
     private val localCourseRegionDataSource: LocalCourseRegionDataSource,
 ) : CourseRepository {
     private val selectedCoursePlaceIdsByCourseId = mutableMapOf<Long, List<String>>()
+    private val aiRecommendationsByCourseId = mutableMapOf<Long, List<CoursePlaceRecommendation>>()
     private val commentsByCoursePlaceKey = mutableMapOf<CoursePlaceKey, List<CourseComment>>()
 
     override suspend fun getCourseRegions(): Result<List<CourseRegionGroup>> =
@@ -61,9 +71,16 @@ class CourseRepositoryImpl @Inject constructor(
             remoteDataSource.joinCourse(inviteCode.toJoinCourseDto()).successMessage()
         }
 
-    override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
+    override suspend fun getUpcomingCourses(
+        startDate: CourseDate?,
+        endDate: CourseDate?,
+    ): Result<List<CourseSummary>> =
         runCatching {
-            remoteDataSource.getCourses().courses
+            val response = remoteDataSource.getCourses(
+                startDate = startDate?.toDtoDate(),
+                endDate = endDate?.toDtoDate(),
+            )
+            response.createdCourses.ifEmpty { response.courses }
                 .sortedWith(compareBy({ it.courseDate }, { it.courseId }))
                 .map { course ->
                     course.toDomain(
@@ -77,6 +94,30 @@ class CourseRepositoryImpl @Inject constructor(
     override suspend fun getCourseDetail(courseId: String): Result<CourseDetail> =
         runCatching {
             loadCourseDetail(courseId.toCourseIdLong())
+        }
+
+    override suspend fun refreshAiCourseRecommendations(courseId: String): Result<CourseDetail> =
+        runCatching {
+            val courseIdLong = courseId.toCourseIdLong()
+            val detail = loadCourseDetail(courseIdLong)
+            val regionId = detail.region
+                .takeIf(String::isNotBlank)
+                ?.let(localCourseRegionDataSource::getRegionId)
+                ?: DefaultAiRegionId
+            val minPrice = detail.minBudget.coerceAtLeast(0)
+            val maxPrice = detail.maxBudget
+                .takeIf { it > 0 && it >= minPrice }
+                ?: DefaultAiMaxPrice
+            val recommendations = remoteDataSource.getAiCourseRecommendations(
+                AiCourseRecommendationsRequestDto(
+                    regionId = regionId,
+                    minPrice = minPrice,
+                    maxPrice = maxPrice,
+                ),
+            ).toDomainRecommendations()
+
+            aiRecommendationsByCourseId[courseIdLong] = recommendations
+            loadCourseDetail(courseIdLong)
         }
 
     override suspend fun searchPlaces(
@@ -138,12 +179,24 @@ class CourseRepositoryImpl @Inject constructor(
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
             val detail = loadCourseDetail(courseIdLong)
-            val currentPlaceIds = detail.coursePlaces.map(CoursePlace::id)
+            val currentPlace = detail.findCoursePlaceByDisplayPlaceId(placeId)
 
-            selectedCoursePlaceIdsByCourseId[courseIdLong] = if (placeId in currentPlaceIds) {
-                currentPlaceIds - placeId
+            if (currentPlace != null) {
+                val coursePlaceId = currentPlace.coursePlaceId?.toLongOrNull()
+                if (coursePlaceId != null) {
+                    remoteDataSource.removeCoursePlace(courseIdLong, coursePlaceId)
+                    selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
+                } else {
+                    selectedCoursePlaceIdsByCourseId[courseIdLong] =
+                        detail.coursePlaces.map(CoursePlace::id).filterNot { it == placeId }
+                }
             } else {
-                currentPlaceIds + placeId
+                val recommendation = findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
+                remoteDataSource.addRecommendationToCourse(
+                    courseId = courseIdLong,
+                    request = recommendation.recommendationId.toAddCoursePlaceDto(),
+                )
+                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
             }
 
             loadCourseDetail(courseIdLong)
@@ -156,9 +209,18 @@ class CourseRepositoryImpl @Inject constructor(
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
             val detail = loadCourseDetail(courseIdLong)
-            selectedCoursePlaceIdsByCourseId[courseIdLong] = detail.coursePlaces
-                .map(CoursePlace::id)
-                .filterNot { it == placeId }
+            val coursePlaceId = detail.findCoursePlaceByDisplayPlaceId(placeId)
+                ?.coursePlaceId
+                ?.toLongOrNull()
+
+            if (coursePlaceId != null) {
+                remoteDataSource.removeCoursePlace(courseIdLong, coursePlaceId)
+                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
+            } else {
+                selectedCoursePlaceIdsByCourseId[courseIdLong] = detail.coursePlaces
+                    .map(CoursePlace::id)
+                    .filterNot { it == placeId }
+            }
             loadCourseDetail(courseIdLong)
         }
 
@@ -174,13 +236,20 @@ class CourseRepositoryImpl @Inject constructor(
                 return@runCatching detail
             }
 
-            selectedCoursePlaceIdsByCourseId[courseIdLong] = detail.coursePlaces
-                .map(CoursePlace::id)
-                .toMutableList()
-                .apply {
-                    val movedPlaceId = removeAt(fromIndex)
-                    add(toIndex, movedPlaceId)
-                }
+            val movedPlaces = detail.coursePlaces.move(fromIndex, toIndex)
+            val orderedCoursePlaceIds = movedPlaces.mapNotNull { place ->
+                place.coursePlaceId?.toLongOrNull()
+            }
+
+            if (orderedCoursePlaceIds.size == movedPlaces.size) {
+                remoteDataSource.reorderCoursePlaces(
+                    courseId = courseIdLong,
+                    request = orderedCoursePlaceIds.toReorderCoursePlacesDto(),
+                )
+                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
+            } else {
+                selectedCoursePlaceIdsByCourseId[courseIdLong] = movedPlaces.map(CoursePlace::id)
+            }
             loadCourseDetail(courseIdLong)
         }
 
@@ -243,19 +312,23 @@ class CourseRepositoryImpl @Inject constructor(
 
     private suspend fun loadCourseDetail(courseId: Long): CourseDetail {
         val summary = remoteDataSource.getCourses().courses.firstOrNull { it.courseId == courseId }
-        val members = remoteDataSource.getCourseMembers(courseId).result.map { it.toDomain() }
+        val members = remoteDataSource.getCourseMembers(courseId).map { it.toDomain() }
         val currentMemberId = members.firstOrNull()?.id ?: AnonymousMember.id
-        val recommendations = remoteDataSource.getCourseRecommendations(courseId).result
-        val recommendationPlacesById = recommendations.associate { recommendation ->
-            recommendation.placeId.toString() to recommendation.toPlace()
+        val recommendations = remoteDataSource.getCourseRecommendations(courseId)
+        val recommendationPlacesById = buildMap {
+            recommendations.forEach { recommendation ->
+                val place = recommendation.toPlace()
+                put(place.id, place)
+                put(place.name, place)
+            }
         }
-        val serverCoursePlaces = remoteDataSource.getCoursePlaces(courseId).result
+        val serverCoursePlaces = remoteDataSource.getCoursePlaces(courseId)
             .sortedBy { it.placeOrder }
             .map { it.toDomain(recommendationPlacesById) }
-        val selectedPlaceIds = selectedCoursePlaceIdsByCourseId.getOrPut(courseId) {
+        val selectedPlaceIds = selectedCoursePlaceIdsByCourseId[courseId] ?: run {
             val selectedRecommendationPlaceIds = recommendations
                 .filter(CourseRecommendationDto::isSelected)
-                .map { it.placeId.toString() }
+                .map { it.toPlace().id }
 
             serverCoursePlaces.map(CoursePlace::id)
                 .ifEmpty { selectedRecommendationPlaceIds }
@@ -263,7 +336,18 @@ class CourseRepositoryImpl @Inject constructor(
         val placesById = (serverCoursePlaces + recommendationPlacesById.values)
             .associateBy(CoursePlace::id)
         val coursePlaces = selectedPlaceIds.mapNotNull(placesById::get)
-        val relationship = summary?.relationType.toRelationshipOrDefault()
+        val relationship = (summary?.relationType ?: summary?.participantType).toRelationshipOrDefault()
+
+        val serverRecommendationDomains = recommendations.map { recommendation ->
+            recommendation.toDomain(currentMemberId)
+        }
+        val transientAiRecommendations = aiRecommendationsByCourseId[courseId].orEmpty()
+            .filterNot { aiRecommendation ->
+                serverRecommendationDomains.any { serverRecommendation ->
+                    serverRecommendation.place.id == aiRecommendation.place.id
+                }
+            }
+        val recommendationDomains = transientAiRecommendations + serverRecommendationDomains
 
         return CourseDetail(
             id = courseId.toString(),
@@ -274,16 +358,16 @@ class CourseRepositoryImpl @Inject constructor(
                     localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
                 }
                 ?: "",
-            regionCoordinate = coursePlaces.firstOrNull()?.coordinate ?: DefaultCoordinate,
+            regionCoordinate = coursePlaces.firstOrNull()?.coordinate
+                ?: recommendationDomains.firstOrNull()?.place?.coordinate
+                ?: DefaultCoordinate,
             date = summary?.courseDate?.toCourseDateOrDefault() ?: DefaultCourseDate,
-            minBudget = 0,
-            maxBudget = 0,
+            minBudget = summary?.minBudget ?: summary?.minPrice ?: 0,
+            maxBudget = summary?.maxBudget ?: summary?.maxPrice ?: 0,
             relationship = relationship,
             currentMemberId = currentMemberId,
             members = members.ifEmpty { listOf(AnonymousMember) },
-            recommendedPlaces = recommendations.map { recommendation ->
-                recommendation.toDomain(currentMemberId)
-            },
+            recommendedPlaces = recommendationDomains,
             coursePlaces = coursePlaces,
         )
     }
@@ -292,14 +376,58 @@ class CourseRepositoryImpl @Inject constructor(
         courseId: Long,
         placeId: String,
     ): CourseRecommendationDto =
-        remoteDataSource.getCourseRecommendations(courseId).result
-            .firstOrNull { it.placeId.toString() == placeId }
+        remoteDataSource.getCourseRecommendations(courseId)
+            .firstOrNull { it.matchesPlaceId(placeId) }
             ?: throw NoSuchElementException("Recommendation not found for placeId=$placeId")
+
+    private suspend fun findRecommendationByPlaceIdOrCreate(
+        courseId: Long,
+        placeId: String,
+    ): CourseRecommendationDto {
+        remoteDataSource.getCourseRecommendations(courseId)
+            .firstOrNull { it.matchesPlaceId(placeId) }
+            ?.let { return it }
+
+        val created = remoteDataSource.recommendPlace(
+            courseId = courseId,
+            request = placeId.toPlaceIdLong().toMapRecommendationDto(),
+        )
+        return remoteDataSource.getCourseRecommendations(courseId)
+            .firstOrNull { it.recommendationId == created.result.recommendationId }
+            ?: CourseRecommendationDto(
+                recommendationId = created.result.recommendationId,
+                placeId = placeId.toPlaceIdLong(),
+                source = "MEMBER",
+                placeName = "",
+            )
+    }
+
+    private fun CourseRecommendationDto.matchesPlaceId(targetPlaceId: String): Boolean =
+        placeId?.toString() == targetPlaceId ||
+            "recommendation-$recommendationId" == targetPlaceId ||
+            toPlace().id == targetPlaceId
+
+    private fun List<CoursePlace>.move(
+        fromIndex: Int,
+        toIndex: Int,
+    ): List<CoursePlace> =
+        toMutableList().apply {
+            val movedPlace = removeAt(fromIndex)
+            add(toIndex, movedPlace)
+        }
 
     private fun CourseDetail.findPlace(placeId: String): CoursePlace =
         coursePlaces.firstOrNull { it.id == placeId }
             ?: recommendedPlaces.firstOrNull { it.place.id == placeId }?.place
             ?: throw NoSuchElementException("Place not found for placeId=$placeId")
+
+    private fun CourseDetail.findCoursePlaceByDisplayPlaceId(placeId: String): CoursePlace? {
+        coursePlaces.firstOrNull { it.id == placeId }?.let { return it }
+        val recommendationPlace = recommendedPlaces.firstOrNull { it.place.id == placeId }?.place
+            ?: return null
+
+        return coursePlaces.firstOrNull { it.name == recommendationPlace.name }
+    }
 
     private fun requireRegionId(region: String): Long =
         localCourseRegionDataSource.getRegionId(region)

@@ -3,6 +3,7 @@ package com.team_daytodo.daytodo.domain.course.repository
 import com.team_daytodo.daytodo.domain.course.model.CourseCreateRequest
 import com.team_daytodo.daytodo.domain.course.model.CourseCreateResult
 import com.team_daytodo.daytodo.domain.course.model.CourseCommentThread
+import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.domain.course.model.CourseDetail
 import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
 import com.team_daytodo.daytodo.domain.course.model.CourseRegionGroup
@@ -16,9 +17,14 @@ interface CourseRepository {
 
     suspend fun joinCourse(inviteCode: String): Result<String>
 
-    suspend fun getUpcomingCourses(): Result<List<CourseSummary>>
+    suspend fun getUpcomingCourses(
+        startDate: CourseDate? = null,
+        endDate: CourseDate? = null,
+    ): Result<List<CourseSummary>>
 
     suspend fun getCourseDetail(courseId: String): Result<CourseDetail>
+
+    suspend fun refreshAiCourseRecommendations(courseId: String): Result<CourseDetail>
 
     suspend fun searchPlaces(
         courseId: String,

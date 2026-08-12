@@ -232,12 +232,19 @@ class DummyCourseRepository @Inject constructor(
             "Joined course"
         }
 
-    override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
+    override suspend fun getUpcomingCourses(
+        startDate: CourseDate?,
+        endDate: CourseDate?,
+    ): Result<List<CourseSummary>> =
         runCatching {
             delay(QueryDelayMillis)
             courseRooms.values
                 .sortedBy { it.date.sortKey }
                 .map { it.toSummary() }
+                .filter { course ->
+                    (startDate == null || course.date.sortKey >= startDate.sortKey) &&
+                        (endDate == null || course.date.sortKey <= endDate.sortKey)
+                }
         }
 
     override suspend fun getCourseDetail(courseId: String): Result<CourseDetail> =
@@ -245,6 +252,9 @@ class DummyCourseRepository @Inject constructor(
             delay(QueryDelayMillis)
             requireRoom(courseId).toDetail()
         }
+
+    override suspend fun refreshAiCourseRecommendations(courseId: String): Result<CourseDetail> =
+        getCourseDetail(courseId)
 
     override suspend fun searchPlaces(
         courseId: String,
@@ -459,6 +469,7 @@ class DummyCourseRepository @Inject constructor(
             recommendedPlaces = recommendations.mapNotNull { recommendation ->
                 val place = placeById[recommendation.placeId] ?: return@mapNotNull null
                 CoursePlaceRecommendation(
+                    recommendationId = recommendation.id,
                     place = place,
                     recommender = recommendation.recommender,
                     likedByMemberIds = recommendation.likedByMemberIds.toSet(),
@@ -495,6 +506,7 @@ class DummyCourseRepository @Inject constructor(
     )
 
     private data class StoredRecommendation(
+        val id: String = "recommendation-${System.nanoTime()}",
         val placeId: String,
         val recommender: PlaceRecommender,
         val likedByMemberIds: MutableSet<String>,
