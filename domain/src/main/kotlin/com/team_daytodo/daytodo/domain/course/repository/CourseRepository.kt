@@ -14,6 +14,8 @@ interface CourseRepository {
 
     suspend fun createCourseRoom(request: CourseCreateRequest): Result<CourseCreateResult>
 
+    suspend fun joinCourse(inviteCode: String): Result<String>
+
     suspend fun getUpcomingCourses(): Result<List<CourseSummary>>
 
     suspend fun getCourseDetail(courseId: String): Result<CourseDetail>
