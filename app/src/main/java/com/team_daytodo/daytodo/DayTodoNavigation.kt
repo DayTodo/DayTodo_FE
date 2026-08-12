@@ -185,6 +185,7 @@ internal fun DayTodoNavHost(
                 onAddPlaceClick = { courseId ->
                     navController.navigate(DayTodoRoute.placeRecommendationRoute(courseId.toString()))
                 },
+                onAddCourseClick = { navController.navigateSingleTopTo(DayTodoRoute.CourseCreate) },
             )
         }
         composable(DayTodoRoute.Calendar) {
@@ -318,9 +319,6 @@ internal fun DayTodoNavHost(
                     .orEmpty(),
                 onBackClick = { navController.popBackStack() },
             )
-        }
-        composable(DayTodoRoute.Today) {
-            TodayRoute()
         }
         recordNavGraph(navController)
         mypageNavGraph(navController)
