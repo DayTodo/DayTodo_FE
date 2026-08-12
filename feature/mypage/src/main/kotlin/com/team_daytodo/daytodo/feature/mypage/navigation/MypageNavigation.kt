@@ -35,7 +35,15 @@ object MypageRoute {
     fun policyDocumentRoute(documentIndex: Int) = "mypage/terms/document/$documentIndex"
 }
 
-fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
+fun NavGraphBuilder.mypageNavGraph(
+    navController: NavController,
+    onNaverLinkRequested: (
+        onAccessTokenReceived: (String) -> Unit,
+        onFailure: (String) -> Unit,
+    ) -> Unit = { _, onFailure ->
+        onFailure("네이버 연동 설정을 확인해 주세요.")
+    },
+) {
     composable(MypageRoute.Mypage) { backStackEntry ->
         val viewModel: MypageViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,6 +81,7 @@ fun NavGraphBuilder.mypageNavGraph(navController: NavController) {
         ProfileEditRoute(
             onBackClick = { navController.popBackStack() },
             onChangePasswordClick = { navController.navigate(MypageRoute.PasswordChange) },
+            onNaverLinkRequested = onNaverLinkRequested,
             onProfileSaved = {
                 navController.previousBackStackEntry
                     ?.savedStateHandle

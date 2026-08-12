@@ -32,6 +32,7 @@ fun ProfileEditScreen(
     onChangePhotoClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
     onNicknameChange: (String) -> Unit = {},
+    onLinkAccountClick: () -> Unit = {},
     onUnlinkAccountClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
 ) {
@@ -79,6 +80,7 @@ fun ProfileEditScreen(
                 providerName = uiState.linkedAccountProvider,
                 accountId = uiState.linkedAccountId,
                 isLinked = uiState.isAccountLinked,
+                onLinkClick = onLinkAccountClick,
                 onUnlinkClick = onUnlinkAccountClick,
             )
 
