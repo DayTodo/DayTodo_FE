@@ -1,6 +1,7 @@
 package com.team_daytodo.daytodo.data.course.mapper
 
 import com.team_daytodo.daytodo.core.model.Relationship
+import com.team_daytodo.daytodo.data.course.remote.dto.CourseCardDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
@@ -9,7 +10,7 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CourseSummaryDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CreatedCourseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationRequestDto
@@ -65,26 +66,41 @@ internal fun String.toCommentDto(): PlaceRecommendationCommentRequestDto =
 
 internal fun CourseCreateResponseDto.toDomain(): CourseCreateResult =
     CourseCreateResult(
-        inviteLink = inviteLink
-            ?: shareLink
-            ?: inviteCode
+        inviteLink = inviteCode
+            ?.let { code -> "$DefaultInviteBaseUrl/$courseId?inviteCode=$code" }
             ?: "$DefaultInviteBaseUrl/$courseId",
     )
 
-internal fun CourseSummaryDto.toDomain(regionName: String?): CourseSummary =
+internal fun CourseCardDto.toDomain(regionName: String?): CourseSummary =
     CourseSummary(
         id = courseId.toString(),
         name = courseName,
-        region = region?.regionName ?: this.regionName ?: regionName.orEmpty(),
+        region = regionName.orEmpty(),
         date = courseDate.toCourseDate(),
-        relationship = relationType.toRelationship(),
-        members = List(memberCount.coerceAtLeast(0)) { index ->
+        relationship = participantType.toRelationship(),
+        members = List(memberCount.coerceAtLeast(0).toInt()) { index ->
             CourseMember(
                 id = "member-count-${courseId}-${index + 1}",
                 name = "",
             )
         },
-        placeCount = placeCount,
+        placeCount = 0,
+    )
+
+internal fun CreatedCourseDto.toDomain(regionName: String?): CourseSummary =
+    CourseSummary(
+        id = courseId.toString(),
+        name = courseName,
+        region = regionName.orEmpty(),
+        date = courseDate.toCourseDate(),
+        relationship = participantType.toRelationship(),
+        members = List(memberCount.coerceAtLeast(0).toInt()) { index ->
+            CourseMember(
+                id = "member-count-${courseId}-${index + 1}",
+                name = "",
+            )
+        },
+        placeCount = placeCount.toInt(),
     )
 
 internal fun CourseJoinResponseDto.successMessage(): String =
@@ -92,18 +108,20 @@ internal fun CourseJoinResponseDto.successMessage(): String =
 
 internal fun CourseMemberDto.toDomain(): CourseMember =
     CourseMember(
-        id = memberId.toString(),
+        id = courseMemberId.toString(),
         name = nickname,
         profileImageUrl = profileImageUrl,
     )
 
+// BE의 추천 장소 리스트 응답엔 placeId가 없어(CourseResponse.Recommendation) recommendationId를
+// 대신 안정적인 식별자로 쓴다. 주소/카테고리/좌표/이미지도 BE가 안 보내 항상 비어있을 수 있다.
 internal fun CourseRecommendationDto.toPlace(): CoursePlace =
     CoursePlace(
-        id = placeId.toString(),
+        id = placeId?.toString() ?: "recommendation-$recommendationId",
         name = placeName,
-        address = roadAddress ?: address,
-        category = category,
-        description = description,
+        address = roadAddress ?: address.orEmpty(),
+        category = category.orEmpty(),
+        description = description.orEmpty(),
         expectedPrice = minPrice ?: maxPrice ?: 0,
         imageUrl = imageUrl,
         coordinate = CourseCoordinate(
@@ -176,7 +194,7 @@ internal fun PlaceRecommendationCommentResponseDto.toComment(
     content: String,
 ): CourseComment =
     CourseComment(
-        id = result.commentId.toString(),
+        id = commentId.toString(),
         author = author,
         content = content.trim(),
         createdAtMillis = System.currentTimeMillis(),
@@ -199,9 +217,10 @@ private fun CourseRecommendationDto.toRecommender(): PlaceRecommender =
     if (source.equals(RecommendationSourceAi, ignoreCase = true)) {
         PlaceRecommender.Ai
     } else {
+        val recommenderName = recommender.orEmpty()
         PlaceRecommender.Member(
-            memberId = "member-${recommender.hashCode().toUInt()}",
-            name = recommender,
+            memberId = "member-${recommenderName.hashCode().toUInt()}",
+            name = recommenderName,
         )
     }
 
