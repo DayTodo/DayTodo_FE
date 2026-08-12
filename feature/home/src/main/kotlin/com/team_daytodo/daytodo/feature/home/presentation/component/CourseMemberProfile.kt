@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.feature.home.presentation.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,15 +31,25 @@ internal fun CourseMemberProfile(member: CourseMember) {
                 .clip(CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            member.profileImage?.let { profileImage ->
-                Icon(
-                    modifier = Modifier
-                        .width(12.dp)
-                        .height(18.dp),
-                    painter = painterResource(id = profileImage),
+            if (!member.profileImageUrl.isNullOrBlank()) {
+                RemoteImage(
+                    modifier = Modifier.fillMaxSize(),
+                    imageUrl = member.profileImageUrl,
+                    fallbackResId = member.profileImage ?: UIKitR.drawable.ic_symbol,
                     contentDescription = null,
-                    tint = DayTodoTheme.colors.iconOnColor,
+                    contentScale = ContentScale.Crop,
                 )
+            } else {
+                member.profileImage?.let { profileImage ->
+                    Icon(
+                        modifier = Modifier
+                            .width(12.dp)
+                            .height(18.dp),
+                        painter = painterResource(id = profileImage),
+                        contentDescription = null,
+                        tint = DayTodoTheme.colors.iconOnColor,
+                    )
+                }
             }
         }
 

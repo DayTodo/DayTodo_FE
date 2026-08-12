@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.feature.record.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -25,25 +26,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.record.component.MemoInputBar
-import com.team_daytodo.daytodo.feature.record.component.MemoItem
-import com.team_daytodo.daytodo.feature.record.model.MemoEntry
-import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import coil.compose.AsyncImage
+import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
 import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -51,10 +48,11 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 @Composable
 fun MemoScreen(
     photos: List<RecordPhoto>,
-    memosByPhotoId: Map<String, List<MemoEntry>>,
+    diaryContent: String,
     initialPhotoIndex: Int = 0,
     onBackClick: () -> Unit = {},
-    onSubmitMemo: (photoId: String, content: String) -> Unit = { _, _ -> },
+    onDiaryContentChange: (String) -> Unit = {},
+    onSaveDiaryClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (photos.isEmpty()) return
@@ -64,7 +62,6 @@ fun MemoScreen(
     }
 
     val currentPhoto = photos[currentPhotoIndex]
-    val currentMemos = memosByPhotoId[currentPhoto.id].orEmpty()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -82,7 +79,7 @@ fun MemoScreen(
                         )
                     }
                     Text(
-                        text = "메모",
+                        text = "기록",
                         style = DayTodoTheme.typography.title1,
                         color = DayTodoTheme.colors.textPrimary,
                         modifier = Modifier.align(Alignment.Center),
@@ -103,7 +100,7 @@ fun MemoScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             MemoPhotoPager(
-                photoRes = currentPhoto.imageRes,
+                imageUrl = currentPhoto.imageUrl,
                 currentIndex = currentPhotoIndex,
                 photoCount = photos.size,
                 isFirst = currentPhotoIndex == 0,
@@ -116,65 +113,86 @@ fun MemoScreen(
                 },
             )
 
-            Text(
-                text = "메모 남기기",
-                style = DayTodoTheme.typography.label2,
-                color = DayTodoTheme.colors.textPrimary,
-                modifier = Modifier.padding(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 20.dp,
-                    bottom = 16.dp,
-                ),
+            DiaryContentSection(
+                content = diaryContent,
+                onContentChange = onDiaryContentChange,
+                onSaveClick = onSaveDiaryClick,
             )
-
-            // 사진이 바뀌면 입력창의 임시 입력값도 초기화되도록 photo index 로 key 를 건다.
-            key(currentPhotoIndex) {
-                MemoListSection(
-                    memos = currentMemos,
-                    onSubmit = { content -> onSubmitMemo(currentPhoto.id, content) },
-                )
-            }
         }
     }
 }
 
+/**
+ * 코스/날짜 단위로 공유되는 일기 입력 영역. 어떤 사진을 보고 있든 동일한 내용을 표시한다.
+ */
 @Composable
-private fun MemoListSection(
-    memos: List<MemoEntry>,
-    onSubmit: (String) -> Unit,
+private fun DiaryContentSection(
+    content: String,
+    onContentChange: (String) -> Unit,
+    onSaveClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var inputValue by remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(horizontal = 20.dp, vertical = 20.dp),
     ) {
-        memos.forEach { memo ->
-            MemoItem(memo = memo)
+        Text(
+            text = "오늘의 기록",
+            style = DayTodoTheme.typography.label2,
+            color = DayTodoTheme.colors.textPrimary,
+            modifier = Modifier.padding(bottom = 12.dp),
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 120.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(DayTodoTheme.colors.backgroundSecondary)
+                .padding(16.dp),
+        ) {
+            BasicTextField(
+                value = content,
+                onValueChange = onContentChange,
+                textStyle = DayTodoTheme.typography.label3.copy(
+                    color = DayTodoTheme.colors.textPrimary,
+                ),
+                cursorBrush = SolidColor(DayTodoTheme.colors.brandPrimary),
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { innerTextField ->
+                    if (content.isEmpty()) {
+                        Text(
+                            text = "오늘의 기록을 남겨보세요",
+                            style = DayTodoTheme.typography.label3,
+                            color = DayTodoTheme.colors.textTertiary,
+                        )
+                    }
+                    innerTextField()
+                },
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .align(Alignment.End)
+                .clip(RoundedCornerShape(8.dp))
+                .background(DayTodoTheme.colors.brandPrimary)
+                .clickable(onClick = onSaveClick)
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+        ) {
+            Text(
+                text = "저장",
+                style = DayTodoTheme.typography.label3,
+                color = DayTodoTheme.colors.iconOnColor,
+            )
         }
     }
-
-    MemoInputBar(
-        value = inputValue,
-        onValueChange = { inputValue = it },
-        onSubmit = {
-            if (inputValue.isNotBlank()) {
-                onSubmit(inputValue)
-                inputValue = ""
-            }
-        },
-        focusRequester = focusRequester,
-    )
 }
 
 @Composable
 private fun MemoPhotoPager(
-    photoRes: Int?,
+    imageUrl: String,
     currentIndex: Int,
     photoCount: Int,
     isFirst: Boolean,
@@ -190,14 +208,12 @@ private fun MemoPhotoPager(
             .background(DayTodoTheme.colors.backgroundSecondary),
         contentAlignment = Alignment.Center,
     ) {
-        if (photoRes != null) {
-            Image(
-                painter = painterResource(id = photoRes),
-                contentDescription = "추억 사진 ${currentIndex + 1} / $photoCount",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "추억 사진 ${currentIndex + 1} / $photoCount",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
 
         PhotoArrowButton(
             icon = Icons.Default.KeyboardArrowLeft,
@@ -249,8 +265,8 @@ private fun MemoScreenPreview() {
     val uiState = sampleRecordUiState()
     DayTodoTheme {
         MemoScreen(
-            photos = uiState.selectedPhotos,
-            memosByPhotoId = uiState.memosByPhotoId,
+            photos = uiState.photos,
+            diaryContent = uiState.diaryContent,
         )
     }
 }

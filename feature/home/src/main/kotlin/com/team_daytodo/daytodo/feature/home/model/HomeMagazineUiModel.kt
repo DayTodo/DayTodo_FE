@@ -5,5 +5,5 @@ data class HomeMagazineUiModel(
     val title: String,
     val location: String,
     val description: String,
-    val imageRes: Int,
+    val thumbnailUrl: String? = null,
 )

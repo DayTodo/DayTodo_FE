@@ -1,6 +1,5 @@
 package com.team_daytodo.daytodo.feature.record.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.feature.record.model.RecordPhoto
+import coil.compose.AsyncImage
+import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
 import com.team_daytodo.daytodo.feature.record.model.sampleRecordUiState
 import com.team_daytodo.daytodo.uikit.R
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
@@ -74,7 +74,7 @@ fun PhotoSelectScreen(
                 .padding(horizontal = 20.dp),
         ) {
             Text(
-                text = "사진을 선택해 메모를 남겨보세요",
+                text = "사진을 선택해 기록을 남겨보세요",
                 style = DayTodoTheme.typography.label2,
                 color = DayTodoTheme.colors.textPrimary,
                 modifier = Modifier.padding(top = 24.dp, bottom = 16.dp),
@@ -87,7 +87,7 @@ fun PhotoSelectScreen(
             ) {
                 itemsIndexed(
                     items = photos,
-                    key = { _, photo -> photo.id },
+                    key = { _, photo -> photo.memoryPhotoId },
                 ) { index, photo ->
                     PhotoGridCell(
                         photo = photo,
@@ -105,21 +105,18 @@ private fun PhotoGridCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val imageRes = photo.imageRes
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .background(DayTodoTheme.colors.backgroundSecondary)
             .clickable(onClick = onClick),
     ) {
-        if (imageRes != null) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        AsyncImage(
+            model = photo.imageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
@@ -127,6 +124,6 @@ private fun PhotoGridCell(
 @Composable
 private fun PhotoSelectScreenPreview() {
     DayTodoTheme {
-        PhotoSelectScreen(photos = sampleRecordUiState().selectedPhotos)
+        PhotoSelectScreen(photos = sampleRecordUiState().photos)
     }
 }
