@@ -3,7 +3,9 @@ package com.team_daytodo.daytodo.feature.course.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,28 +71,49 @@ fun CourseCreateCompleteScreen(
         showCopiedToast = false
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White),
     ) {
+        val heightScale = (maxHeight / CompleteScreenDesignHeight)
+            .coerceIn(CompleteScreenMinScale, 1f)
+        val iconWidth = CompleteIconWidth * heightScale
+        val iconHeight = CompleteIconHeight * heightScale
+        val iconTextSpacing = CompleteIconTextSpacing * heightScale
+        val linkButtonSpacing = CompleteLinkButtonSpacing * heightScale
+        val bottomPadding = buttonBottomPadding * heightScale
+        val bottomSectionHeight = CopiedToastHeight +
+            CompleteToastLinkSpacing +
+            InviteLinkHeight +
+            linkButtonSpacing +
+            CompleteButtonApproxHeight +
+            bottomPadding
+        val topSectionHeight = (maxHeight - bottomSectionHeight)
+            .coerceAtLeast(CompleteMinTopSectionHeight * heightScale)
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = screenHorizontalPadding, vertical = 297.94.dp),
+                .height(topSectionHeight)
+                .padding(horizontal = screenHorizontalPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_relationship),
                 contentDescription = null,
-                modifier = Modifier.size(width = 152.dp, height = 77.dp),
+                modifier = Modifier.size(width = iconWidth, height = iconHeight),
                 tint = relationshipColors(relationship).icon,
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(iconTextSpacing))
             Text(
                 text = "그룹이 생성됐어요",
-                style = DayTodoTheme.typography.headlineLarge,
+                modifier = Modifier.fillMaxWidth(),
+                style = DayTodoTheme.typography.headlineLarge.copy(letterSpacing = 0.sp),
                 color = fieldContentColor,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
             )
         }
 
@@ -98,7 +122,7 @@ fun CourseCreateCompleteScreen(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(horizontal = screenHorizontalPadding)
-                .padding(bottom = buttonBottomPadding),
+                .padding(bottom = bottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             CopiedLinkToast(visible = showCopiedToast)
@@ -110,7 +134,7 @@ fun CourseCreateCompleteScreen(
                     copiedToastKey += 1
                 },
             )
-            Spacer(modifier = Modifier.height(84.dp))
+            Spacer(modifier = Modifier.height(linkButtonSpacing))
             DayTodoNextStepButton(
                 text = "돌아가기",
                 state = DayTodoNextStepButtonState.Enabled,
@@ -126,7 +150,7 @@ private fun CopiedLinkToast(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier.height(36.dp),
+        modifier = modifier.height(CopiedToastHeight),
         contentAlignment = Alignment.Center,
     ) {
         if (visible) {
@@ -155,7 +179,7 @@ private fun InviteLinkRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp)
+            .height(InviteLinkHeight)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, fieldBorderColor, RoundedCornerShape(12.dp))
             .clickable(role = Role.Button, onClick = onClick)
@@ -185,6 +209,17 @@ private fun InviteLinkRow(
 
 private const val CopiedToastDurationMillis = 1800L
 private val CopiedToastBackgroundColor = Color(0xFFECECFF)
+private val CompleteScreenDesignHeight = 852.dp
+private const val CompleteScreenMinScale = 0.72f
+private val CompleteMinTopSectionHeight = 220.dp
+private val CompleteIconWidth = 152.dp
+private val CompleteIconHeight = 77.dp
+private val CompleteIconTextSpacing = 20.dp
+private val CompleteToastLinkSpacing = 16.dp
+private val CompleteLinkButtonSpacing = 84.dp
+private val CompleteButtonApproxHeight = 66.dp
+private val CopiedToastHeight = 36.dp
+private val InviteLinkHeight = 54.dp
 
 @Preview
 @Composable
