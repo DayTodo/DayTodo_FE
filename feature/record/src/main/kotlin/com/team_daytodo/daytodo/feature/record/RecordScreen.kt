@@ -40,6 +40,9 @@ import java.time.YearMonth
 // MypageTopBar와 동일한 최소 높이를 유지한다.
 private val TopBarMinHeight = 48.dp
 
+
+private val BottomNavigationClearance = 160.dp
+
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
@@ -155,7 +158,7 @@ fun RecordScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(150.dp))
+            Spacer(modifier = Modifier.height(BottomNavigationClearance))
         }
     }
 }
