@@ -145,7 +145,11 @@ class TodayViewModel @Inject constructor(
                             courseId = course?.courseId,
                             courseName = course?.courseName,
                             members = course?.members?.map { member ->
-                                CourseMember(id = member.nickname, name = member.nickname)
+                                CourseMember(
+                                    id = member.nickname,
+                                    name = member.nickname,
+                                    profileImageUrl = member.profileImageUrl,
+                                )
                             }.orEmpty(),
                             places = course?.places?.toUiPlaces().orEmpty(),
                             isLoading = false,
