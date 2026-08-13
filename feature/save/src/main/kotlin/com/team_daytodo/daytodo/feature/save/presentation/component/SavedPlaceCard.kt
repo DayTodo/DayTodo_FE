@@ -25,19 +25,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.team_daytodo.daytodo.domain.magazine.model.MagazinePlace
-import com.team_daytodo.daytodo.uikit.R as UIKitR
+import com.team_daytodo.daytodo.domain.bookmark.model.Bookmark
 import com.team_daytodo.daytodo.uikit.component.dayTodoPressedScaleClickable
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
 internal fun SavedPlaceCard(
-    place: MagazinePlace,
+    place: Bookmark,
     selected: Boolean,
     selectionMode: Boolean,
     onClick: () -> Unit,
@@ -86,37 +84,25 @@ internal fun SavedPlaceCard(
 
 @Composable
 private fun SavedPlaceImage(
-    place: MagazinePlace,
+    place: Bookmark,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.background(place.placeholderBrush()),
         contentAlignment = Alignment.Center,
     ) {
-        // place.imageUrl은 매거진 저장(BookmarkItemDto.thumbnailUrl)에서 그대로 내려오는 값인데,
-        // 지금까지 이 컴포저블이 항상 그라디언트 placeholder만 그리고 있어 실제 썸네일이 있어도
-        // 절대 보이지 않았다.
-        if (!place.imageUrl.isNullOrBlank()) {
-            AsyncImage(
-                model = place.imageUrl,
-                contentDescription = "${place.name} 이미지",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Icon(
-                painter = painterResource(id = UIKitR.drawable.ic_logo),
-                contentDescription = "${place.name} 이미지",
-                tint = Color.White.copy(alpha = 0.72f),
-                modifier = Modifier.size(width = 78.dp, height = 23.dp),
-            )
-        }
+        AsyncImage(
+            model = place.thumbnailUrl,
+            contentDescription = "${place.placeName} 이미지",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
 @Composable
 private fun SavedPlaceInfo(
-    place: MagazinePlace,
+    place: Bookmark,
     selected: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -131,7 +117,7 @@ private fun SavedPlaceInfo(
             .padding(horizontal = 20.dp, vertical = 8.dp),
     ) {
         Text(
-            text = place.name,
+            text = place.placeName,
             style = DayTodoTheme.typography.title1,
             color = titleColor,
             maxLines = 1,
@@ -139,7 +125,7 @@ private fun SavedPlaceInfo(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = place.region,
+            text = place.regionName,
             style = DayTodoTheme.typography.caption2,
             color = regionColor,
             maxLines = 1,
@@ -176,17 +162,17 @@ private fun SelectionCheckIcon(
     }
 }
 
-private fun MagazinePlace.placeholderBrush(): Brush {
+private fun Bookmark.placeholderBrush(): Brush {
     val colors = when {
-        "카페" in categoryPath || category.contains("카페") ->
+        category.contains("카페") ->
             listOf(Color(0xFFE8F2EF), Color(0xFF88B9A8))
-        "전시" in categoryPath ->
+        category.contains("전시") ->
             listOf(Color(0xFFEAE8FF), Color(0xFFA09FF5))
-        "서점" in categoryPath ->
+        category.contains("서점") ->
             listOf(Color(0xFFF5E7D4), Color(0xFFC09C7B))
-        "한강" in categoryPath || "야외" in category ->
+        category.contains("한강") || category.contains("야외") ->
             listOf(Color(0xFFE6F1FF), Color(0xFF77A7DB))
-        "식물원" in categoryPath || category.contains("식물") ->
+        category.contains("식물") ->
             listOf(Color(0xFFE8F4DC), Color(0xFF7FAB72))
         else ->
             listOf(Color(0xFFECECFF), Color(0xFFA09FF5))

@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
@@ -22,21 +25,27 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
-import com.team_daytodo.daytodo.feature.save.model.displayName
+import com.team_daytodo.daytodo.domain.region.model.Region
+import com.team_daytodo.daytodo.domain.region.model.RegionLevel
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
-internal fun SaveSortDialog(
-    selectedSortType: SavedPlaceSortType,
-    onSortTypeClick: (SavedPlaceSortType) -> Unit,
+internal fun SaveRegionDialog(
+    regions: List<Region>,
+    selectedRegionId: Long?,
+    onRegionClick: (Long?) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
+    val sidoRegions = regions.filter { it.regionLevel == RegionLevel.SIDO }
+    val sigunguByParent = regions
+        .filter { it.regionLevel == RegionLevel.SIGUNGU }
+        .groupBy { it.parentRegionId }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(279.dp),
+                .heightIn(max = 480.dp),
             shape = RoundedCornerShape(12.dp),
             color = Color.White,
         ) {
@@ -47,26 +56,40 @@ internal fun SaveSortDialog(
                 ),
             ) {
                 Text(
-                    text = "정렬",
+                    text = "지역",
                     style = DayTodoTheme.typography.label2,
                     color = Color(0xFF616166),
                     maxLines = 1,
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                SortOptions.forEachIndexed { index, sortType ->
-                    SortOptionRow(
-                        sortType = sortType,
-                        selected = selectedSortType == sortType,
-                        onClick = { onSortTypeClick(sortType) },
-                    )
-                    if (index < SortOptions.lastIndex) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = Color(0xFFF3F3F3),
+                LazyColumn {
+                    item {
+                        RegionOptionRow(
+                            name = "전체 지역",
+                            selected = selectedRegionId == null,
+                            indent = false,
+                            onClick = { onRegionClick(null) },
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        RegionDivider()
+                    }
+                    sidoRegions.forEach { sido ->
+                        item {
+                            RegionOptionRow(
+                                name = sido.regionName,
+                                selected = selectedRegionId == sido.regionId,
+                                indent = false,
+                                onClick = { onRegionClick(sido.regionId) },
+                            )
+                        }
+                        items(sigunguByParent[sido.regionId].orEmpty()) { sigungu ->
+                            RegionOptionRow(
+                                name = sigungu.regionName,
+                                selected = selectedRegionId == sigungu.regionId,
+                                indent = true,
+                                onClick = { onRegionClick(sigungu.regionId) },
+                            )
+                        }
+                        item { RegionDivider() }
                     }
                 }
             }
@@ -75,9 +98,21 @@ internal fun SaveSortDialog(
 }
 
 @Composable
-private fun SortOptionRow(
-    sortType: SavedPlaceSortType,
+private fun RegionDivider() {
+    Spacer(modifier = Modifier.height(8.dp))
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth(),
+        thickness = 1.dp,
+        color = Color(0xFFF3F3F3),
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+private fun RegionOptionRow(
+    name: String,
     selected: Boolean,
+    indent: Boolean,
     onClick: () -> Unit,
 ) {
     Row(
@@ -85,23 +120,23 @@ private fun SortOptionRow(
             .fillMaxWidth()
             .height(37.dp)
             .clickable(role = Role.RadioButton, onClick = onClick)
-            .padding(start = 13.dp),
+            .padding(start = if (indent) 33.dp else 13.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = sortType.displayName(),
+            text = name,
             modifier = Modifier.weight(1f),
             style = DayTodoTheme.typography.label2,
             color = Color(0xFF616166),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        SortRadio(selected = selected)
+        RegionRadio(selected = selected)
     }
 }
 
 @Composable
-private fun SortRadio(
+private fun RegionRadio(
     selected: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -121,10 +156,3 @@ private fun SortRadio(
         }
     }
 }
-
-private val SortOptions = listOf(
-    SavedPlaceSortType.RecentSaved,
-    SavedPlaceSortType.OldestSaved,
-    SavedPlaceSortType.Name,
-    SavedPlaceSortType.Popularity,
-)

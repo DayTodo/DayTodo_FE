@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.domain.magazine.model.SavedPlaceSortType
+import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
 import com.team_daytodo.daytodo.feature.save.model.SavedPlacePickerUiState
 import com.team_daytodo.daytodo.feature.save.presentation.component.SaveSortDialog
 import com.team_daytodo.daytodo.feature.save.presentation.component.SavedPlaceEmptyContent
