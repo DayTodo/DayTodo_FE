@@ -81,6 +81,14 @@ class SavedPlacePickerViewModel @Inject constructor(
     }
 
     fun togglePlaceSelection(placeId: String) {
+        val place = _uiState.value.places.firstOrNull { it.id == placeId }
+        if (place?.serverPlaceId == null) {
+            viewModelScope.launch {
+                _event.emit(SavedPlacePickerEvent.ShowMessage("이 장소는 아직 코스로 불러올 수 없어요."))
+            }
+            return
+        }
+
         _uiState.update { state ->
             val selectedPlaceIds = state.selectedPlaceIds.toMutableSet()
             if (!selectedPlaceIds.add(placeId)) {
@@ -91,8 +99,15 @@ class SavedPlacePickerViewModel @Inject constructor(
     }
 
     fun importSelectedPlaces(courseId: String) {
-        val selectedPlaceIds = _uiState.value.selectedPlaceIds.toList()
-        if (selectedPlaceIds.isEmpty() || _uiState.value.isImporting) return
+        val state = _uiState.value
+        val selectedPlaceIds = state.selectedServerPlaceIds
+        if (state.isImporting) return
+        if (selectedPlaceIds.isEmpty()) {
+            viewModelScope.launch {
+                _event.emit(SavedPlacePickerEvent.ShowMessage("불러올 수 있는 장소를 선택해 주세요."))
+            }
+            return
+        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isImporting = true) }

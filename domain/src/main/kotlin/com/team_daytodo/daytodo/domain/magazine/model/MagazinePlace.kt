@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.domain.magazine.model
 
 data class MagazinePlace(
     val id: String,
+    val serverPlaceId: String? = null,
     val name: String,
     val region: String,
     val address: String,
