@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,8 +66,7 @@ internal fun BaseBottomSheet(
         modifier = modifier
             .fillMaxWidth()
             .height(animatedHeight)
-            .offset { IntOffset(0, dragOffset.coerceAtLeast(0f).roundToInt()) }
-            .imePadding(),
+            .offset { IntOffset(0, dragOffset.coerceAtLeast(0f).roundToInt()) },
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         color = DayTodoTheme.colors.backgroundTertiary,
         shadowElevation = 12.dp,

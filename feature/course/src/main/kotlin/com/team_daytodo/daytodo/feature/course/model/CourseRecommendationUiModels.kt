@@ -21,7 +21,7 @@ data class CourseListUiState(
     val visibleCourses: List<CourseSummary>
         get() = selectedDate?.let { date ->
             courses.filter { it.date == date }
-        } ?: courses
+        } ?: courses.filter { it.date.isAfterToday() }
 }
 
 sealed interface CourseListEvent {
@@ -62,7 +62,11 @@ data class PlaceRecommendationUiState(
                 }
                 is RecommenderFilter.Member -> recommendations.filter { recommendation ->
                     val recommender = recommendation.recommender as? PlaceRecommender.Member
-                    recommender?.memberId == selectedRecommender.memberId
+                    recommender?.memberId == selectedRecommender.memberId ||
+                        (
+                            selectedRecommender.memberId == course?.currentMemberId &&
+                                course?.currentMemberId?.let(recommendation::isLikedBy) == true
+                            )
                 }
             }
         }
@@ -167,6 +171,7 @@ data class CourseEditUiState(
         get() = !isSaving &&
             name.isNotBlank() &&
             regionOptions.containsRegion(selectedRegion) &&
+            selectedRegion.isSupportedCourseRegion() &&
             selectedDate != null &&
             minBudget != null &&
             maxBudget != null &&
@@ -208,6 +213,17 @@ fun CourseDate.displayKoreanDateWithWeekday(): String {
 }
 
 fun CourseDate.displayEditText(): String = "$year.$month.$day"
+
+private fun CourseDate.isAfterToday(): Boolean {
+    val today = Calendar.getInstance()
+    val currentYear = today.get(Calendar.YEAR)
+    val currentMonth = today.get(Calendar.MONTH) + 1
+    val currentDay = today.get(Calendar.DAY_OF_MONTH)
+
+    return year > currentYear ||
+        (year == currentYear && month > currentMonth) ||
+        (year == currentYear && month == currentMonth && day > currentDay)
+}
 
 fun Int.formatWon(): String = DecimalFormat("#,###").format(this)
 

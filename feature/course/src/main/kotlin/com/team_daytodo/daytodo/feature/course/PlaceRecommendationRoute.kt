@@ -67,6 +67,7 @@ fun PlaceRecommendationRoute(
         onBackClick = onBackClick,
         onEditClick = { onEditClick(courseId) },
         onSearchQueryChange = viewModel::updateSearchQuery,
+        onSearchFocusChange = viewModel::updateSearchFocus,
         onSearch = viewModel::searchPlaces,
         onClearSearch = viewModel::clearSearch,
         onModeClick = viewModel::selectMode,

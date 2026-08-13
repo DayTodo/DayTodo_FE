@@ -9,7 +9,9 @@ import com.team_daytodo.daytodo.domain.course.usecase.GetCourseRegionsUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.UpdateCourseSettingsUseCase
 import com.team_daytodo.daytodo.feature.course.model.CourseEditEvent
 import com.team_daytodo.daytodo.feature.course.model.CourseEditUiState
+import com.team_daytodo.daytodo.feature.course.model.UnsupportedCourseRegionMessage
 import com.team_daytodo.daytodo.feature.course.model.containsRegion
+import com.team_daytodo.daytodo.feature.course.model.isSupportedCourseRegion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -75,12 +77,18 @@ class CourseEditViewModel @Inject constructor(
 
     fun selectRegion(region: String) {
         val normalizedRegion = region.trim()
+        val currentState = _uiState.value
+        if (!currentState.regionOptions.containsRegion(normalizedRegion)) {
+            _uiState.update { it.copy(selectedRegion = "") }
+            return
+        }
+        if (!normalizedRegion.isSupportedCourseRegion()) {
+            emitMessage(UnsupportedCourseRegionMessage)
+            return
+        }
+
         _uiState.update { state ->
-            if (state.regionOptions.containsRegion(normalizedRegion)) {
-                state.copy(selectedRegion = normalizedRegion)
-            } else {
-                state.copy(selectedRegion = "")
-            }
+            state.copy(selectedRegion = normalizedRegion)
         }
     }
 

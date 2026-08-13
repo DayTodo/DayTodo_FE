@@ -119,6 +119,12 @@ class PlaceRecommendationViewModel @Inject constructor(
         }
     }
 
+    fun updateSearchFocus(focused: Boolean) {
+        if (focused) {
+            _uiState.update { it.copy(sheetState = PlaceBottomSheetState.Hidden) }
+        }
+    }
+
     fun clearSearch() {
         searchPlacesRequestVersion++
         _uiState.update {
@@ -143,6 +149,11 @@ class PlaceRecommendationViewModel @Inject constructor(
                                 searchResults = results,
                                 searchPerformed = query.isNotBlank(),
                                 selectedPlaceId = results.firstOrNull()?.place?.id ?: it.selectedPlaceId,
+                                sheetState = if (query.isNotBlank()) {
+                                    PlaceBottomSheetState.Collapsed
+                                } else {
+                                    it.sheetState
+                                },
                             )
                         }
                     }
@@ -237,7 +248,6 @@ class PlaceRecommendationViewModel @Inject constructor(
             toggleCoursePlaceUseCase(courseId, placeId)
                 .onSuccess { detail ->
                     replaceCourseDetail(detail)
-                    _uiState.update { it.copy(mode = PlaceCourseMode.Course) }
                 }
                 .onFailure { cause ->
                     _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))

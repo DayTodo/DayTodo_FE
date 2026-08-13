@@ -47,9 +47,11 @@ class CourseRepositoryImpl @Inject constructor(
     private val remoteDataSource: CourseRemoteDataSource,
     private val localCourseRegionDataSource: LocalCourseRegionDataSource,
 ) : CourseRepository {
-    private val selectedCoursePlaceIdsByCourseId = mutableMapOf<Long, List<String>>()
     private val aiRecommendationsByCourseId = mutableMapOf<Long, List<CoursePlaceRecommendation>>()
     private val commentsByCoursePlaceKey = mutableMapOf<CoursePlaceKey, List<CourseComment>>()
+    private val recommendationIdsByCoursePlaceKey = mutableMapOf<CoursePlaceKey, Long>()
+    private val transientPlacesByCoursePlaceKey = mutableMapOf<CoursePlaceKey, CoursePlace>()
+    private val locallyUnlikedRecommendationIdsByCourseId = mutableMapOf<Long, Set<Long>>()
 
     override suspend fun getCourseRegions(): Result<List<CourseRegionGroup>> =
         runCatching {
@@ -129,6 +131,10 @@ class CourseRepositoryImpl @Inject constructor(
             ).toDomainRecommendations()
 
             aiRecommendationsByCourseId[courseIdLong] = recommendations
+            recommendations.forEach { recommendation ->
+                transientPlacesByCoursePlaceKey[CoursePlaceKey(courseIdLong, recommendation.place.id)] =
+                    recommendation.place
+            }
             loadCourseDetail(courseIdLong)
         }
 
@@ -137,7 +143,8 @@ class CourseRepositoryImpl @Inject constructor(
         query: String,
     ): Result<List<CoursePlaceSearchResult>> =
         runCatching {
-            val detail = loadCourseDetail(courseId.toCourseIdLong())
+            val courseIdLong = courseId.toCourseIdLong()
+            val detail = loadCourseDetail(courseIdLong)
             val recommendedPlaceIdsByCurrentMember = detail.recommendedPlaces
                 .filter { recommendation ->
                     val recommender = recommendation.recommender as? PlaceRecommender.Member
@@ -153,6 +160,11 @@ class CourseRepositoryImpl @Inject constructor(
                         placeId in recommendedPlaceIdsByCurrentMember,
                     isInCourse = placeId != null && placeId in coursePlaceIds,
                 )
+            }.also { results ->
+                results.forEach { result ->
+                    transientPlacesByCoursePlaceKey[CoursePlaceKey(courseIdLong, result.place.id)] =
+                        result.place
+                }
             }
         }
 
@@ -162,9 +174,17 @@ class CourseRepositoryImpl @Inject constructor(
     ): Result<CourseDetail> =
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
-            val recommendation = findRecommendationByPlaceId(courseIdLong, placeId)
+            val recommendation = findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
 
-            if (!recommendation.isLiked) {
+            if (recommendation.isLiked) {
+                locallyUnlikedRecommendationIdsByCourseId[courseIdLong] =
+                    locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty() +
+                    recommendation.recommendationId
+            } else if (recommendation.recommendationId in locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty()) {
+                locallyUnlikedRecommendationIdsByCourseId[courseIdLong] =
+                    locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty() -
+                    recommendation.recommendationId
+            } else {
                 remoteDataSource.likeRecommendation(recommendation.recommendationId)
             }
 
@@ -177,10 +197,7 @@ class CourseRepositoryImpl @Inject constructor(
     ): Result<CourseDetail> =
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
-            remoteDataSource.recommendPlace(
-                courseId = courseIdLong,
-                request = placeId.toPlaceIdLong().toMapRecommendationDto(),
-            )
+            findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
             loadCourseDetail(courseIdLong)
         }
 
@@ -197,10 +214,6 @@ class CourseRepositoryImpl @Inject constructor(
                 val coursePlaceId = currentPlace.coursePlaceId?.toLongOrNull()
                 if (coursePlaceId != null) {
                     remoteDataSource.removeCoursePlace(courseIdLong, coursePlaceId)
-                    selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
-                } else {
-                    selectedCoursePlaceIdsByCourseId[courseIdLong] =
-                        detail.coursePlaces.map(CoursePlace::id).filterNot { it == placeId }
                 }
             } else {
                 val recommendation = findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
@@ -208,7 +221,6 @@ class CourseRepositoryImpl @Inject constructor(
                     courseId = courseIdLong,
                     request = recommendation.recommendationId.toAddCoursePlaceDto(),
                 )
-                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
             }
 
             loadCourseDetail(courseIdLong)
@@ -227,11 +239,6 @@ class CourseRepositoryImpl @Inject constructor(
 
             if (coursePlaceId != null) {
                 remoteDataSource.removeCoursePlace(courseIdLong, coursePlaceId)
-                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
-            } else {
-                selectedCoursePlaceIdsByCourseId[courseIdLong] = detail.coursePlaces
-                    .map(CoursePlace::id)
-                    .filterNot { it == placeId }
             }
             loadCourseDetail(courseIdLong)
         }
@@ -258,9 +265,6 @@ class CourseRepositoryImpl @Inject constructor(
                     courseId = courseIdLong,
                     request = orderedCoursePlaceIds.toReorderCoursePlacesDto(),
                 )
-                selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
-            } else {
-                selectedCoursePlaceIdsByCourseId[courseIdLong] = movedPlaces.map(CoursePlace::id)
             }
             loadCourseDetail(courseIdLong)
         }
@@ -279,7 +283,6 @@ class CourseRepositoryImpl @Inject constructor(
                 ),
             )
 
-            selectedCoursePlaceIdsByCourseId.remove(courseIdLong)
             loadCourseDetail(courseIdLong)
         }
 
@@ -304,7 +307,7 @@ class CourseRepositoryImpl @Inject constructor(
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
             val detail = loadCourseDetail(courseIdLong)
-            val recommendation = findRecommendationByPlaceId(courseIdLong, placeId)
+            val recommendation = findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
             val author = detail.currentMember ?: AnonymousMember
             val comment = remoteDataSource.addRecommendationComment(
                 recommendationId = recommendation.recommendationId,
@@ -331,25 +334,18 @@ class CourseRepositoryImpl @Inject constructor(
         val recommendations = remoteDataSource.getCourseRecommendations(courseId)
         val recommendationPlacesById = buildMap {
             recommendations.forEach { recommendation ->
-                val place = recommendation.toPlace()
+                val place = transientPlaceForRecommendation(courseId, recommendation)
+                    ?.copy(recommendationId = recommendation.recommendationId.toString())
+                    ?: recommendation.toPlace()
                 put(place.id, place)
                 put(place.name, place)
+                put("recommendation-${recommendation.recommendationId}", place)
             }
         }
         val serverCoursePlaces = remoteDataSource.getCoursePlaces(courseId)
             .sortedBy { it.placeOrder }
             .map { it.toDomain(recommendationPlacesById) }
-        val selectedPlaceIds = selectedCoursePlaceIdsByCourseId[courseId] ?: run {
-            val selectedRecommendationPlaceIds = recommendations
-                .filter(CourseRecommendationDto::isSelected)
-                .map { it.toPlace().id }
-
-            serverCoursePlaces.map(CoursePlace::id)
-                .ifEmpty { selectedRecommendationPlaceIds }
-        }
-        val placesById = (serverCoursePlaces + recommendationPlacesById.values)
-            .associateBy(CoursePlace::id)
-        val coursePlaces = selectedPlaceIds.mapNotNull(placesById::get)
+        val coursePlaces = serverCoursePlaces
 
         val relationship = (
             summaryCard?.relationType
@@ -377,13 +373,31 @@ class CourseRepositoryImpl @Inject constructor(
             ?: summaryCreated?.maxPrice
             ?: 0
 
+        val localUnlikedRecommendationIds = locallyUnlikedRecommendationIdsByCourseId[courseId].orEmpty()
         val serverRecommendationDomains = recommendations.map { recommendation ->
-            recommendation.toDomain(currentMemberId)
+            val domain = recommendation.toDomain(currentMemberId)
+            val domainWithLocalLikeState = if (recommendation.recommendationId in localUnlikedRecommendationIds) {
+                domain.copy(
+                    likedByMemberIds = domain.likedByMemberIds - currentMemberId,
+                )
+            } else {
+                domain
+            }
+            transientPlaceForRecommendation(courseId, recommendation)
+                ?.let { transientPlace ->
+                    domainWithLocalLikeState.copy(
+                        place = transientPlace.copy(
+                            recommendationId = recommendation.recommendationId.toString(),
+                        ),
+                    )
+                }
+                ?: domainWithLocalLikeState
         }
         val transientAiRecommendations = aiRecommendationsByCourseId[courseId].orEmpty()
             .filterNot { aiRecommendation ->
                 serverRecommendationDomains.any { serverRecommendation ->
-                    serverRecommendation.place.id == aiRecommendation.place.id
+                    serverRecommendation.place.id == aiRecommendation.place.id ||
+                        serverRecommendation.place.name == aiRecommendation.place.name
                 }
             }
         val recommendationDomains = transientAiRecommendations + serverRecommendationDomains
@@ -411,7 +425,7 @@ class CourseRepositoryImpl @Inject constructor(
         placeId: String,
     ): CourseRecommendationDto =
         remoteDataSource.getCourseRecommendations(courseId)
-            .firstOrNull { it.matchesPlaceId(placeId) }
+            .findMatchingRecommendation(courseId, placeId)
             ?: throw NoSuchElementException("Recommendation not found for placeId=$placeId")
 
     private suspend fun findRecommendationByPlaceIdOrCreate(
@@ -419,22 +433,61 @@ class CourseRepositoryImpl @Inject constructor(
         placeId: String,
     ): CourseRecommendationDto {
         remoteDataSource.getCourseRecommendations(courseId)
-            .firstOrNull { it.matchesPlaceId(placeId) }
+            .findMatchingRecommendation(courseId, placeId)
             ?.let { return it }
 
+        val placeIdLong = placeId.toPlaceIdLong()
         val created = remoteDataSource.recommendPlace(
             courseId = courseId,
-            request = placeId.toPlaceIdLong().toMapRecommendationDto(),
+            request = placeIdLong.toMapRecommendationDto(),
         )
         val recommendationId = created.resolvedRecommendationId
+        recommendationIdsByCoursePlaceKey[CoursePlaceKey(courseId, placeId)] = recommendationId
         return remoteDataSource.getCourseRecommendations(courseId)
             .firstOrNull { it.recommendationId == recommendationId }
             ?: CourseRecommendationDto(
                 recommendationId = recommendationId,
-                placeId = placeId.toPlaceIdLong(),
-                source = "MAP",
-                placeName = "",
+                placeId = placeIdLong,
+                source = "MEMBER",
+                placeName = transientPlacesByCoursePlaceKey[CoursePlaceKey(courseId, placeId)]?.name.orEmpty(),
             )
+    }
+
+    private fun List<CourseRecommendationDto>.findMatchingRecommendation(
+        courseId: Long,
+        targetPlaceId: String,
+    ): CourseRecommendationDto? {
+        val key = CoursePlaceKey(courseId, targetPlaceId)
+        val cachedRecommendationId = recommendationIdsByCoursePlaceKey[key]
+        if (cachedRecommendationId != null) {
+            firstOrNull { it.recommendationId == cachedRecommendationId }?.let { return it }
+        }
+
+        val cachedPlace = transientPlacesByCoursePlaceKey[key]
+        return firstOrNull { recommendation ->
+            recommendation.matchesPlaceId(targetPlaceId) ||
+                (cachedPlace != null && recommendation.placeName == cachedPlace.name)
+        }?.also { recommendation ->
+            recommendationIdsByCoursePlaceKey[key] = recommendation.recommendationId
+        }
+    }
+
+    private fun transientPlaceForRecommendation(
+        courseId: Long,
+        recommendation: CourseRecommendationDto,
+    ): CoursePlace? {
+        recommendationIdsByCoursePlaceKey.entries
+            .firstOrNull { (key, recommendationId) ->
+                key.courseId == courseId && recommendationId == recommendation.recommendationId
+            }
+            ?.key
+            ?.let(transientPlacesByCoursePlaceKey::get)
+            ?.let { return it }
+
+        return transientPlacesByCoursePlaceKey
+            .filterKeys { it.courseId == courseId }
+            .values
+            .firstOrNull { it.name == recommendation.placeName }
     }
 
     private fun CourseRecommendationDto.matchesPlaceId(targetPlaceId: String): Boolean =

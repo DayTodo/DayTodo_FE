@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -47,6 +48,7 @@ internal fun PlaceRecommendationSearchBar(
     onValueChange: (String) -> Unit,
     onSearch: () -> Unit,
     onClearClick: () -> Unit,
+    onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
@@ -76,7 +78,9 @@ internal fun PlaceRecommendationSearchBar(
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .onFocusChanged { onFocusChange(it.isFocused) },
                 singleLine = true,
                 textStyle = DayTodoTheme.typography.caption1.copy(
                     color = DayTodoTheme.colors.textPrimary,

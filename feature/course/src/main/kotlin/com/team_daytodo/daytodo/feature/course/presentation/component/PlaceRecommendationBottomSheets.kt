@@ -101,7 +101,7 @@ internal fun RecommendationBottomSheet(
         ) {
             itemsIndexed(
                 items = uiState.visibleRecommendations,
-                key = { _, item -> "${item.place.id}-${item.recommender.displayName()}" },
+                key = { index, item -> "recommendation-$index-${item.place.id}-${item.recommender.displayName()}" },
             ) { index, recommendation ->
                 val coursePlaces = uiState.course?.coursePlaces.orEmpty()
                 RecommendationPlaceCard(
@@ -150,7 +150,7 @@ internal fun SearchResultBottomSheet(
         ) {
             itemsIndexed(
                 items = results,
-                key = { _, item -> item.place.id },
+                key = { index, item -> "search-$index-${item.place.id}" },
             ) { index, result ->
                 SearchPlaceCard(
                     index = index + 1,
