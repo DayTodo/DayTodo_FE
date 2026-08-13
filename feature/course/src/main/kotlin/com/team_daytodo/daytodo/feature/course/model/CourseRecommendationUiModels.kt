@@ -62,11 +62,7 @@ data class PlaceRecommendationUiState(
                 }
                 is RecommenderFilter.Member -> recommendations.filter { recommendation ->
                     val recommender = recommendation.recommender as? PlaceRecommender.Member
-                    recommender?.memberId == selectedRecommender.memberId ||
-                        (
-                            selectedRecommender.memberId == course?.currentMemberId &&
-                                course?.currentMemberId?.let(recommendation::isLikedBy) == true
-                            )
+                    recommender?.memberId == selectedRecommender.memberId
                 }
             }
         }

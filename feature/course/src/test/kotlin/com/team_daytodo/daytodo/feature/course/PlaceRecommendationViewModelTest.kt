@@ -128,6 +128,39 @@ class PlaceRecommendationViewModelTest {
             assertEquals(listOf("place-1"), state.visibleRecommendations.map { it.place.id })
         }
 
+    @Test
+    fun `current member tab does not include places only liked by current member`() {
+        val state = PlaceRecommendationUiState(
+            course = defaultCourseDetail(CourseId).copy(
+                recommendedPlaces = listOf(
+                    CoursePlaceRecommendation(
+                        recommendationId = "recommendation-liked",
+                        place = coursePlace("liked-place"),
+                        recommender = PlaceRecommender.Member(
+                            memberId = "member-2",
+                            name = "Other",
+                        ),
+                        likedByMemberIds = setOf("member-1"),
+                        commentCount = 0,
+                    ),
+                    CoursePlaceRecommendation(
+                        recommendationId = "recommendation-own",
+                        place = coursePlace("own-place"),
+                        recommender = PlaceRecommender.Member(
+                            memberId = "member-1",
+                            name = "Me",
+                        ),
+                        likedByMemberIds = emptySet(),
+                        commentCount = 0,
+                    ),
+                ),
+            ),
+            selectedRecommender = RecommenderFilter.Member("member-1", "나"),
+        )
+
+        assertEquals(listOf("own-place"), state.visibleRecommendations.map { it.place.id })
+    }
+
     private fun createViewModel(repository: CourseRepository): PlaceRecommendationViewModel =
         PlaceRecommendationViewModel(
             getCourseDetailUseCase = GetCourseDetailUseCase(repository),
