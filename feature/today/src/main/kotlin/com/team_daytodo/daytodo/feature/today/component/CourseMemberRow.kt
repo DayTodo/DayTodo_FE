@@ -12,7 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.team_daytodo.daytodo.feature.today.model.CourseMember
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
@@ -30,7 +33,6 @@ fun CourseMemberRow(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                // 프로필 사진 연동 전까지 사용하는 단색 원 placeholder
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -38,7 +40,18 @@ fun CourseMemberRow(
                             color = DayTodoTheme.colors.backgroundTertiary,
                             shape = CircleShape,
                         ),
-                )
+                ) {
+                    // 멤버가 프로필 사진을 등록하지 않았으면 profileImageUrl이 null이라
+                    // 위 단색 원이 placeholder로 그대로 보인다.
+                    if (!member.profileImageUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = member.profileImageUrl,
+                            contentDescription = "${member.name} 프로필 사진",
+                            modifier = Modifier.size(48.dp).clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
                 Text(
                     text = member.name,
                     style = DayTodoTheme.typography.caption2,
