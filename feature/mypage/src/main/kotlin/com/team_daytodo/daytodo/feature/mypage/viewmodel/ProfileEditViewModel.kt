@@ -97,11 +97,9 @@ class ProfileEditViewModel @Inject constructor(
             getMypageProfileUseCase()
                 .onSuccess { profile ->
                     // name/linkedAccountProvider/linkedAccountId는 BE가 지원하지 않아 값 소스가 없다.
-                    // email은 BE 프로필 조회 응답엔 없고, 회원가입 시점에 로컬에 저장해둔 값을 쓴다
-                    // (재로그인/재설치로 세션을 얻은 경우 비어있을 수 있음).
                     _uiState.value = ProfileEditUiState(
                         nickname = profile.nickname,
-                        email = profile.email.orEmpty(),
+                        email = profile.email,
                         isLoading = false,
                     )
                 }

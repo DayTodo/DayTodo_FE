@@ -37,6 +37,7 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.team_daytodo.daytodo.domain.calendar.model.CalendarCourse
+import com.team_daytodo.daytodo.domain.calendar.model.CourseStatus
 import com.team_daytodo.daytodo.domain.calendar.model.ParticipantType
 import com.team_daytodo.daytodo.feature.calendar.R
 import com.team_daytodo.daytodo.feature.calendar.component.CalendarDayCell
@@ -60,10 +61,10 @@ private val CourseContainerColor = Color(0xFFECECFF)
 // 프리뷰 전용 더미 데이터
 private val defaultCoursesByDate = mapOf(
     LocalDate.of(2026, 7, 29) to listOf(
-        CalendarCourse(1L, "홍대거리 코스", ParticipantType.COUPLE, 2L),
+        CalendarCourse(1L, "홍대거리 코스", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
     ),
     LocalDate.of(2026, 7, 16) to listOf(
-        CalendarCourse(2L, "성수 데이트 코스", ParticipantType.COUPLE, 2L),
+        CalendarCourse(2L, "성수 데이트 코스", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
     ),
 )
 
@@ -315,7 +316,7 @@ private fun CalendarScreenPreview2() {
             onDateSelected = { selectedDate = it },
             coursesByDate = defaultCoursesByDate + (
                 LocalDate.of(2026, 7, 18) to listOf(
-                    CalendarCourse(3L, "프리뷰 코스", ParticipantType.COUPLE, 2L),
+                    CalendarCourse(3L, "프리뷰 코스", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
                 )
             ),
         )

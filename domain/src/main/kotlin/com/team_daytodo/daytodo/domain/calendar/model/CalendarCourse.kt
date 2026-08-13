@@ -5,4 +5,5 @@ data class CalendarCourse(
     val courseName: String,
     val participantType: ParticipantType,
     val memberCount: Long,
+    val courseStatus: CourseStatus,
 )

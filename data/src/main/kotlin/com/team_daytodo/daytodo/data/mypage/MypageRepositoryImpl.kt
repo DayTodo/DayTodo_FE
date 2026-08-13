@@ -3,7 +3,6 @@ package com.team_daytodo.daytodo.data.mypage
 import android.content.Context
 import android.net.Uri
 import com.team_daytodo.daytodo.data.api.MypageApi
-import com.team_daytodo.daytodo.data.auth.local.SignupEmailLocalDataSource
 import com.team_daytodo.daytodo.data.dto.mypage.ChangePasswordRequest
 import com.team_daytodo.daytodo.data.dto.mypage.DeleteFcmTokenRequest
 import com.team_daytodo.daytodo.data.dto.mypage.LogoutRequest
@@ -34,11 +33,10 @@ import retrofit2.Response
 
 class MypageRepositoryImpl @Inject constructor(
     private val mypageApi: MypageApi,
-    private val signupEmailLocalDataSource: SignupEmailLocalDataSource,
     @param:ApplicationContext private val context: Context,
 ) : MypageRepository {
     override suspend fun getProfile(): Result<MypageProfile> = runCatching {
-        mypageApi.getProfile().toDomain().copy(email = signupEmailLocalDataSource.getEmail())
+        mypageApi.getProfile().toDomain()
     }
 
     override suspend fun updateProfile(nickname: String, profileImageUri: String?): Result<MypageProfile> =
@@ -46,7 +44,6 @@ class MypageRepositoryImpl @Inject constructor(
             val nicknamePart = nickname.toRequestBody(TextMediaType)
             val imagePart = profileImageUri?.let { uri -> createImagePart(uri) }
             mypageApi.updateProfile(nicknamePart, imagePart).toDomain()
-                .copy(email = signupEmailLocalDataSource.getEmail())
         }
 
     // updateProfile은 BE가 URL이 아닌 raw multipart 파일을 직접 받으므로(오늘 화면의

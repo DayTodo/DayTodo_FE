@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.domain.calendar.model.CourseStatus
 import com.team_daytodo.daytodo.feature.record.component.RecordCalendarSection
 import com.team_daytodo.daytodo.feature.record.component.RecordPhotoRow
 import com.team_daytodo.daytodo.feature.record.component.RecordPlaceItem
@@ -94,11 +95,13 @@ fun RecordScreen(
                 .padding(horizontal = 18.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            // 코스가 있는 날짜 중 오늘 이하인 날짜만 클릭 가능(미래 날짜는 코스가 있어도 비활성).
+            // 완료된(COMPLETED) 코스가 있는 날짜만 클릭 가능. BE(DiaryService.writeDiary)가
+            // 완료되지 않은 코스에는 일기 저장을 400(COURSE_NOT_COMPLETED)으로 막고 있어서,
+            // 진행중/예정 코스만 있는 날짜를 눌러 저장을 시도하면 그 400을 그대로 맞았었다.
             val clickableDates = remember(uiState.coursesByDate) {
                 val today = LocalDate.now()
                 uiState.coursesByDate
-                    .filterValues { it.isNotEmpty() }
+                    .filterValues { courses -> courses.any { it.courseStatus == CourseStatus.COMPLETED } }
                     .keys
                     .filter { !it.isAfter(today) }
                     .toSet()
