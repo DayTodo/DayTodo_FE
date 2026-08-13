@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class ProfileResponse(
     val userId: Long,
     val nickname: String,
-    val profileImageUrl: String,
+    val profileImageUrl: String? = null,
 )
 
 fun ProfileResponse.toDomain(): MypageProfile = MypageProfile(

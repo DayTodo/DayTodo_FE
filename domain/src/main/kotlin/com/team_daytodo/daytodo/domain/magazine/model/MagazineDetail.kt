@@ -2,7 +2,6 @@ package com.team_daytodo.daytodo.domain.magazine.model
 
 data class MagazineDetail(
     val magazineId: Long,
-    val placeId: Long,
     val thumbnailUrl: String?,
     val category: String,
     val placeName: String,

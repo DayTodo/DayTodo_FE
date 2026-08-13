@@ -27,7 +27,7 @@ fun TodayRoute(
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(MaxMemoryPhotoSelection),
-        onResult = { uris -> viewModel.selectMemoryPhotos(uris.map { it.toString() }) },
+        onResult = { uris -> viewModel.addMemoryPhotos(uris.map { it.toString() }) },
     )
 
     LaunchedEffect(Unit) {
@@ -46,6 +46,7 @@ fun TodayRoute(
 
     TodayScreen(
         hasCourse = uiState.hasCourse,
+        courseName = uiState.courseName,
         members = uiState.members,
         places = uiState.places,
         onCompleteCourseClick = viewModel::completeCourse,
@@ -53,14 +54,13 @@ fun TodayRoute(
         onDeletePlaceClick = viewModel::deleteCoursePlace,
         onReorderDragStart = viewModel::onReorderDragStart,
         onReorderCommit = viewModel::commitReorder,
-        selectedMemoryPhotoUris = uiState.selectedMemoryPhotoUris,
-        isSavingMemoryPhotos = uiState.isSavingMemoryPhotos,
+        memoryPhotos = uiState.memoryPhotos,
+        pendingMemoryPhotoUris = uiState.pendingMemoryPhotoUris,
         onAddMemoryPhotosClick = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )
         },
-        onSaveMemoryPhotosClick = { viewModel.saveMemoryPhotos(uiState.selectedMemoryPhotoUris) },
         modifier = modifier,
     )
 }

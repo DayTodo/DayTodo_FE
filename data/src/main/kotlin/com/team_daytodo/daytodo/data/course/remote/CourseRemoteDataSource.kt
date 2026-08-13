@@ -6,9 +6,9 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinResponseDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CourseMembersResponseDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlacesResponseDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationsResponseDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursesResponseDto
@@ -18,9 +18,9 @@ import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationLikeRe
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlacesSearchResponseDto
-import com.team_daytodo.daytodo.data.course.remote.dto.RemoveCourseMemberResponseDto
 import com.team_daytodo.daytodo.data.network.bodyOrThrow
 import com.team_daytodo.daytodo.data.network.safeApiCall
+import com.team_daytodo.daytodo.data.network.successOrThrow
 import javax.inject.Inject
 import kotlinx.serialization.json.Json
 
@@ -43,7 +43,7 @@ class CourseRemoteDataSource @Inject constructor(
             courseApi.joinCourse(request).bodyOrThrow(json, JoinCourseEndpoint)
         }
 
-    suspend fun getCourseMembers(courseId: Long): CourseMembersResponseDto =
+    suspend fun getCourseMembers(courseId: Long): List<CourseMemberDto> =
         safeApiCall(json) {
             courseApi.getCourseMembers(courseId).bodyOrThrow(json, GetCourseMembersEndpoint)
         }
@@ -51,13 +51,13 @@ class CourseRemoteDataSource @Inject constructor(
     suspend fun removeCourseMember(
         courseId: Long,
         memberId: Long,
-    ): RemoveCourseMemberResponseDto =
+    ) {
         safeApiCall(json) {
-            courseApi.removeCourseMember(courseId, memberId)
-                .bodyOrThrow(json, RemoveCourseMemberEndpoint)
+            courseApi.removeCourseMember(courseId, memberId).successOrThrow(json)
         }
+    }
 
-    suspend fun getCoursePlaces(courseId: Long): CoursePlacesResponseDto =
+    suspend fun getCoursePlaces(courseId: Long): List<CoursePlaceDto> =
         safeApiCall(json) {
             courseApi.getCoursePlaces(courseId).bodyOrThrow(json, GetCoursePlacesEndpoint)
         }
@@ -71,7 +71,7 @@ class CourseRemoteDataSource @Inject constructor(
                 .bodyOrThrow(json, UpdateCourseSettingEndpoint)
         }
 
-    suspend fun getCourseRecommendations(courseId: Long): CourseRecommendationsResponseDto =
+    suspend fun getCourseRecommendations(courseId: Long): List<CourseRecommendationDto> =
         safeApiCall(json) {
             courseApi.getCourseRecommendations(courseId).bodyOrThrow(
                 json = json,

@@ -44,6 +44,8 @@ internal fun DayTodoNavHost(
     onTodayScheduleChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+
     NavHost(
         modifier = modifier.fillMaxSize(),
         navController = navController,
@@ -74,8 +76,6 @@ internal fun DayTodoNavHost(
             )
         }
         composable(DayTodoRoute.Login) {
-            val context = LocalContext.current
-
             LoginRoute(
                 onNavigateToSignup = { navController.navigateSingleTopTo(DayTodoRoute.Signup) },
                 onNavigateToFindPassword = {
@@ -328,11 +328,14 @@ internal fun DayTodoNavHost(
                 onBackClick = { navController.popBackStack() },
             )
         }
-        composable(DayTodoRoute.Today) {
-            TodayRoute()
-        }
         recordNavGraph(navController)
-        mypageNavGraph(navController)
+        mypageNavGraph(navController) { onAccessTokenReceived, onFailure ->
+            authenticateWithNaver(
+                context = context,
+                onAccessTokenReceived = onAccessTokenReceived,
+                onFailure = onFailure,
+            )
+        }
     }
 }
 

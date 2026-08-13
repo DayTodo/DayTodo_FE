@@ -1,6 +1,7 @@
 package com.team_daytodo.daytodo.feature.magazine.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +12,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,6 +39,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.team_daytodo.daytodo.domain.magazine.model.MagazineDetail
 import com.team_daytodo.daytodo.domain.magazine.model.MagazinePhoto
@@ -118,6 +131,8 @@ private fun MagazineDetailBody(
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var selectedPhotoIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -182,18 +197,31 @@ private fun MagazineDetailBody(
         }
         if (detail.photos.isNotEmpty()) {
             Spacer(modifier = Modifier.height(20.dp))
-            MagazinePhotoRow(photos = detail.photos)
+            MagazinePhotoRow(
+                photos = detail.photos,
+                onPhotoClick = { index -> selectedPhotoIndex = index },
+            )
         }
+    }
+
+    val photoIndex = selectedPhotoIndex
+    if (photoIndex != null) {
+        MagazinePhotoViewerDialog(
+            photos = detail.photos,
+            initialIndex = photoIndex,
+            onDismiss = { selectedPhotoIndex = null },
+        )
     }
 }
 
 @Composable
 private fun MagazinePhotoRow(
     photos: List<MagazinePhoto>,
+    onPhotoClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(modifier = modifier.fillMaxWidth()) {
-        items(photos) { photo ->
+        itemsIndexed(photos) { index, photo ->
             AsyncImage(
                 model = photo.imageUrl,
                 contentDescription = null,
@@ -202,7 +230,66 @@ private fun MagazinePhotoRow(
                     .padding(end = 8.dp)
                     .size(84.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFF3F3F3)),
+                    .background(Color(0xFFF3F3F3))
+                    .clickable { onPhotoClick(index) },
+            )
+        }
+    }
+}
+
+// 하단 사진 목록 탭 시 뜨는 스와이프 가능한 전체화면 뷰어.
+@Composable
+private fun MagazinePhotoViewerDialog(
+    photos: List<MagazinePhoto>,
+    initialIndex: Int,
+    onDismiss: () -> Unit,
+) {
+    val pagerState = rememberPagerState(
+        initialPage = initialIndex.coerceIn(0, photos.lastIndex),
+        pageCount = { photos.size },
+    )
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+            ) { page ->
+                AsyncImage(
+                    model = photos[page].imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "닫기",
+                    tint = Color.White,
+                )
+            }
+
+            Text(
+                text = "${pagerState.currentPage + 1} / ${photos.size}",
+                style = DayTodoTheme.typography.caption1,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp),
             )
         }
     }

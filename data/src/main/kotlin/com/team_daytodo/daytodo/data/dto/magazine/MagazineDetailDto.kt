@@ -7,11 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetMagazineDetailResponse(
     val magazineId: Long,
-    val placeId: Long,
     val thumbnailUrl: String? = null,
-    val category: String,
+    val category: String? = null,
     val placeName: String,
-    val address: String,
+    val address: String? = null,
     val businessHours: String? = null,
     val phone: String? = null,
     val content: String? = null,
@@ -27,11 +26,10 @@ data class PhotoItemDto(
 
 fun GetMagazineDetailResponse.toDomain(): MagazineDetail = MagazineDetail(
     magazineId = magazineId,
-    placeId = placeId,
     thumbnailUrl = thumbnailUrl,
-    category = category,
+    category = category.orEmpty(),
     placeName = placeName,
-    address = address,
+    address = address.orEmpty(),
     businessHours = businessHours,
     phone = phone,
     content = content,

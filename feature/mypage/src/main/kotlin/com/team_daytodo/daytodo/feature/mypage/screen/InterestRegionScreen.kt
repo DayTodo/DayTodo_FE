@@ -36,7 +36,7 @@ import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 private val HorizontalPadding = 20.dp
 private val ParentColumnWidth = 84.dp
 private val SaveButtonBottomPadding = 100.dp
-private val ParentItemWidth = 58.dp
+private val ParentItemWidth = 72.dp
 private val ParentItemHeight = 46.dp
 
 @Composable
@@ -144,7 +144,7 @@ private fun InterestRegionParentItem(
     ) {
         Text(
             text = text,
-            style = DayTodoTheme.typography.label1,
+            style = DayTodoTheme.typography.caption1,
             color = if (selected) DayTodoTheme.colors.brandPrimary else DayTodoTheme.colors.textSecondary,
             maxLines = 1,
         )

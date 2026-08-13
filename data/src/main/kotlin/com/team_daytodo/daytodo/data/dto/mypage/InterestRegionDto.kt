@@ -12,7 +12,7 @@ data class InterestRegionsResponse(
 data class InterestRegionDto(
     val regionId: Long,
     val regionName: String,
-    val parentRegionName: String,
+    val parentRegionName: String? = null,
 )
 
 @Serializable

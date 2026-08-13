@@ -11,7 +11,7 @@ import timber.log.Timber
 data class CalendarResponseDto(
     val year: Int,
     val month: Int,
-    val dates: List<CalendarDateDto>,
+    val schedules: List<CalendarDateDto>,
 )
 
 @Serializable
@@ -28,7 +28,7 @@ data class CalendarCourseDto(
     val memberCount: Long,
 )
 
-fun CalendarResponseDto.toDomain(): List<CalendarDate> = dates.map { it.toDomain() }
+fun CalendarResponseDto.toDomain(): List<CalendarDate> = schedules.map { it.toDomain() }
 
 fun CalendarDateDto.toDomain(): CalendarDate = CalendarDate(
     date = LocalDate.parse(date),
