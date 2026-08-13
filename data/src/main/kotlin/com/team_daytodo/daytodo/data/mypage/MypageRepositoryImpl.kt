@@ -51,15 +51,23 @@ class MypageRepositoryImpl @Inject constructor(
 
     // updateProfile은 BE가 URL이 아닌 raw multipart 파일을 직접 받으므로(오늘 화면의
     // imageUrls 방식과 다름), 갤러리에서 고른 content:// Uri를 캐시 파일로 복사해 업로드한다.
+    //
+    // BE(S3ProfileImageStorage.validate)는 이 파트의 Content-Type이 "image/jpeg" 또는
+    // "image/png"와 정확히 일치해야만 통과시키고, 그 외(와일드카드 "image/*" 포함)는 전부
+    // INVALID_PROFILE_IMAGE_FORMAT(400)으로 거부한다. 여기서 실제 MIME 타입을 조회하지 않고
+    // 항상 "image/*"를 보내던 것이 프로필 사진 저장 시 400이 나는 원인이었다.
     private fun createImagePart(uriString: String): MultipartBody.Part {
-        val file = File(context.cacheDir, "profile_${System.currentTimeMillis()}.jpg")
-        context.contentResolver.openInputStream(Uri.parse(uriString))?.use { input ->
+        val uri = Uri.parse(uriString)
+        val mimeType = context.contentResolver.getType(uri) ?: DefaultImageMimeType
+        val extension = if (mimeType == "image/png") "png" else "jpg"
+        val file = File(context.cacheDir, "profile_${System.currentTimeMillis()}.$extension")
+        context.contentResolver.openInputStream(uri)?.use { input ->
             file.outputStream().use { output -> input.copyTo(output) }
         }
         return MultipartBody.Part.createFormData(
             name = "profileImage",
             filename = file.name,
-            body = file.asRequestBody(ImageMediaType),
+            body = file.asRequestBody(mimeType.toMediaTypeOrNull()),
         )
     }
 
@@ -126,7 +134,7 @@ class MypageRepositoryImpl @Inject constructor(
 
     private companion object {
         val TextMediaType = "text/plain".toMediaTypeOrNull()
-        val ImageMediaType = "image/*".toMediaTypeOrNull()
+        const val DefaultImageMimeType = "image/jpeg"
         const val FcmDevicePlatform = "ANDROID"
     }
 }
