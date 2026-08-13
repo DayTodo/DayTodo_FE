@@ -1,6 +1,7 @@
 package com.team_daytodo.daytodo.feature.record.model
 
 import com.team_daytodo.daytodo.domain.calendar.model.CalendarCourse
+import com.team_daytodo.daytodo.domain.calendar.model.CourseStatus
 import com.team_daytodo.daytodo.domain.calendar.model.ParticipantType
 import com.team_daytodo.daytodo.domain.record.model.RecordPhoto
 import com.team_daytodo.daytodo.domain.record.model.RecordPlace
@@ -45,18 +46,18 @@ internal fun sampleRecordUiState(): RecordUiState = RecordUiState(
     selectedDate = LocalDate.of(2026, 5, 26),
     coursesByDate = mapOf(
         LocalDate.of(2026, 5, 5) to listOf(
-            CalendarCourse(101L, "연남동 브런치 코스", ParticipantType.COUPLE, 2L),
+            CalendarCourse(101L, "연남동 브런치 코스", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
         ),
         LocalDate.of(2026, 5, 12) to listOf(
-            CalendarCourse(102L, "한강 피크닉 코스", ParticipantType.FRIEND, 3L),
-            CalendarCourse(103L, "망원 카페 코스", ParticipantType.FRIEND, 3L),
+            CalendarCourse(102L, "한강 피크닉 코스", ParticipantType.FRIEND, 3L, CourseStatus.COMPLETED),
+            CalendarCourse(103L, "망원 카페 코스", ParticipantType.FRIEND, 3L, CourseStatus.COMPLETED),
         ),
         LocalDate.of(2026, 5, 19) to listOf(
-            CalendarCourse(104L, "북촌 한옥 산책", ParticipantType.ALONE, 1L),
+            CalendarCourse(104L, "북촌 한옥 산책", ParticipantType.ALONE, 1L, CourseStatus.COMPLETED),
         ),
         LocalDate.of(2026, 5, 26) to listOf(
-            CalendarCourse(105L, "성수 데이트 코스", ParticipantType.COUPLE, 2L),
-            CalendarCourse(106L, "서울숲 나들이", ParticipantType.COUPLE, 2L),
+            CalendarCourse(105L, "성수 데이트 코스", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
+            CalendarCourse(106L, "서울숲 나들이", ParticipantType.COUPLE, 2L, CourseStatus.COMPLETED),
         ),
     ),
     selectedCourseId = 105L,

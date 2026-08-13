@@ -388,7 +388,17 @@ private fun MemoryPhotoGrid(
 ) {
     val columns = 3
     val spacing = 6.dp
-    val photoCount = photos.size + pendingPhotoUris.size
+    // 업로드 중인 사진(imageUrl)이 저장 완료되면 같은 imageUrl로 photos에도 나타난다(업로드 API가
+    // 없어 로컬 Uri를 그대로 imageUrl로 쓰기 때문, TodayViewModel.addMemoryPhotos 참고). photos와
+    // pendingPhotoUris를 별개의 items()로 그리면 이 전환 시점에 같은 imageUrl의 AsyncImage가
+    // pending 쪽에서 사라지고 photos 쪽에서 새로 생기면서, imageUrl이 바뀌지 않았는데도 Coil
+    // 요청이 취소되고 새로 시작되어 content:// 읽기가 InterruptedIOException으로 끊기고 썸네일이
+    // 빈 채로 남는 문제가 있었다. imageUrl을 key로 한 단일 목록으로 합쳐 같은 grid item을 그대로
+    // 재사용하게 해서 이 취소/재요청을 없앤다.
+    val displayItems = remember(photos, pendingPhotoUris) {
+        photos.map { it.imageUrl to false } + pendingPhotoUris.map { it to true }
+    }
+    val photoCount = displayItems.size
 
     BoxWithConstraints(modifier = modifier) {
         val itemSize = (maxWidth - spacing * (columns - 1)) / columns
@@ -420,18 +430,10 @@ private fun MemoryPhotoGrid(
                 }
             }
 
-            items(photos, key = { it.memoryPhotoId }) { photo ->
+            items(displayItems, key = { (imageUrl, _) -> imageUrl }) { (imageUrl, isUploading) ->
                 MemoryPhotoThumbnail(
-                    imageUrl = photo.imageUrl,
-                    isUploading = false,
-                    modifier = Modifier.size(itemSize),
-                )
-            }
-
-            items(pendingPhotoUris) { uri ->
-                MemoryPhotoThumbnail(
-                    imageUrl = uri,
-                    isUploading = true,
+                    imageUrl = imageUrl,
+                    isUploading = isUploading,
                     modifier = Modifier.size(itemSize),
                 )
             }

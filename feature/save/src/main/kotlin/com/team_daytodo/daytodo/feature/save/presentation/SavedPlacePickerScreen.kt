@@ -65,6 +65,7 @@ fun SavedPlacePickerScreen(
                     SavedPlaceGrid(
                         places = uiState.places,
                         selectedPlaceIds = uiState.selectedPlaceIds,
+                        enabledPlaceIds = uiState.importablePlaceIds,
                         selectionMode = true,
                         onPlaceClick = onPlaceClick,
                         contentPadding = PaddingValues(bottom = 196.dp),

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.feature.course.R
 import com.team_daytodo.daytodo.feature.course.model.PlaceBottomSheetState
 import com.team_daytodo.daytodo.feature.course.model.PlaceCourseMode
@@ -29,12 +30,14 @@ import com.team_daytodo.daytodo.feature.course.presentation.component.SearchResu
 import com.team_daytodo.daytodo.feature.course.presentation.component.mapBottomPadding
 import com.team_daytodo.daytodo.uikit.component.DayTodoHeaderSection
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
+import java.time.LocalDate
 
 @Composable
 fun PlaceRecommendationScreen(
     uiState: PlaceRecommendationUiState,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
+    onEditDisabledClick: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit,
     onSearchFocusChange: (Boolean) -> Unit,
     onSearch: () -> Unit,
@@ -59,17 +62,29 @@ fun PlaceRecommendationScreen(
             .fillMaxSize()
             .background(DayTodoTheme.colors.backgroundDefault),
     ) {
+        // PLN-001(코스설정 수정)은 당일 코스에는 BE(CourseService.validateSameDayEditNotAllowed)가
+        // 항상 400(COURSE_SAME_DAY_EDIT_NOT_ALLOWED)으로 거부한다. 이 화면은 TDY-005(당일 장소추가,
+        // 제한 없음)와 화면을 공유하고 있어, 아이콘이 평소와 똑같이 눌려서 사용자가 "장소추가가
+        // 안 된다"고 오인하기 쉬웠다. 당일이면 아이콘을 흐리게 표시하고 탭해도 편집 화면으로
+        // 보내지 않는다.
+        val isCourseToday = uiState.course?.date?.isToday() ?: false
         DayTodoHeaderSection(
             title = "장소 추천 & 추가",
             onBackClick = onBackClick,
             rightContent = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_edit),
-                    contentDescription = "코스설정 수정",
-                    tint = DayTodoTheme.colors.textPrimary,
+                    contentDescription = if (isCourseToday) {
+                        "코스설정 수정 (당일에는 수정할 수 없어요)"
+                    } else {
+                        "코스설정 수정"
+                    },
+                    tint = if (isCourseToday) DayTodoTheme.colors.iconDisabled else DayTodoTheme.colors.textPrimary,
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable(role = Role.Button, onClick = onEditClick)
+                        .clickable(role = Role.Button) {
+                            if (isCourseToday) onEditDisabledClick() else onEditClick()
+                        }
                         .padding(3.dp),
                 )
             },
@@ -149,4 +164,9 @@ fun PlaceRecommendationScreen(
             }
         }
     }
+}
+
+private fun CourseDate.isToday(): Boolean {
+    val today = LocalDate.now()
+    return year == today.year && month == today.monthValue && day == today.dayOfMonth
 }

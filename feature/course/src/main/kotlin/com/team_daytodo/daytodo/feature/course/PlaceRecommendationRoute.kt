@@ -66,6 +66,9 @@ fun PlaceRecommendationRoute(
         uiState = uiState,
         onBackClick = onBackClick,
         onEditClick = { onEditClick(courseId) },
+        onEditDisabledClick = {
+            Toast.makeText(context, "당일에는 코스 설정을 수정할 수 없어요.", Toast.LENGTH_SHORT).show()
+        },
         onSearchQueryChange = viewModel::updateSearchQuery,
         onSearchFocusChange = viewModel::updateSearchFocus,
         onSearch = viewModel::searchPlaces,
