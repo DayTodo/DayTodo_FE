@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -41,6 +42,7 @@ internal fun SavedPlaceCard(
     selectionMode: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val cardShape = RoundedCornerShape(12.dp)
 
@@ -49,7 +51,9 @@ internal fun SavedPlaceCard(
             .fillMaxWidth()
             .heightIn(min = SavedPlaceCardMinHeight)
             .clip(cardShape)
+            .alpha(if (enabled) 1f else 0.42f)
             .dayTodoPressedScaleClickable(
+                enabled = enabled,
                 role = Role.Button,
                 onClick = onClick,
             ),

@@ -230,10 +230,21 @@ class PlaceRecommendationViewModel @Inject constructor(
 
     fun recommendPlace(placeId: String) {
         val courseId = loadedCourseId ?: return
+        if (_uiState.value.isRecommendedByCurrentMember(placeId)) {
+            showCurrentMemberRecommendations(placeId)
+            viewModelScope.launch {
+                _event.emit(PlaceRecommendationEvent.ShowMessage("이미 추천한 장소예요."))
+            }
+            return
+        }
+
         viewModelScope.launch {
             recommendPlaceUseCase(courseId, placeId)
                 .onSuccess { detail ->
-                    replaceCourseDetail(detail)
+                    showCurrentMemberRecommendations(
+                        detail = detail,
+                        selectedPlaceId = placeId,
+                    )
                     _event.emit(PlaceRecommendationEvent.ShowMessage("추천 목록에 추가했어요."))
                 }
                 .onFailure { cause ->
@@ -315,6 +326,36 @@ class PlaceRecommendationViewModel @Inject constructor(
         }
     }
 
+    private fun showCurrentMemberRecommendations(placeId: String) {
+        val detail = _uiState.value.course ?: return
+        showCurrentMemberRecommendations(
+            detail = detail,
+            selectedPlaceId = placeId,
+        )
+    }
+
+    private fun showCurrentMemberRecommendations(
+        detail: CourseDetail,
+        selectedPlaceId: String,
+    ) {
+        _uiState.update {
+            it.copy(
+                course = detail,
+                mode = PlaceCourseMode.Recommendation,
+                selectedRecommender = RecommenderFilter.Member(
+                    memberId = detail.currentMemberId,
+                    name = "나",
+                ),
+                searchQuery = "",
+                searchResults = emptyList(),
+                searchPerformed = false,
+                selectedPlaceId = selectedPlaceId,
+                sheetState = PlaceBottomSheetState.Collapsed,
+                errorMessage = null,
+            )
+        }
+    }
+
     private fun isLatestSearchPlacesRequest(
         requestVersion: Int,
         courseId: String,
@@ -361,6 +402,19 @@ private fun List<CoursePlaceSearchResult>.syncWith(
             recommendedByCurrentMember = result.place.id in currentMemberRecommendedPlaceIds,
             isInCourse = result.place.id in coursePlaceIds,
         )
+    }
+}
+
+private fun PlaceRecommendationUiState.isRecommendedByCurrentMember(placeId: String): Boolean {
+    searchResults.firstOrNull { it.place.id == placeId }?.let { result ->
+        if (result.recommendedByCurrentMember) return true
+    }
+
+    val loadedCourse = course ?: return false
+    return loadedCourse.recommendedPlaces.any { recommendation ->
+        val recommender = recommendation.recommender as? PlaceRecommender.Member
+        recommendation.place.id == placeId &&
+            recommender?.memberId == loadedCourse.currentMemberId
     }
 }
 

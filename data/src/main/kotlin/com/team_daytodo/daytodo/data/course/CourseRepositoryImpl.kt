@@ -52,6 +52,7 @@ class CourseRepositoryImpl @Inject constructor(
     private val recommendationIdsByCoursePlaceKey = mutableMapOf<CoursePlaceKey, Long>()
     private val transientPlacesByCoursePlaceKey = mutableMapOf<CoursePlaceKey, CoursePlace>()
     private val locallyUnlikedRecommendationIdsByCourseId = mutableMapOf<Long, Set<Long>>()
+    private val currentMemberRecommendationIdsByCourseId = mutableMapOf<Long, Set<Long>>()
 
     override suspend fun getCourseRegions(): Result<List<CourseRegionGroup>> =
         runCatching {
@@ -175,15 +176,14 @@ class CourseRepositoryImpl @Inject constructor(
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
             val recommendation = findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
+            val locallyUnlikedRecommendationIds = locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty()
 
-            if (recommendation.isLiked) {
+            if (recommendation.recommendationId in locallyUnlikedRecommendationIds) {
                 locallyUnlikedRecommendationIdsByCourseId[courseIdLong] =
-                    locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty() +
-                    recommendation.recommendationId
-            } else if (recommendation.recommendationId in locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty()) {
+                    locallyUnlikedRecommendationIds - recommendation.recommendationId
+            } else if (recommendation.isLiked) {
                 locallyUnlikedRecommendationIdsByCourseId[courseIdLong] =
-                    locallyUnlikedRecommendationIdsByCourseId[courseIdLong].orEmpty() -
-                    recommendation.recommendationId
+                    locallyUnlikedRecommendationIds + recommendation.recommendationId
             } else {
                 remoteDataSource.likeRecommendation(recommendation.recommendationId)
             }
@@ -197,7 +197,11 @@ class CourseRepositoryImpl @Inject constructor(
     ): Result<CourseDetail> =
         runCatching {
             val courseIdLong = courseId.toCourseIdLong()
-            findRecommendationByPlaceIdOrCreate(courseIdLong, placeId)
+            findRecommendationByPlaceIdOrCreate(
+                courseId = courseIdLong,
+                placeId = placeId,
+                markAsCurrentMemberRecommendation = true,
+            )
             loadCourseDetail(courseIdLong)
         }
 
@@ -373,15 +377,27 @@ class CourseRepositoryImpl @Inject constructor(
             ?: summaryCreated?.maxPrice
             ?: 0
 
+        val currentMember = members.firstOrNull { it.id == currentMemberId } ?: AnonymousMember
         val localUnlikedRecommendationIds = locallyUnlikedRecommendationIdsByCourseId[courseId].orEmpty()
+        val currentMemberRecommendationIds = currentMemberRecommendationIdsByCourseId[courseId].orEmpty()
         val serverRecommendationDomains = recommendations.map { recommendation ->
             val domain = recommendation.toDomain(currentMemberId)
-            val domainWithLocalLikeState = if (recommendation.recommendationId in localUnlikedRecommendationIds) {
+            val domainWithLocalRecommender = if (recommendation.recommendationId in currentMemberRecommendationIds) {
                 domain.copy(
-                    likedByMemberIds = domain.likedByMemberIds - currentMemberId,
+                    recommender = PlaceRecommender.Member(
+                        memberId = currentMemberId,
+                        name = currentMember.name.ifBlank { "나" },
+                    ),
                 )
             } else {
                 domain
+            }
+            val domainWithLocalLikeState = if (recommendation.recommendationId in localUnlikedRecommendationIds) {
+                domainWithLocalRecommender.copy(
+                    likedByMemberIds = domainWithLocalRecommender.likedByMemberIds - currentMemberId,
+                )
+            } else {
+                domainWithLocalRecommender
             }
             transientPlaceForRecommendation(courseId, recommendation)
                 ?.let { transientPlace ->
@@ -431,10 +447,16 @@ class CourseRepositoryImpl @Inject constructor(
     private suspend fun findRecommendationByPlaceIdOrCreate(
         courseId: Long,
         placeId: String,
+        markAsCurrentMemberRecommendation: Boolean = false,
     ): CourseRecommendationDto {
         remoteDataSource.getCourseRecommendations(courseId)
             .findMatchingRecommendation(courseId, placeId)
-            ?.let { return it }
+            ?.let { recommendation ->
+                if (markAsCurrentMemberRecommendation) {
+                    markCurrentMemberRecommendation(courseId, recommendation.recommendationId)
+                }
+                return recommendation
+            }
 
         val placeIdLong = placeId.toPlaceIdLong()
         val created = remoteDataSource.recommendPlace(
@@ -443,6 +465,9 @@ class CourseRepositoryImpl @Inject constructor(
         )
         val recommendationId = created.resolvedRecommendationId
         recommendationIdsByCoursePlaceKey[CoursePlaceKey(courseId, placeId)] = recommendationId
+        if (markAsCurrentMemberRecommendation) {
+            markCurrentMemberRecommendation(courseId, recommendationId)
+        }
         return remoteDataSource.getCourseRecommendations(courseId)
             .firstOrNull { it.recommendationId == recommendationId }
             ?: CourseRecommendationDto(
@@ -451,6 +476,14 @@ class CourseRepositoryImpl @Inject constructor(
                 source = "MEMBER",
                 placeName = transientPlacesByCoursePlaceKey[CoursePlaceKey(courseId, placeId)]?.name.orEmpty(),
             )
+    }
+
+    private fun markCurrentMemberRecommendation(
+        courseId: Long,
+        recommendationId: Long,
+    ) {
+        currentMemberRecommendationIdsByCourseId[courseId] =
+            currentMemberRecommendationIdsByCourseId[courseId].orEmpty() + recommendationId
     }
 
     private fun List<CourseRecommendationDto>.findMatchingRecommendation(

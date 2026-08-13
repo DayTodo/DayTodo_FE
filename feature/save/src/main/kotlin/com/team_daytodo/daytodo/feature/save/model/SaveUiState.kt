@@ -24,8 +24,18 @@ data class SavedPlacePickerUiState(
     val isSortDialogVisible: Boolean = false,
     val errorMessage: String? = null,
 ) {
+    val importablePlaceIds: Set<String>
+        get() = places
+            .filter { it.serverPlaceId != null }
+            .mapTo(mutableSetOf()) { it.id }
+
+    val selectedServerPlaceIds: List<String>
+        get() = selectedPlaceIds.mapNotNull { selectedId ->
+            places.firstOrNull { it.id == selectedId }?.serverPlaceId
+        }.distinct()
+
     val canImport: Boolean
-        get() = selectedPlaceIds.isNotEmpty() && !isImporting
+        get() = selectedServerPlaceIds.isNotEmpty() && !isImporting
 }
 
 sealed interface SavedPlacePickerEvent {

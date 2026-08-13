@@ -16,6 +16,7 @@ internal fun SavedPlaceGrid(
     onPlaceClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectedPlaceIds: Set<String> = emptySet(),
+    enabledPlaceIds: Set<String>? = null,
     selectionMode: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(bottom = 24.dp),
 ) {
@@ -30,10 +31,12 @@ internal fun SavedPlaceGrid(
             items = places,
             key = MagazinePlace::id,
         ) { place ->
+            val enabled = enabledPlaceIds?.contains(place.id) ?: true
             SavedPlaceCard(
                 place = place,
                 selected = place.id in selectedPlaceIds,
                 selectionMode = selectionMode,
+                enabled = enabled,
                 onClick = { onPlaceClick(place.id) },
             )
         }

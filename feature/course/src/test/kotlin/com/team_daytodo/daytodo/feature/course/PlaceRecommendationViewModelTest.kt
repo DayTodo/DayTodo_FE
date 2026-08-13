@@ -9,10 +9,12 @@ import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.domain.course.model.CourseDetail
 import com.team_daytodo.daytodo.domain.course.model.CourseMember
 import com.team_daytodo.daytodo.domain.course.model.CoursePlace
+import com.team_daytodo.daytodo.domain.course.model.CoursePlaceRecommendation
 import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
 import com.team_daytodo.daytodo.domain.course.model.CourseRegionGroup
 import com.team_daytodo.daytodo.domain.course.model.CourseSummary
 import com.team_daytodo.daytodo.domain.course.model.CourseUpdateRequest
+import com.team_daytodo.daytodo.domain.course.model.PlaceRecommender
 import com.team_daytodo.daytodo.domain.course.repository.CourseRepository
 import com.team_daytodo.daytodo.domain.course.usecase.GetCourseDetailUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.MoveCoursePlaceUseCase
@@ -22,7 +24,9 @@ import com.team_daytodo.daytodo.domain.course.usecase.RefreshAiCourseRecommendat
 import com.team_daytodo.daytodo.domain.course.usecase.SearchPlacesUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.ToggleCoursePlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.TogglePlaceLikeUseCase
+import com.team_daytodo.daytodo.feature.course.model.PlaceCourseMode
 import com.team_daytodo.daytodo.feature.course.model.PlaceRecommendationUiState
+import com.team_daytodo.daytodo.feature.course.model.RecommenderFilter
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -95,6 +99,33 @@ class PlaceRecommendationViewModelTest {
 
             assertTrue(viewModel.uiState.value.searchResults.isEmpty())
             assertFalse(viewModel.uiState.value.searchPerformed)
+        }
+
+    @Test
+    fun `recommendPlace moves recommended search result to current member tab`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeCourseRepository()
+            val viewModel = createViewModel(repository)
+
+            viewModel.loadCourse(CourseId)
+            advanceUntilIdle()
+
+            viewModel.updateSearchQuery("cafe")
+            viewModel.searchPlaces()
+            runCurrent()
+
+            repository.completeSearch("cafe", listOf(searchResult("place-1")))
+            advanceUntilIdle()
+
+            viewModel.recommendPlace("place-1")
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertTrue(state.searchResults.isEmpty())
+            assertFalse(state.searchPerformed)
+            assertEquals(PlaceCourseMode.Recommendation, state.mode)
+            assertEquals(RecommenderFilter.Member("member-1", "나"), state.selectedRecommender)
+            assertEquals(listOf("place-1"), state.visibleRecommendations.map { it.place.id })
         }
 
     private fun createViewModel(repository: CourseRepository): PlaceRecommendationViewModel =
@@ -199,7 +230,22 @@ class PlaceRecommendationViewModelTest {
             courseId: String,
             placeId: String,
         ): Result<CourseDetail> =
-            unused()
+            Result.success(
+                defaultCourseDetail(courseId).copy(
+                    recommendedPlaces = listOf(
+                        CoursePlaceRecommendation(
+                            recommendationId = "recommendation-1",
+                            place = coursePlace(placeId),
+                            recommender = PlaceRecommender.Member(
+                                memberId = "member-1",
+                                name = "Me",
+                            ),
+                            likedByMemberIds = emptySet(),
+                            commentCount = 0,
+                        ),
+                    ),
+                ),
+            )
 
         override suspend fun toggleCoursePlace(
             courseId: String,
