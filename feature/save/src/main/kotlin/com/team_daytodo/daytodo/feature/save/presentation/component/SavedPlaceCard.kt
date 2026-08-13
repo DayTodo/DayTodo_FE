@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -22,10 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.team_daytodo.daytodo.domain.magazine.model.MagazinePlace
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.component.dayTodoPressedScaleClickable
@@ -86,12 +89,24 @@ private fun SavedPlaceImage(
         modifier = modifier.background(place.placeholderBrush()),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            painter = painterResource(id = UIKitR.drawable.ic_logo),
-            contentDescription = "${place.name} 이미지",
-            tint = Color.White.copy(alpha = 0.72f),
-            modifier = Modifier.size(width = 78.dp, height = 23.dp),
-        )
+        // place.imageUrl은 매거진 저장(BookmarkItemDto.thumbnailUrl)에서 그대로 내려오는 값인데,
+        // 지금까지 이 컴포저블이 항상 그라디언트 placeholder만 그리고 있어 실제 썸네일이 있어도
+        // 절대 보이지 않았다.
+        if (!place.imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = place.imageUrl,
+                contentDescription = "${place.name} 이미지",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            Icon(
+                painter = painterResource(id = UIKitR.drawable.ic_logo),
+                contentDescription = "${place.name} 이미지",
+                tint = Color.White.copy(alpha = 0.72f),
+                modifier = Modifier.size(width = 78.dp, height = 23.dp),
+            )
+        }
     }
 }
 
