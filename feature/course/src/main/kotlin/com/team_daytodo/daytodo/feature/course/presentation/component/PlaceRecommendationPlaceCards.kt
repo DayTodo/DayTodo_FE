@@ -85,7 +85,7 @@ internal fun RecommendationPlaceCard(
                 DayTodoIconBadgeButton(
                     icon = painterResource(id = R.drawable.ic_comment),
                     contentDescription = "댓글",
-                    badgeCount = recommendation.commentCount,
+                    badgeCount = 0,
                     onClick = onCommentClick,
                     width = 72.dp,
                 )
@@ -134,6 +134,7 @@ internal fun SearchPlaceCard(
                 CourseTextActionButton(
                     text = if (result.recommendedByCurrentMember) "추천했어요" else "추천하기",
                     selected = result.recommendedByCurrentMember,
+                    enabled = !result.recommendedByCurrentMember,
                     onClick = onRecommendClick,
                     modifier = Modifier.weight(1f),
                 )
@@ -247,6 +248,7 @@ private fun CourseTextActionButton(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     selectedMeansFilled: Boolean = true,
 ) {
     val filled = if (selectedMeansFilled) selected else !selected
@@ -256,7 +258,11 @@ private fun CourseTextActionButton(
             .clip(RoundedCornerShape(12.dp))
             .background(if (filled) DayTodoTheme.colors.brandPrimary else Color.White)
             .border(1.dp, DayTodoTheme.colors.brandPrimary, RoundedCornerShape(12.dp))
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onClick,
+            )
             .padding(horizontal = 10.dp),
         contentAlignment = Alignment.Center,
     ) {
