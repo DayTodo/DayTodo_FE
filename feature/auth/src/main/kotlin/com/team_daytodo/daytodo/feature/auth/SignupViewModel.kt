@@ -16,6 +16,7 @@ import com.team_daytodo.daytodo.feature.mypage.model.PolicyDocuments
 import com.team_daytodo.daytodo.feature.mypage.model.RemotePolicyField
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -36,6 +37,9 @@ class SignupViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<SignupEvent>()
     val event: SharedFlow<SignupEvent> = _event.asSharedFlow()
+
+    private var policyDocumentRequestId = 0
+    private var policyDocumentJob: Job? = null
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }
@@ -63,6 +67,7 @@ class SignupViewModel @Inject constructor(
 
     fun showPolicyDocument(index: Int) {
         val document = PolicyDocuments.getOrNull(index) ?: return
+        val requestId = nextPolicyDocumentRequestId()
         when (val content = document.content) {
             is PolicyContent.Static -> {
                 _uiState.update {
@@ -83,9 +88,10 @@ class SignupViewModel @Inject constructor(
                         ),
                     )
                 }
-                viewModelScope.launch {
+                policyDocumentJob = viewModelScope.launch {
                     getPoliciesUseCase()
                         .onSuccess { policies ->
+                            if (!isActivePolicyDocumentRequest(requestId)) return@onSuccess
                             val body = when (content.field) {
                                 RemotePolicyField.TermsOfService -> policies.termsOfService
                                 RemotePolicyField.PrivacyPolicy -> policies.privacyPolicy
@@ -100,6 +106,7 @@ class SignupViewModel @Inject constructor(
                             }
                         }
                         .onFailure {
+                            if (!isActivePolicyDocumentRequest(requestId)) return@onFailure
                             _uiState.update {
                                 it.copy(
                                     policyDialog = SignupPolicyDialogUiState(
@@ -115,6 +122,7 @@ class SignupViewModel @Inject constructor(
     }
 
     fun dismissPolicyDocument() {
+        invalidatePolicyDocumentRequest()
         _uiState.update { it.copy(policyDialog = null) }
     }
 
@@ -163,6 +171,21 @@ class SignupViewModel @Inject constructor(
             _event.emit(SignupEvent.ShowMessage(message))
         }
     }
+
+    private fun nextPolicyDocumentRequestId(): Int {
+        policyDocumentJob?.cancel()
+        policyDocumentRequestId += 1
+        return policyDocumentRequestId
+    }
+
+    private fun invalidatePolicyDocumentRequest() {
+        policyDocumentJob?.cancel()
+        policyDocumentJob = null
+        policyDocumentRequestId += 1
+    }
+
+    private fun isActivePolicyDocumentRequest(requestId: Int): Boolean =
+        policyDocumentRequestId == requestId && _uiState.value.policyDialog != null
 
     private companion object {
         const val EmailCheckFailureMessage = "이메일 중복 확인에 실패했어요."
