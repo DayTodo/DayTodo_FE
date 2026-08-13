@@ -87,10 +87,16 @@ class CreateCourseRoomUseCaseTest {
         override suspend fun joinCourse(inviteCode: String): Result<String> =
             Result.success("Joined course")
 
-        override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
+        override suspend fun getUpcomingCourses(
+            startDate: CourseDate?,
+            endDate: CourseDate?,
+        ): Result<List<CourseSummary>> =
             unused()
 
         override suspend fun getCourseDetail(courseId: String): Result<CourseDetail> =
+            unused()
+
+        override suspend fun refreshAiCourseRecommendations(courseId: String): Result<CourseDetail> =
             unused()
 
         override suspend fun searchPlaces(

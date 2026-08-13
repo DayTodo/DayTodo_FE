@@ -56,6 +56,18 @@ data class PlaceRecommendationCommentRequestDto(
 )
 
 @Serializable
+data class AddCoursePlaceRequestDto(
+    @SerialName("recommendationId")
+    val recommendationId: Long,
+)
+
+@Serializable
+data class ReorderCoursePlacesRequestDto(
+    @SerialName("orderedCoursePlaceIds")
+    val orderedCoursePlaceIds: List<Long>,
+)
+
+@Serializable
 data class AiCourseRecommendationsRequestDto(
     @SerialName("regionId")
     val regionId: Long,

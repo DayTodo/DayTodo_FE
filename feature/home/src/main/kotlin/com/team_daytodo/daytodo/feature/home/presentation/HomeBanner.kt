@@ -2,6 +2,7 @@ package com.team_daytodo.daytodo.feature.home.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ internal fun HomeBanner(
     uiState: HomeUiState,
     onBookmarkClick: () -> Unit,
     onCalendarClick: () -> Unit,
+    onLocationClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -60,7 +63,10 @@ internal fun HomeBanner(
                 painter = painterResource(id = UIKitR.drawable.ic_logo),
                 contentDescription = "로고",
             )
-            LocationText(text = uiState.interestLocation)
+            LocationText(
+                text = uiState.interestLocation,
+                onClick = onLocationClick,
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
         Row(
@@ -102,18 +108,23 @@ internal fun HomeBanner(
 }
 
 @Composable
-private fun LocationText(text: String) {
+private fun LocationText(
+    text: String,
+    onClick: () -> Unit,
+) {
     val lineColor = Color(0xFFE4E4E4)
 
     Text(
-        modifier = Modifier.drawBehind {
-            drawLine(
-                color = lineColor,
-                start = Offset(x = 0f, y = size.height),
-                end = Offset(x = size.width, y = size.height),
-                strokeWidth = 0.5.dp.toPx(),
-            )
-        },
+        modifier = Modifier
+            .drawBehind {
+                drawLine(
+                    color = lineColor,
+                    start = Offset(x = 0f, y = size.height),
+                    end = Offset(x = size.width, y = size.height),
+                    strokeWidth = 0.5.dp.toPx(),
+                )
+            }
+            .clickable(role = Role.Button, onClick = onClick),
         text = text,
         style = DayTodoTheme.typography.label3,
         color = lineColor,
@@ -172,5 +183,6 @@ fun PreviewHomeBanner() {
         uiState = sampleHomeUiState(),
         onBookmarkClick = {},
         onCalendarClick = {},
+        onLocationClick = {},
     )
 }

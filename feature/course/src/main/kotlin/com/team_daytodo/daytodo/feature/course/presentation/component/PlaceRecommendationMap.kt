@@ -103,13 +103,13 @@ internal fun PlaceRecommendationMap(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
-                    currentMapView?.resume()
+                    currentMapView?.safeResume()
                     currentMapView?.context?.let {
                         KakaoMapInitializer.logMapLifecycle(it, "resume")
                     }
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    currentMapView?.pause()
+                    currentMapView?.safePause()
                     currentMapView?.context?.let {
                         KakaoMapInitializer.logMapLifecycle(it, "pause")
                     }
@@ -119,18 +119,18 @@ internal fun PlaceRecommendationMap(
         }
         lifecycle.addObserver(observer)
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-            currentMapView?.resume()
+            currentMapView?.safeResume()
             currentMapView?.context?.let {
                 KakaoMapInitializer.logMapLifecycle(it, "resume-current")
             }
         }
         onDispose {
             lifecycle.removeObserver(observer)
-            currentMapView?.pause()
+            currentMapView?.safePause()
             currentMapView?.context?.let {
                 KakaoMapInitializer.logMapLifecycle(it, "dispose")
             }
-            currentMapView?.finish()
+            currentMapView?.safeFinish()
         }
     }
 
@@ -459,7 +459,7 @@ private fun MapView.startWhenAttached(
         KakaoMapInitializer.logMapStartRequested(context)
         start(lifeCycleCallback, readyCallback)
         if (shouldResumeAfterStart()) {
-            resume()
+            safeResume()
             KakaoMapInitializer.logMapLifecycle(context, "resume-after-start")
         }
     }
@@ -485,6 +485,19 @@ private fun MapView.startWhenAttached(
 }
 
 private fun CourseCoordinate.toLatLng(): LatLng = LatLng.from(latitude, longitude)
+
+private fun MapView.safeResume() {
+    runCatching { resume() }
+}
+
+private fun MapView.safePause() {
+    if (!isAttachedToWindow) return
+    runCatching { pause() }
+}
+
+private fun MapView.safeFinish() {
+    runCatching { finish() }
+}
 
 private fun KakaoMap.setBottomVisiblePadding(bottomPaddingPx: Int) {
     setPadding(0, 0, 0, bottomPaddingPx)

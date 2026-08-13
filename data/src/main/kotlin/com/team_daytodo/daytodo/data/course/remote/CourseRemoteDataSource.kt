@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.data.course.remote
 
+import com.team_daytodo.daytodo.data.course.remote.dto.AddCoursePlaceRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
@@ -8,6 +9,7 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlacesBodyDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingResponseDto
@@ -18,6 +20,7 @@ import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationLikeRe
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlacesSearchResponseDto
+import com.team_daytodo.daytodo.data.course.remote.dto.ReorderCoursePlacesRequestDto
 import com.team_daytodo.daytodo.data.network.bodyOrThrow
 import com.team_daytodo.daytodo.data.network.safeApiCall
 import com.team_daytodo.daytodo.data.network.successOrThrow
@@ -28,9 +31,12 @@ class CourseRemoteDataSource @Inject constructor(
     private val courseApi: CourseApi,
     private val json: Json,
 ) {
-    suspend fun getCourses(): CoursesResponseDto =
+    suspend fun getCourses(
+        startDate: String? = null,
+        endDate: String? = null,
+    ): CoursesResponseDto =
         safeApiCall(json) {
-            courseApi.getCourses().bodyOrThrow(json, GetCoursesEndpoint)
+            courseApi.getCourses(startDate, endDate).bodyOrThrow(json, GetCoursesEndpoint)
         }
 
     suspend fun createCourse(request: CourseCreateRequestDto): CourseCreateResponseDto =
@@ -79,6 +85,33 @@ class CourseRemoteDataSource @Inject constructor(
             )
         }
 
+    suspend fun addRecommendationToCourse(
+        courseId: Long,
+        request: AddCoursePlaceRequestDto,
+    ) =
+        safeApiCall(json) {
+            courseApi.addRecommendationToCourse(courseId, request)
+                .bodyOrThrow(json, AddRecommendationToCourseEndpoint)
+        }
+
+    suspend fun removeCoursePlace(
+        courseId: Long,
+        coursePlaceId: Long,
+    ): CoursePlacesBodyDto =
+        safeApiCall(json) {
+            courseApi.removeCoursePlace(courseId, coursePlaceId)
+                .bodyOrThrow(json, RemoveCoursePlaceEndpoint)
+        }
+
+    suspend fun reorderCoursePlaces(
+        courseId: Long,
+        request: ReorderCoursePlacesRequestDto,
+    ): CoursePlacesBodyDto =
+        safeApiCall(json) {
+            courseApi.reorderCoursePlaces(courseId, request)
+                .bodyOrThrow(json, ReorderCoursePlacesEndpoint)
+        }
+
     suspend fun recommendPlace(
         courseId: Long,
         request: PlaceRecommendationRequestDto,
@@ -124,6 +157,9 @@ class CourseRemoteDataSource @Inject constructor(
         const val GetCoursePlacesEndpoint = "GET courses/{courseId}/places"
         const val UpdateCourseSettingEndpoint = "PATCH courses/{courseId}/setting"
         const val GetCourseRecommendationsEndpoint = "GET courses/{courseId}/recommendations"
+        const val AddRecommendationToCourseEndpoint = "POST courses/{courseId}/places"
+        const val RemoveCoursePlaceEndpoint = "DELETE courses/{courseId}/today-places/{coursePlaceId}"
+        const val ReorderCoursePlacesEndpoint = "PATCH courses/{courseId}/today-places/order"
         const val RecommendPlaceEndpoint = "POST courses/{courseId}/recommendations"
         const val LikeRecommendationEndpoint = "POST courses/recommendations/{recommendationId}/likes"
         const val AddRecommendationCommentEndpoint = "POST courses/recommendations/{recommendationId}/comments"

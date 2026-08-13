@@ -6,11 +6,11 @@ data class FeedbackUiState(
     val isSubmitted: Boolean = false,
 ) {
     val canSubmit: Boolean
-        get() = content.trim().length >= FeedbackMinLength && !isSubmitting
+        get() = content.trim().length >= FeedbackMinContentLength && !isSubmitting
 }
-
-private const val FeedbackMinLength = 100
 
 sealed interface FeedbackEvent {
     data class ShowMessage(val message: String) : FeedbackEvent
 }
+
+const val FeedbackMinContentLength = 100

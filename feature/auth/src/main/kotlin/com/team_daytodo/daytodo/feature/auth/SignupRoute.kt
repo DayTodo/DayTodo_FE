@@ -38,6 +38,8 @@ fun SignupRoute(
         onPasswordChange = viewModel::updatePassword,
         onPasswordConfirmChange = viewModel::updatePasswordConfirm,
         onTermsAgreementChange = viewModel::updateTermsAgreement,
+        onPolicyViewClick = viewModel::showPolicyDocument,
+        onPolicyDialogDismiss = viewModel::dismissPolicyDocument,
         onPasswordVisibilityClick = viewModel::togglePasswordVisibility,
         onPasswordConfirmVisibilityClick = viewModel::togglePasswordConfirmVisibility,
         onSignupClick = viewModel::signup,

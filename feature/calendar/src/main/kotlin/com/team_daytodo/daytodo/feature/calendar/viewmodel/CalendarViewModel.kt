@@ -35,6 +35,12 @@ class CalendarViewModel @Inject constructor(
         _uiState.update { it.copy(selectedDate = date) }
     }
 
+    fun retryLoad() {
+        val state = _uiState.value
+        lastRequestedMonth = null
+        onMonthChanged(YearMonth.of(state.currentYear, state.currentMonth))
+    }
+
     fun onMonthChanged(yearMonth: YearMonth) {
         if (yearMonth == lastRequestedMonth) return
         lastRequestedMonth = yearMonth

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.feature.mypage.R
 import com.team_daytodo.daytodo.feature.mypage.component.common.MypageTopBar
 import com.team_daytodo.daytodo.feature.mypage.component.feedback.FeedbackTextField
+import com.team_daytodo.daytodo.feature.mypage.state.FeedbackMinContentLength
 import com.team_daytodo.daytodo.feature.mypage.state.FeedbackUiState
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButton
 import com.team_daytodo.daytodo.uikit.component.DayTodoNextStepButtonState
@@ -87,7 +88,17 @@ private fun FeedbackInputContent(
             FeedbackTextField(
                 value = uiState.content,
                 onValueChange = onContentChange,
-                placeholder = "100자 이상 입력해주세요",
+                placeholder = "의견을 입력해주세요",
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${uiState.content.trim().length}/$FeedbackMinContentLength",
+                style = DayTodoTheme.typography.caption2,
+                color = if (uiState.canSubmit) {
+                    DayTodoTheme.colors.brandPrimary
+                } else {
+                    DayTodoTheme.colors.textSecondary
+                },
             )
         }
 

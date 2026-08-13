@@ -18,6 +18,7 @@ import com.team_daytodo.daytodo.domain.course.usecase.GetCourseDetailUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.MoveCoursePlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.RecommendPlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.RemoveCoursePlaceUseCase
+import com.team_daytodo.daytodo.domain.course.usecase.RefreshAiCourseRecommendationsUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.SearchPlacesUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.ToggleCoursePlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.TogglePlaceLikeUseCase
@@ -105,6 +106,7 @@ class PlaceRecommendationViewModelTest {
             toggleCoursePlaceUseCase = ToggleCoursePlaceUseCase(repository),
             removeCoursePlaceUseCase = RemoveCoursePlaceUseCase(repository),
             moveCoursePlaceUseCase = MoveCoursePlaceUseCase(repository),
+            refreshAiCourseRecommendationsUseCase = RefreshAiCourseRecommendationsUseCase(repository),
         )
 
     private fun searchResult(placeId: String): CoursePlaceSearchResult =
@@ -167,10 +169,16 @@ class PlaceRecommendationViewModelTest {
         override suspend fun joinCourse(inviteCode: String): Result<String> =
             unused()
 
-        override suspend fun getUpcomingCourses(): Result<List<CourseSummary>> =
+        override suspend fun getUpcomingCourses(
+            startDate: CourseDate?,
+            endDate: CourseDate?,
+        ): Result<List<CourseSummary>> =
             unused()
 
         override suspend fun getCourseDetail(courseId: String): Result<CourseDetail> =
+            Result.success(defaultCourseDetail(courseId))
+
+        override suspend fun refreshAiCourseRecommendations(courseId: String): Result<CourseDetail> =
             Result.success(defaultCourseDetail(courseId))
 
         override suspend fun searchPlaces(

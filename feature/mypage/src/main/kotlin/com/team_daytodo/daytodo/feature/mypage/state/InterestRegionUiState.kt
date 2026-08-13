@@ -20,6 +20,7 @@ data class InterestRegionUiState(
 
 data class InterestRegionGroup(
     val parentName: String,
+    val displayName: String = parentName,
     val options: List<InterestRegionOption>,
 )
 
