@@ -86,16 +86,31 @@ fun PlaceCommentScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(36.dp))
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(bottom = 112.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                 ) {
-                    items(
-                        items = uiState.comments,
-                        key = CourseComment::id,
-                    ) { comment ->
-                        CommentItem(comment = comment)
+                    if (!uiState.isLoading && uiState.comments.isEmpty()) {
+                        Text(
+                            text = "댓글을 남겨 대화를 시작해보세요.",
+                            modifier = Modifier.align(Alignment.Center),
+                            style = DayTodoTheme.typography.body2.copy(letterSpacing = 0.sp),
+                            color = DayTodoTheme.colors.textSecondary,
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 112.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            items(
+                                items = uiState.comments,
+                                key = CourseComment::id,
+                            ) { comment ->
+                                CommentItem(comment = comment)
+                            }
+                        }
                     }
                 }
             }

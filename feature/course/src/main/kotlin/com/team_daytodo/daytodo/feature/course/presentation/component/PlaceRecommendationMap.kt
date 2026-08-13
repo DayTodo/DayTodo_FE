@@ -77,15 +77,17 @@ internal fun PlaceRecommendationMap(
         if (supportsKakaoMap) {
             null
         } else {
-            "현재 기기 ABI(${KakaoMapInitializer.primaryDeviceAbi()})는 Kakao Maps SDK 네이티브 라이브러리를 지원하지 않아 대체 지도를 표시해요.\n실제 지도는 ARM 기기에서 확인할 수 있어요."
+            "현재 기기에서 Kakao 지도를 불러올 수 없어요.\n지원 ABI: arm64-v8a, armeabi-v7a"
         }
     }
     var mapView by remember { mutableStateOf<MapView?>(null) }
     var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
+    var mapLifecycleReady by remember { mutableStateOf(false) }
     var mapStartError by remember { mutableStateOf<String?>(null) }
     var mapHeightPx by remember { mutableStateOf(0) }
     val currentMarkers by rememberUpdatedState(markers)
     val currentOnMarkerClick by rememberUpdatedState(onMarkerClick)
+    val currentMapLifecycleReady by rememberUpdatedState(mapLifecycleReady)
     val requestedBottomMapPaddingPx = with(density) { bottomMapPadding.roundToPx() }
     val minimumVisibleMapHeightPx = with(density) { MinimumVisibleMapHeight.roundToPx() }
     val bottomMapPaddingPx = if (mapHeightPx > 0) {
@@ -103,13 +105,17 @@ internal fun PlaceRecommendationMap(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
-                    currentMapView?.safeResume()
+                    if (currentMapLifecycleReady) {
+                        currentMapView?.safeResume()
+                    }
                     currentMapView?.context?.let {
                         KakaoMapInitializer.logMapLifecycle(it, "resume")
                     }
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    currentMapView?.safePause()
+                    if (currentMapLifecycleReady) {
+                        currentMapView?.safePause()
+                    }
                     currentMapView?.context?.let {
                         KakaoMapInitializer.logMapLifecycle(it, "pause")
                     }
@@ -119,14 +125,18 @@ internal fun PlaceRecommendationMap(
         }
         lifecycle.addObserver(observer)
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-            currentMapView?.safeResume()
+            if (currentMapLifecycleReady) {
+                currentMapView?.safeResume()
+            }
             currentMapView?.context?.let {
                 KakaoMapInitializer.logMapLifecycle(it, "resume-current")
             }
         }
         onDispose {
             lifecycle.removeObserver(observer)
-            currentMapView?.safePause()
+            if (currentMapLifecycleReady) {
+                currentMapView?.safePause()
+            }
             currentMapView?.context?.let {
                 KakaoMapInitializer.logMapLifecycle(it, "dispose")
             }
@@ -180,6 +190,9 @@ internal fun PlaceRecommendationMap(
                 modifier = Modifier.fillMaxSize(),
                 factory = { viewContext ->
                     try {
+                        mapLifecycleReady = false
+                        kakaoMap = null
+                        mapStartError = null
                         KakaoMapInitializer
                             .initialize(viewContext.applicationContext)
                             .getOrThrow()
@@ -197,10 +210,9 @@ internal fun PlaceRecommendationMap(
                                             context = viewContext.applicationContext,
                                             error = error,
                                         )
-                                        mapStartError = error.message
-                                            ?.takeIf(String::isNotBlank)
-                                            ?.let { "카카오 지도를 불러오지 못했어요.\n$it" }
-                                            ?: "카카오 지도를 불러오지 못했어요. 인증/네트워크 설정을 확인해 주세요."
+                                        mapLifecycleReady = false
+                                        kakaoMap = null
+                                        mapStartError = error.toKakaoMapErrorMessage()
                                     }
                                 },
                                 object : KakaoMapReadyCallback() {
@@ -215,7 +227,15 @@ internal fun PlaceRecommendationMap(
                                     override fun onMapReady(map: KakaoMap) {
                                         KakaoMapInitializer.logMapReady(viewContext.applicationContext)
                                         mapStartError = null
+                                        mapLifecycleReady = true
                                         kakaoMap = map
+                                        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                                            createdMapView.safeResume()
+                                            KakaoMapInitializer.logMapLifecycle(
+                                                viewContext.applicationContext,
+                                                "resume-ready",
+                                            )
+                                        }
                                         map.setOnLabelClickListener { _, _, label ->
                                             val placeId = label.tag as? String ?: return@setOnLabelClickListener false
                                             map.setBottomVisiblePadding(currentBottomMapPaddingPx)
@@ -229,9 +249,6 @@ internal fun PlaceRecommendationMap(
                                         }
                                     }
                                 },
-                                shouldResumeAfterStart = {
-                                    lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
-                                },
                             )
                         }
                     } catch (error: UnsatisfiedLinkError) {
@@ -239,25 +256,26 @@ internal fun PlaceRecommendationMap(
                             context = viewContext.applicationContext,
                             error = error,
                         )
-                        mapStartError = "Kakao 지도 네이티브 라이브러리를 현재 기기 ABI에서 사용할 수 없어요.\n지원 ABI: arm64-v8a, armeabi-v7a"
+                        mapLifecycleReady = false
+                        kakaoMap = null
+                        mapView = null
+                        mapStartError = "현재 기기에서 Kakao 지도를 불러올 수 없어요.\n지원 ABI: arm64-v8a, armeabi-v7a"
                         FrameLayout(viewContext)
                     } catch (error: Exception) {
                         KakaoMapInitializer.logMapError(
                             context = viewContext.applicationContext,
                             error = error,
                         )
-                        mapStartError = "카카오 지도를 불러오지 못했어요. 인증/네트워크 설정을 확인해 주세요."
+                        mapLifecycleReady = false
+                        kakaoMap = null
+                        mapView = null
+                        mapStartError = error.toKakaoMapErrorMessage()
                         FrameLayout(viewContext)
                     }
                 },
             )
         } else {
-            CourseMapFallback(
-                markers = markers,
-                selectedPlaceId = selectedPlaceId,
-                onMarkerClick = onMarkerClick,
-                modifier = Modifier.fillMaxSize(),
-            )
+            Box(modifier = Modifier.fillMaxSize())
         }
 
         val visibleMapMessage = mapStartError ?: unsupportedMapMessage
@@ -448,7 +466,6 @@ private fun createKakaoMarkerBitmap(
 private fun MapView.startWhenAttached(
     lifeCycleCallback: MapLifeCycleCallback,
     readyCallback: KakaoMapReadyCallback,
-    shouldResumeAfterStart: () -> Boolean,
 ) {
     var started = false
 
@@ -458,10 +475,6 @@ private fun MapView.startWhenAttached(
 
         KakaoMapInitializer.logMapStartRequested(context)
         start(lifeCycleCallback, readyCallback)
-        if (shouldResumeAfterStart()) {
-            safeResume()
-            KakaoMapInitializer.logMapLifecycle(context, "resume-after-start")
-        }
     }
 
     if (isAttachedToWindow) {
@@ -511,6 +524,22 @@ private fun KakaoMap.moveToPlace(place: CoursePlace) {
         ),
         CameraAnimation.from(250, true, true),
     )
+}
+
+private fun Throwable.toKakaoMapErrorMessage(): String {
+    val detail = message.orEmpty()
+    val isAuthError = javaClass.simpleName == "MapAuthException" ||
+        detail.contains("401") ||
+        detail.contains("Unauthorized", ignoreCase = true)
+
+    return if (isAuthError) {
+        "Kakao 지도 인증에 실패했어요.\nKakao 개발자 콘솔의 Android 패키지명과 키 해시를 확인해 주세요."
+    } else {
+        detail
+            .takeIf(String::isNotBlank)
+            ?.let { "Kakao 지도를 불러올 수 없어요.\n$it" }
+            ?: "Kakao 지도를 불러올 수 없어요."
+    }
 }
 
 private val DefaultMapCenter: LatLng
