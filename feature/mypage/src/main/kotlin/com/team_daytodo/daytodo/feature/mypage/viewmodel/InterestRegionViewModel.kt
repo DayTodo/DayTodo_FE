@@ -76,8 +76,14 @@ class InterestRegionViewModel @Inject constructor(
                         // 하위지역이 없는 항목(예: 하위 구가 없는 시/도)은 parentRegionName이
                         // null이라 자기 자신을 유일한 자식으로 갖는 그룹이 된다 — 좌/우 2단
                         // 레이아웃을 특수 분기 없이 통일해서 처리하기 위함.
-                        .groupBy { it.parentRegionName ?: it.regionName }
-                        .map { (parentName, groupOptions) -> InterestRegionGroup(parentName, groupOptions) }
+                        .groupBy { (it.parentRegionName ?: it.regionName).toRegionParentDisplayName() }
+                        .map { (parentName, groupOptions) ->
+                            InterestRegionGroup(
+                                parentName = parentName,
+                                displayName = parentName,
+                                options = groupOptions,
+                            )
+                        }
 
                     getInterestRegionsUseCase()
                         .onSuccess { serverRegions ->
@@ -86,10 +92,14 @@ class InterestRegionViewModel @Inject constructor(
                             // 것만 초기 선택으로 반영하고 나머지는 조용히 무시한다(크래시 없이).
                             val catalogIds = options.map { it.regionId }.toSet()
                             val matchedIds = serverRegions.map { it.regionId }.filter { it in catalogIds }.toSet()
+                            val selectedGroupName = groups
+                                .firstOrNull { group -> group.options.any { it.regionId in matchedIds } }
+                                ?.parentName
+                                ?: groups.firstOrNull()?.parentName.orEmpty()
                             _uiState.update {
                                 it.copy(
                                     groups = groups,
-                                    selectedGroupName = groups.firstOrNull()?.parentName.orEmpty(),
+                                    selectedGroupName = selectedGroupName,
                                     selectedRegionIds = matchedIds,
                                     isLoading = false,
                                 )
@@ -111,4 +121,22 @@ class InterestRegionViewModel @Inject constructor(
                 }
         }
     }
+}
+
+private fun String.toRegionParentDisplayName(): String = when (this) {
+    "서울특별시" -> "서울"
+    "부산광역시" -> "부산"
+    "대구광역시" -> "대구"
+    "인천광역시" -> "인천"
+    "광주광역시" -> "광주"
+    "대전광역시" -> "대전"
+    "울산광역시" -> "울산"
+    "세종특별자치시" -> "세종"
+    "제주특별자치도" -> "제주"
+    "강원특별자치도", "강원도" -> "강원"
+    "경기도" -> "경기"
+    "충청북도", "충청남도" -> "충청"
+    "전북특별자치도", "전라북도", "전라남도" -> "전라"
+    "경상북도", "경상남도" -> "경상"
+    else -> this
 }
