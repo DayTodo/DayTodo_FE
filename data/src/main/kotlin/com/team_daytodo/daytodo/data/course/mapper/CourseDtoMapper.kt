@@ -57,11 +57,11 @@ internal fun CourseUpdateRequest.toDto(
     )
 
 internal fun String.toJoinCourseDto(): CourseJoinRequestDto =
-    CourseJoinRequestDto(inviteCode = trim())
+    CourseJoinRequestDto(inviteCode = extractInviteCode())
 
 internal fun Long.toMapRecommendationDto(): PlaceRecommendationRequestDto =
     PlaceRecommendationRequestDto(
-        source = RecommendationSourceMap,
+        source = RecommendationSourceMember,
         placeId = this,
     )
 
@@ -193,9 +193,9 @@ private fun AiRecommendedPlaceDto.toDomainRecommendation(courseName: String): Co
         place = CoursePlace(
             id = placeId.toString(),
             name = placeName,
-            address = roadAddress.ifBlank { address },
-            category = category.ifBlank { courseName },
-            description = description.ifBlank { courseName },
+            address = roadAddress.orEmpty().ifBlank { address.orEmpty() },
+            category = category.orEmpty().ifBlank { courseName },
+            description = description.orEmpty().ifBlank { courseName },
             expectedPrice = minPrice,
             imageUrl = imageUrl,
             coordinate = CourseCoordinate(
@@ -216,9 +216,9 @@ internal fun PlaceSearchDto.toDomain(
         place = CoursePlace(
             id = placeId?.toString() ?: stableSearchPlaceId(),
             name = placeName,
-            address = roadAddress ?: address ?: regionName,
-            category = category,
-            description = description,
+            address = roadAddress ?: address ?: regionName.orEmpty(),
+            category = category.orEmpty().ifBlank { DefaultCategory },
+            description = description.orEmpty().ifBlank { placeName },
             expectedPrice = 0,
             imageUrl = imageUrl,
             coordinate = CourseCoordinate(
@@ -277,7 +277,7 @@ private fun String?.toRelationship(): Relationship =
 
 private fun Relationship.toParticipantTypeDto(): String =
     when (this) {
-        Relationship.LOVER -> "TWO"
+        Relationship.LOVER -> "COUPLE"
         Relationship.FRIEND -> "FRIEND"
         Relationship.FAMILY -> "FAMILY"
     }
@@ -293,7 +293,7 @@ private fun String.toCourseDate(): CourseDate {
 
 private fun PlaceSearchDto.stableSearchPlaceId(): String =
     naverPlaceId?.takeIf(String::isNotBlank)
-        ?: "search-${"$placeName|$regionName|$category".hashCode().toUInt()}"
+        ?: "search-${"$placeName|${regionName.orEmpty()}|${category.orEmpty()}".hashCode().toUInt()}"
 
 private fun CourseRecommendationDto.stablePlaceId(): String =
     placeId?.toString() ?: "recommendation-$recommendationId"
@@ -302,8 +302,17 @@ private fun CoursePlaceDto.stableCoursePlaceId(): String =
     "course-place-${coursePlaceId ?: "$placeName|$placeOrder".hashCode().toUInt()}"
 
 private const val RecommendationSourceAi = "AI"
-private const val RecommendationSourceMap = "MAP"
+private const val RecommendationSourceMember = "MEMBER"
 private const val DefaultInviteBaseUrl = "https://daytodo.app/courses/join"
 private const val DefaultCategory = "Place"
 private const val DefaultLatitude = 37.5665
 private const val DefaultLongitude = 126.9780
+
+private fun String.extractInviteCode(): String {
+    val trimmed = trim()
+    val queryInviteCode = Regex("""(?:^|[?&])inviteCode=([^&#\s]+)""")
+        .find(trimmed)
+        ?.groupValues
+        ?.getOrNull(1)
+    return queryInviteCode?.trim().orEmpty().ifBlank { trimmed }
+}

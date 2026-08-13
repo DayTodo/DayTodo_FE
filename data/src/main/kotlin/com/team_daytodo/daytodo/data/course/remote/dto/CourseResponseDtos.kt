@@ -112,11 +112,11 @@ data class CourseCreateResponseDto(
     @SerialName("courseId")
     val courseId: Long,
     @SerialName("courseName")
-    val courseName: String = "",
+    val courseName: String? = null,
     @SerialName("region")
     val region: CourseRegionDto? = null,
     @SerialName("courseDate")
-    val courseDate: String = "",
+    val courseDate: String? = null,
     @SerialName("minBudget")
     val minBudget: Int? = null,
     @SerialName("maxBudget")
@@ -339,11 +339,11 @@ data class PlaceSearchDto(
     @SerialName("placeName")
     val placeName: String,
     @SerialName("category")
-    val category: String,
+    val category: String? = null,
     @SerialName("regionName")
-    val regionName: String,
+    val regionName: String? = null,
     @SerialName("description")
-    val description: String,
+    val description: String? = null,
     @SerialName("address")
     val address: String? = null,
     @SerialName("roadAddress")
@@ -387,29 +387,29 @@ data class AiRecommendedPlaceDto(
     @SerialName("placeId")
     val placeId: Long,
     @SerialName("naverPlaceId")
-    val naverPlaceId: String,
+    val naverPlaceId: String? = null,
     @SerialName("placeName")
     val placeName: String,
     @SerialName("category")
-    val category: String,
+    val category: String? = null,
     @SerialName("address")
-    val address: String,
+    val address: String? = null,
     @SerialName("roadAddress")
-    val roadAddress: String,
+    val roadAddress: String? = null,
     @SerialName("latitude")
     val latitude: Double,
     @SerialName("longitude")
     val longitude: Double,
     @SerialName("description")
-    val description: String,
+    val description: String? = null,
     @SerialName("imageUrl")
-    val imageUrl: String,
+    val imageUrl: String? = null,
     @SerialName("minPrice")
-    val minPrice: Int,
+    val minPrice: Int = 0,
     @SerialName("maxPrice")
-    val maxPrice: Int,
+    val maxPrice: Int = 0,
     @SerialName("priceConfidence")
-    val priceConfidence: Double,
+    val priceConfidence: Double? = null,
     @SerialName("priceReason")
-    val priceReason: String,
+    val priceReason: String? = null,
 )
