@@ -1,15 +1,22 @@
 package com.team_daytodo.daytodo.feature.save.model
 
-import com.team_daytodo.daytodo.domain.magazine.model.MagazinePlace
-import com.team_daytodo.daytodo.domain.magazine.model.SavedPlaceSortType
+import com.team_daytodo.daytodo.domain.bookmark.model.Bookmark
+import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
+import com.team_daytodo.daytodo.domain.region.model.Region
 
 data class SaveUiState(
     val isLoading: Boolean = false,
-    val places: List<MagazinePlace> = emptyList(),
+    val places: List<Bookmark> = emptyList(),
     val sortType: SavedPlaceSortType = SavedPlaceSortType.RecentSaved,
     val isSortDialogVisible: Boolean = false,
+    val regions: List<Region> = emptyList(),
+    val selectedRegionId: Long? = null,
+    val isRegionDialogVisible: Boolean = false,
     val errorMessage: String? = null,
-)
+) {
+    val selectedRegionName: String?
+        get() = regions.find { it.regionId == selectedRegionId }?.regionName
+}
 
 sealed interface SaveEvent {
     data class ShowMessage(val message: String) : SaveEvent
@@ -18,7 +25,7 @@ sealed interface SaveEvent {
 data class SavedPlacePickerUiState(
     val isLoading: Boolean = false,
     val isImporting: Boolean = false,
-    val places: List<MagazinePlace> = emptyList(),
+    val places: List<Bookmark> = emptyList(),
     val selectedPlaceIds: Set<String> = emptySet(),
     val sortType: SavedPlaceSortType = SavedPlaceSortType.RecentSaved,
     val isSortDialogVisible: Boolean = false,
@@ -26,12 +33,12 @@ data class SavedPlacePickerUiState(
 ) {
     val importablePlaceIds: Set<String>
         get() = places
-            .filter { it.serverPlaceId != null }
-            .mapTo(mutableSetOf()) { it.id }
+            .filter { it.placeId != null }
+            .mapTo(mutableSetOf()) { it.magazineId.toString() }
 
     val selectedServerPlaceIds: List<String>
         get() = selectedPlaceIds.mapNotNull { selectedId ->
-            places.firstOrNull { it.id == selectedId }?.serverPlaceId
+            places.firstOrNull { it.magazineId.toString() == selectedId }?.placeId?.toString()
         }.distinct()
 
     val canImport: Boolean

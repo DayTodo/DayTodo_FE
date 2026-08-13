@@ -4,6 +4,7 @@ import com.team_daytodo.daytodo.data.BuildConfig
 import com.team_daytodo.daytodo.data.api.CalendarApi
 import com.team_daytodo.daytodo.data.api.HomeApi
 import com.team_daytodo.daytodo.data.api.MagazineApi
+import com.team_daytodo.daytodo.data.api.BookmarkApi
 import com.team_daytodo.daytodo.data.api.MypageApi
 import com.team_daytodo.daytodo.data.api.RecordApi
 import com.team_daytodo.daytodo.data.api.RegionApi
@@ -126,6 +127,13 @@ object NetworkModule {
         retrofitFactory: RetrofitFactory,
         @DayTodoBaseUrl baseUrl: String,
     ): RegionApi = retrofitFactory.create(baseUrl).create(RegionApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideBookmarkApi(
+        retrofitFactory: RetrofitFactory,
+        @DayTodoBaseUrl baseUrl: String,
+    ): BookmarkApi = retrofitFactory.create(baseUrl).create(BookmarkApi::class.java)
 
     private fun String.requiresAuthorization(): Boolean =
         PublicAuthPaths.none { endsWith(it) }

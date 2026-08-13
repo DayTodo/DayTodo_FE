@@ -2,9 +2,9 @@ package com.team_daytodo.daytodo.feature.save
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
+import com.team_daytodo.daytodo.domain.bookmark.usecase.GetBookmarksUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.ImportSavedPlacesToCourseUseCase
-import com.team_daytodo.daytodo.domain.magazine.model.SavedPlaceSortType
-import com.team_daytodo.daytodo.domain.magazine.usecase.GetSavedMagazinePlacesUseCase
 import com.team_daytodo.daytodo.feature.save.model.SavedPlacePickerEvent
 import com.team_daytodo.daytodo.feature.save.model.SavedPlacePickerUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SavedPlacePickerViewModel @Inject constructor(
-    private val getSavedMagazinePlacesUseCase: GetSavedMagazinePlacesUseCase,
+    private val getBookmarksUseCase: GetBookmarksUseCase,
     private val importSavedPlacesToCourseUseCase: ImportSavedPlacesToCourseUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SavedPlacePickerUiState(isLoading = true))
@@ -37,9 +37,9 @@ class SavedPlacePickerViewModel @Inject constructor(
         val sortType = _uiState.value.sortType
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getSavedMagazinePlacesUseCase(sortType)
+            getBookmarksUseCase(sortType)
                 .onSuccess { places ->
-                    val visiblePlaceIds = places.mapTo(mutableSetOf()) { it.id }
+                    val visiblePlaceIds = places.mapTo(mutableSetOf()) { it.magazineId.toString() }
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -81,8 +81,8 @@ class SavedPlacePickerViewModel @Inject constructor(
     }
 
     fun togglePlaceSelection(placeId: String) {
-        val place = _uiState.value.places.firstOrNull { it.id == placeId }
-        if (place?.serverPlaceId == null) {
+        val place = _uiState.value.places.firstOrNull { it.magazineId.toString() == placeId }
+        if (place?.placeId == null) {
             viewModelScope.launch {
                 _event.emit(SavedPlacePickerEvent.ShowMessage("이 장소는 아직 코스로 불러올 수 없어요."))
             }
