@@ -71,7 +71,12 @@ class ProfileEditViewModel @Inject constructor(
 
     fun onPhotoSelected(uri: String?) {
         if (uri == null) return
-        _uiState.update { it.copy(profileImageUri = uri) }
+        // profileImageUri는 화면 표시용(서버 URL 또는 방금 고른 로컬 Uri)이고,
+        // newProfileImageUri는 저장 시 실제로 업로드할 "새로 고른" 로컬 Uri만 담는다.
+        // 사진을 안 바꾸고 닉네임만 저장하면 profileImageUri가 서버 URL(https://...)
+        // 그대로라, 이걸 그대로 업로드 요청에 넘기면 ContentResolver가 못 읽어 빈
+        // 파일이 올라가 400이 난다.
+        _uiState.update { it.copy(profileImageUri = uri, newProfileImageUri = uri) }
     }
 
     fun onSaveClick() {
@@ -80,7 +85,7 @@ class ProfileEditViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            updateProfileUseCase(currentState.nickname, currentState.profileImageUri)
+            updateProfileUseCase(currentState.nickname, currentState.newProfileImageUri)
                 .onSuccess {
                     _uiState.update { it.copy(isSaving = false) }
                     _event.emit(ProfileEditEvent.ProfileSaved)
@@ -97,9 +102,12 @@ class ProfileEditViewModel @Inject constructor(
             getMypageProfileUseCase()
                 .onSuccess { profile ->
                     // name/linkedAccountProvider/linkedAccountId는 BE가 지원하지 않아 값 소스가 없다.
+                    // profileImageUri를 서버에 저장된 사진 URL로 채워야 편집 화면에 들어오자마자
+                    // 지금 사진이 보인다(예전엔 항상 null로 시작해 빈 원만 보였음).
                     _uiState.value = ProfileEditUiState(
                         nickname = profile.nickname,
                         email = profile.email,
+                        profileImageUri = profile.profileImageUrl,
                         isLoading = false,
                     )
                 }

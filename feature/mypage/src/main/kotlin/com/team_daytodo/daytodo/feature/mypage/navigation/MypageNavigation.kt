@@ -74,7 +74,7 @@ fun NavGraphBuilder.mypageNavGraph(
             onDialogStateChange = viewModel::onDialogStateChange,
             onLogoutConfirmClick = viewModel::confirmLogout,
             onWithdrawConfirmClick = viewModel::confirmWithdraw,
-            profile = MypageProfile(nickname = uiState.nickname),
+            profile = MypageProfile(nickname = uiState.nickname, profileImageUrl = uiState.profileImageUrl),
         )
     }
     composable(MypageRoute.ProfileEdit) {

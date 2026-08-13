@@ -58,6 +58,7 @@ class MypageViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             nickname = profile.nickname,
+                            profileImageUrl = profile.profileImageUrl,
                             isLoading = false,
                         )
                     }
