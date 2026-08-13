@@ -261,7 +261,7 @@ fun TodayScreen(
                     ) {
                         Row(
                             modifier = Modifier
-                                .width(100.dp)
+                                .width(110.dp)
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(color = DayTodoTheme.colors.brandPrimary)

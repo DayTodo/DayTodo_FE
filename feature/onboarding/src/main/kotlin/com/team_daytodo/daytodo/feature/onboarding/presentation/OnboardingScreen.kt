@@ -62,7 +62,15 @@ fun OnboardingScreen(
         } else {
             OnboardingPageContent(
                 page = currentPage,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        bottom = if (uiState.isLastPage) {
+                            LastPageBottomContentPadding
+                        } else {
+                            BottomControlsContentPadding
+                        },
+                    ),
             )
         }
 
@@ -189,6 +197,8 @@ private fun OnboardingLoadingContent(
 }
 
 private val ScreenHorizontalPadding = 20.dp
+private val BottomControlsContentPadding = 178.dp
+private val LastPageBottomContentPadding = 132.dp
 
 @Preview(showBackground = true)
 @Composable

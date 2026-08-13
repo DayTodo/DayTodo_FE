@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -116,62 +118,33 @@ fun OnboardingFeature3PageContent(
     page: OnboardingPageUiModel,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    BoxWithConstraints(
         modifier = modifier
+            .fillMaxSize()
             .padding(horizontal = ScreenHorizontalPadding)
-            .padding(top = 112.dp),
     ) {
+        val compact = maxHeight < 640.dp
+        val topPadding = maxHeight * if (compact) 0.09f else 0.13f
+        val firstImageMaxHeight = maxHeight * if (compact) 0.16f else 0.19f
+        val secondImageMaxHeight = maxHeight * if (compact) 0.17f else 0.21f
+        val sectionGap = maxHeight * if (compact) 0.015f else 0.035f
+        val textImageGap = if (compact) 12.dp else 24.dp
+
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .padding(11.dp)
-                .align(Alignment.Start),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(top = topPadding),
         ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = page.headline,
-                style = DayTodoTheme.typography.headlineLarge,
-                color = DayTodoTheme.colors.textPrimary,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = page.description,
-                style = DayTodoTheme.typography.body2,
-                color = DayTodoTheme.colors.textSecondary,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Image(
-                painter = painterResource(id = page.illustration.primaryImageRes),
-                contentDescription = page.description
-            )
-        }
-        Spacer(modifier = Modifier.height(35.5.dp))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .align(Alignment.End),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (page.illustration.secondaryImageRes == null) {
-                OnboardingSingleIllustrationImage(
-                    illustration = page.illustration,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = page.illustration.secondaryImageRes),
-                    contentDescription = page.description
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            page.guide?.let { guide ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.76f)
+                    .padding(11.dp)
+                    .align(Alignment.Start),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = guide.title,
+                    text = page.headline,
                     style = DayTodoTheme.typography.headlineLarge,
                     color = DayTodoTheme.colors.textPrimary,
                     textAlign = TextAlign.Center
@@ -179,11 +152,63 @@ fun OnboardingFeature3PageContent(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = guide.description,
+                    text = page.description,
                     style = DayTodoTheme.typography.body2,
                     color = DayTodoTheme.colors.textSecondary,
                     textAlign = TextAlign.Center
                 )
+                Spacer(modifier = Modifier.height(textImageGap))
+                Image(
+                    painter = painterResource(id = page.illustration.primaryImageRes),
+                    contentDescription = page.description,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = firstImageMaxHeight),
+                    contentScale = ContentScale.Fit,
+                )
+            }
+            Spacer(modifier = Modifier.height(sectionGap))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .align(Alignment.End),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (page.illustration.secondaryImageRes == null) {
+                    OnboardingSingleIllustrationImage(
+                        illustration = page.illustration,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = secondImageMaxHeight),
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = page.illustration.secondaryImageRes),
+                        contentDescription = page.description,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = secondImageMaxHeight),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
+                Spacer(modifier = Modifier.height(textImageGap))
+                page.guide?.let { guide ->
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = guide.title,
+                        style = DayTodoTheme.typography.headlineLarge,
+                        color = DayTodoTheme.colors.textPrimary,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = guide.description,
+                        style = DayTodoTheme.typography.body2,
+                        color = DayTodoTheme.colors.textSecondary,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
