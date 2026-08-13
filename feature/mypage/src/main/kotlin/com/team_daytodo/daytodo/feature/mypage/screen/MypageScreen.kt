@@ -25,8 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.team_daytodo.daytodo.feature.mypage.R
 import com.team_daytodo.daytodo.feature.mypage.component.MypageDialogHost
 import com.team_daytodo.daytodo.feature.mypage.component.common.MypageDivider
@@ -84,7 +86,18 @@ fun MypageScreen(
                         .size(60.dp)
                         .clip(CircleShape)
                         .background(DayTodoTheme.colors.backgroundSecondary),
-                )
+                ) {
+                    // 예전엔 이 자리가 항상 빈 원이라, 프로필 사진을 새로 저장해도 마이페이지엔
+                    // 절대 반영되지 않았다.
+                    if (!profile.profileImageUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = profile.profileImageUrl,
+                            contentDescription = "프로필 사진",
+                            modifier = Modifier.size(60.dp).clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = profile.nickname,
