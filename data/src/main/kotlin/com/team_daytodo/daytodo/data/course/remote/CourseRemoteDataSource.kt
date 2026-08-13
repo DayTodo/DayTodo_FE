@@ -1,8 +1,8 @@
 package com.team_daytodo.daytodo.data.course.remote
 
+import com.team_daytodo.daytodo.data.course.remote.dto.AddCoursePlaceRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsResponseDto
-import com.team_daytodo.daytodo.data.course.remote.dto.AddCoursePlaceRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
@@ -57,11 +57,11 @@ class CourseRemoteDataSource @Inject constructor(
     suspend fun removeCourseMember(
         courseId: Long,
         memberId: Long,
-    ) =
+    ) {
         safeApiCall(json) {
-            courseApi.removeCourseMember(courseId, memberId)
-                .successOrThrow(json)
+            courseApi.removeCourseMember(courseId, memberId).successOrThrow(json)
         }
+    }
 
     suspend fun getCoursePlaces(courseId: Long): List<CoursePlaceDto> =
         safeApiCall(json) {

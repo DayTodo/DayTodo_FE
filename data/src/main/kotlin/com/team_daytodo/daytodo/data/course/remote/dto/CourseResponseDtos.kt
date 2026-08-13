@@ -8,17 +8,17 @@ data class CoursesResponseDto(
     @SerialName("banner")
     val banner: CourseBannerDto? = null,
     @SerialName("inProgressCourses")
-    val inProgressCourses: List<CourseSummaryDto> = emptyList(),
+    val inProgressCourses: List<CourseCardDto> = emptyList(),
     @SerialName("upcomingCourses")
-    val upcomingCourses: List<CourseSummaryDto> = emptyList(),
+    val upcomingCourses: List<CourseCardDto> = emptyList(),
     @SerialName("createdCourses")
-    val createdCourses: List<CourseSummaryDto> = emptyList(),
+    val createdCourses: List<CreatedCourseDto> = emptyList(),
     @SerialName("courses")
-    val legacyCourses: List<CourseSummaryDto> = emptyList(),
+    val legacyCourses: List<CourseCardDto> = emptyList(),
 ) {
-    val courses: List<CourseSummaryDto>
-        get() = (inProgressCourses + upcomingCourses + createdCourses + legacyCourses)
-            .distinctBy(CourseSummaryDto::courseId)
+    val courseCards: List<CourseCardDto>
+        get() = (inProgressCourses + upcomingCourses + legacyCourses)
+            .distinctBy(CourseCardDto::courseId)
 }
 
 @Serializable
@@ -32,19 +32,19 @@ data class CourseBannerDto(
 )
 
 @Serializable
-data class CourseSummaryDto(
+data class CourseCardDto(
     @SerialName("courseId")
     val courseId: Long,
     @SerialName("courseName")
     val courseName: String,
     @SerialName("courseDate")
     val courseDate: String,
-    @SerialName("memberCount")
-    val memberCount: Int = 0,
-    @SerialName("placeCount")
-    val placeCount: Int = 0,
     @SerialName("dDay")
     val dDay: Long? = null,
+    @SerialName("memberCount")
+    val memberCount: Long = 0,
+    @SerialName("placeCount")
+    val placeCount: Long = 0,
     @SerialName("participantType")
     val participantType: String? = null,
     @SerialName("minPrice")
@@ -59,6 +59,38 @@ data class CourseSummaryDto(
     val relationType: String? = null,
     @SerialName("frameColor")
     val frameColor: String? = null,
+    @SerialName("region")
+    val region: CourseRegionDto? = null,
+    @SerialName("regionId")
+    val regionId: Long? = null,
+    @SerialName("regionName")
+    val regionName: String? = null,
+)
+
+@Serializable
+data class CreatedCourseDto(
+    @SerialName("courseId")
+    val courseId: Long,
+    @SerialName("courseName")
+    val courseName: String,
+    @SerialName("courseDate")
+    val courseDate: String,
+    @SerialName("memberCount")
+    val memberCount: Long = 0,
+    @SerialName("placeCount")
+    val placeCount: Long = 0,
+    @SerialName("participantType")
+    val participantType: String? = null,
+    @SerialName("minPrice")
+    val minPrice: Int? = null,
+    @SerialName("maxPrice")
+    val maxPrice: Int? = null,
+    @SerialName("minBudget")
+    val minBudget: Int? = null,
+    @SerialName("maxBudget")
+    val maxBudget: Int? = null,
+    @SerialName("relationType")
+    val relationType: String? = null,
     @SerialName("region")
     val region: CourseRegionDto? = null,
     @SerialName("regionId")
@@ -179,30 +211,15 @@ data class CourseSettingResponseDto(
     val participantType: String,
 )
 
+// BE GET /courses/{courseId}/recommendations returns sparse place data.
 @Serializable
 data class CourseRecommendationDto(
     @SerialName("recommendationId")
     val recommendationId: Long,
-    @SerialName("placeId")
-    val placeId: Long? = null,
     @SerialName("source")
     val source: String = "",
     @SerialName("placeName")
     val placeName: String,
-    @SerialName("category")
-    val category: String = "",
-    @SerialName("minPrice")
-    val minPrice: Int? = null,
-    @SerialName("maxPrice")
-    val maxPrice: Int? = null,
-    @SerialName("address")
-    val address: String = "",
-    @SerialName("description")
-    val description: String = "",
-    @SerialName("isOpen")
-    val isOpen: Boolean? = null,
-    @SerialName("recommender")
-    val recommender: String = "",
     @SerialName("likeCount")
     val likeCount: Int = 0,
     @SerialName("commentCount")
@@ -211,6 +228,22 @@ data class CourseRecommendationDto(
     val isLiked: Boolean = false,
     @SerialName("isSelected")
     val isSelected: Boolean = false,
+    @SerialName("placeId")
+    val placeId: Long? = null,
+    @SerialName("category")
+    val category: String? = null,
+    @SerialName("minPrice")
+    val minPrice: Int? = null,
+    @SerialName("maxPrice")
+    val maxPrice: Int? = null,
+    @SerialName("address")
+    val address: String? = null,
+    @SerialName("description")
+    val description: String? = null,
+    @SerialName("isOpen")
+    val isOpen: Boolean? = null,
+    @SerialName("recommender")
+    val recommender: String? = null,
     @SerialName("roadAddress")
     val roadAddress: String? = null,
     @SerialName("latitude")
@@ -223,15 +256,15 @@ data class CourseRecommendationDto(
 
 @Serializable
 data class PlaceRecommendationResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
+    @SerialName("recommendationId")
+    val recommendationId: Long? = null,
     @SerialName("result")
-    val result: PlaceRecommendationResultDto,
-)
+    val result: PlaceRecommendationResultDto? = null,
+) {
+    val resolvedRecommendationId: Long
+        get() = recommendationId ?: result?.recommendationId
+            ?: error("Missing recommendationId in recommendation response")
+}
 
 @Serializable
 data class PlaceRecommendationResultDto(
@@ -241,14 +274,14 @@ data class PlaceRecommendationResultDto(
 
 @Serializable
 data class PlaceRecommendationLikeResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
+    @SerialName("recommendationLikeId")
+    val recommendationLikeId: Long? = null,
+    @SerialName("likeCount")
+    val likeCount: Int? = null,
+    @SerialName("isLiked")
+    val isLiked: Boolean? = null,
     @SerialName("result")
-    val result: PlaceRecommendationLikeResultDto,
+    val result: PlaceRecommendationLikeResultDto? = null,
 )
 
 @Serializable
@@ -263,15 +296,15 @@ data class PlaceRecommendationLikeResultDto(
 
 @Serializable
 data class PlaceRecommendationCommentResponseDto(
-    @SerialName("success")
-    val success: Boolean,
-    @SerialName("code")
-    val code: String,
-    @SerialName("message")
-    val message: String,
+    @SerialName("commentId")
+    val commentId: Long? = null,
     @SerialName("result")
-    val result: PlaceRecommendationCommentResultDto,
-)
+    val result: PlaceRecommendationCommentResultDto? = null,
+) {
+    val resolvedCommentId: Long
+        get() = commentId ?: result?.commentId
+            ?: error("Missing commentId in recommendation comment response")
+}
 
 @Serializable
 data class PlaceRecommendationCommentResultDto(

@@ -50,31 +50,39 @@ class TodayViewModel @Inject constructor(
         viewModelScope.launch {
             completeCourseUseCase(courseId)
                 .onSuccess { loadTodayCourse() }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "코스를 종료하지 못했어요."))
+                }
         }
-    }
-
-    fun selectMemoryPhotos(uris: List<String>) {
-        _uiState.update { it.copy(selectedMemoryPhotoUris = uris) }
     }
 
     // TODO: BE에 이미지 업로드 API가 아직 없어 로컬 갤러리 Uri 문자열을 그대로 imageUrls로 전달한다.
     // 서버에 실제로 접근 가능한 URL이 아니므로, 업로드 API가 생기면 업로드 후 받은 URL로 교체해야 한다.
-    fun saveMemoryPhotos(imageUrls: List<String>) {
+    // 사진을 고르는 즉시(별도의 "저장" 버튼 없이) 업로드한다.
+    fun addMemoryPhotos(uris: List<String>) {
         val courseId = _uiState.value.courseId ?: return
-        if (imageUrls.isEmpty()) return
+        if (uris.isEmpty()) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSavingMemoryPhotos = true) }
-            saveMemoryPhotosUseCase(courseId, imageUrls)
-                .onSuccess {
+            _uiState.update { it.copy(pendingMemoryPhotoUris = it.pendingMemoryPhotoUris + uris) }
+            saveMemoryPhotosUseCase(courseId, uris)
+                .onSuccess { saved ->
                     _uiState.update {
-                        it.copy(isSavingMemoryPhotos = false, selectedMemoryPhotoUris = emptyList())
+                        it.copy(
+                            memoryPhotos = it.memoryPhotos + saved.photos,
+                            pendingMemoryPhotoUris = it.pendingMemoryPhotoUris - uris.toSet(),
+                        )
                     }
                     _event.emit(TodayEvent.MemoryPhotosSaved)
                 }
                 .onFailure { cause ->
-                    _uiState.update { it.copy(isSavingMemoryPhotos = false, errorMessage = cause.message) }
+                    _uiState.update {
+                        it.copy(
+                            pendingMemoryPhotoUris = it.pendingMemoryPhotoUris - uris.toSet(),
+                            errorMessage = cause.message,
+                        )
+                    }
                     _event.emit(TodayEvent.ShowMessage(cause.message ?: "사진을 저장하지 못했어요."))
                 }
         }
@@ -103,6 +111,7 @@ class TodayViewModel @Inject constructor(
                     } else {
                         _uiState.update { it.copy(errorMessage = cause.message) }
                     }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "장소 순서를 변경하지 못했어요."))
                 }
         }
     }
@@ -114,7 +123,10 @@ class TodayViewModel @Inject constructor(
         viewModelScope.launch {
             deleteTodayPlaceUseCase(courseId, coursePlaceId)
                 .onSuccess { places -> _uiState.update { it.copy(places = places.toUiPlaces()) } }
-                .onFailure { cause -> _uiState.update { it.copy(errorMessage = cause.message) } }
+                .onFailure { cause ->
+                    _uiState.update { it.copy(errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "장소를 삭제하지 못했어요."))
+                }
         }
     }
 
@@ -127,6 +139,7 @@ class TodayViewModel @Inject constructor(
                         it.copy(
                             hasCourse = course != null,
                             courseId = course?.courseId,
+                            courseName = course?.courseName,
                             members = course?.members?.map { member ->
                                 CourseMember(id = member.nickname, name = member.nickname)
                             }.orEmpty(),
@@ -137,6 +150,7 @@ class TodayViewModel @Inject constructor(
                 }
                 .onFailure { cause ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = cause.message) }
+                    _event.emit(TodayEvent.ShowMessage(cause.message ?: "투데이 코스를 불러오지 못했어요."))
                 }
         }
     }

@@ -38,6 +38,11 @@ class MypageViewModel @Inject constructor(
         loadNotificationSettings()
     }
 
+    // ProfileEdit 화면에서 저장 후 돌아왔을 때 갱신된 닉네임을 다시 불러오기 위해 호출한다.
+    fun refreshProfile() {
+        loadProfile()
+    }
+
     fun toggleNotification(enabled: Boolean) {
         _uiState.update { it.copy(notificationEnabled = enabled) }
         viewModelScope.launch {

@@ -27,6 +27,7 @@ fun LinkedAccountSection(
     providerName: String,
     accountId: String,
     isLinked: Boolean,
+    onLinkClick: () -> Unit,
     onUnlinkClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -92,7 +93,7 @@ fun LinkedAccountSection(
                 Spacer(modifier = Modifier.weight(1f))
                 ProfileGreyButton(
                     text = if (isLinked) "연동 해제" else "연동하기",
-                    onClick = onUnlinkClick,
+                    onClick = if (isLinked) onUnlinkClick else onLinkClick,
                 )
             }
         }

@@ -80,15 +80,27 @@ class CourseRepositoryImpl @Inject constructor(
                 startDate = startDate?.toDtoDate(),
                 endDate = endDate?.toDtoDate(),
             )
-            response.createdCourses.ifEmpty { response.courses }
-                .sortedWith(compareBy({ it.courseDate }, { it.courseId }))
-                .map { course ->
-                    course.toDomain(
-                        regionName = course.regionId?.let { regionId ->
-                            localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
-                        },
-                    )
-                }
+            val activeCourses = response.courseCards.map { course ->
+                course.toDomain(
+                    regionName = course.regionId?.let(::getRegionNameOrUnknown),
+                )
+            }
+            val createdCourses = response.createdCourses.map { course ->
+                course.toDomain(
+                    regionName = course.regionId?.let(::getRegionNameOrUnknown),
+                )
+            }
+
+            (activeCourses + createdCourses)
+                .distinctBy(CourseSummary::id)
+                .sortedWith(
+                    compareBy<CourseSummary>(
+                        { it.date.year },
+                        { it.date.month },
+                        { it.date.day },
+                        { it.id.toLongOrNull() ?: Long.MAX_VALUE },
+                    ),
+                )
         }
 
     override suspend fun getCourseDetail(courseId: String): Result<CourseDetail> =
@@ -311,7 +323,9 @@ class CourseRepositoryImpl @Inject constructor(
         }
 
     private suspend fun loadCourseDetail(courseId: Long): CourseDetail {
-        val summary = remoteDataSource.getCourses().courses.firstOrNull { it.courseId == courseId }
+        val courses = remoteDataSource.getCourses()
+        val summaryCard = courses.courseCards.firstOrNull { it.courseId == courseId }
+        val summaryCreated = courses.createdCourses.firstOrNull { it.courseId == courseId }
         val members = remoteDataSource.getCourseMembers(courseId).map { it.toDomain() }
         val currentMemberId = members.firstOrNull()?.id ?: AnonymousMember.id
         val recommendations = remoteDataSource.getCourseRecommendations(courseId)
@@ -336,7 +350,32 @@ class CourseRepositoryImpl @Inject constructor(
         val placesById = (serverCoursePlaces + recommendationPlacesById.values)
             .associateBy(CoursePlace::id)
         val coursePlaces = selectedPlaceIds.mapNotNull(placesById::get)
-        val relationship = (summary?.relationType ?: summary?.participantType).toRelationshipOrDefault()
+
+        val relationship = (
+            summaryCard?.relationType
+                ?: summaryCard?.participantType
+                ?: summaryCreated?.relationType
+                ?: summaryCreated?.participantType
+            ).toRelationshipOrDefault()
+        val courseName = summaryCard?.courseName ?: summaryCreated?.courseName
+        val courseDate = summaryCard?.courseDate ?: summaryCreated?.courseDate
+        val region = summaryCard?.region?.regionName
+            ?: summaryCard?.regionName
+            ?: summaryCard?.regionId?.let(::getRegionNameOrUnknown)
+            ?: summaryCreated?.region?.regionName
+            ?: summaryCreated?.regionName
+            ?: summaryCreated?.regionId?.let(::getRegionNameOrUnknown)
+            ?: ""
+        val minBudget = summaryCard?.minBudget
+            ?: summaryCreated?.minBudget
+            ?: summaryCard?.minPrice
+            ?: summaryCreated?.minPrice
+            ?: 0
+        val maxBudget = summaryCard?.maxBudget
+            ?: summaryCreated?.maxBudget
+            ?: summaryCard?.maxPrice
+            ?: summaryCreated?.maxPrice
+            ?: 0
 
         val serverRecommendationDomains = recommendations.map { recommendation ->
             recommendation.toDomain(currentMemberId)
@@ -351,19 +390,14 @@ class CourseRepositoryImpl @Inject constructor(
 
         return CourseDetail(
             id = courseId.toString(),
-            name = summary?.courseName.orEmpty(),
-            region = summary?.region?.regionName
-                ?: summary?.regionName
-                ?: summary?.regionId?.let { regionId ->
-                    localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
-                }
-                ?: "",
+            name = courseName.orEmpty(),
+            region = region,
             regionCoordinate = coursePlaces.firstOrNull()?.coordinate
                 ?: recommendationDomains.firstOrNull()?.place?.coordinate
                 ?: DefaultCoordinate,
-            date = summary?.courseDate?.toCourseDateOrDefault() ?: DefaultCourseDate,
-            minBudget = summary?.minBudget ?: summary?.minPrice ?: 0,
-            maxBudget = summary?.maxBudget ?: summary?.maxPrice ?: 0,
+            date = courseDate?.toCourseDateOrDefault() ?: DefaultCourseDate,
+            minBudget = minBudget,
+            maxBudget = maxBudget,
             relationship = relationship,
             currentMemberId = currentMemberId,
             members = members.ifEmpty { listOf(AnonymousMember) },
@@ -392,12 +426,13 @@ class CourseRepositoryImpl @Inject constructor(
             courseId = courseId,
             request = placeId.toPlaceIdLong().toMapRecommendationDto(),
         )
+        val recommendationId = created.resolvedRecommendationId
         return remoteDataSource.getCourseRecommendations(courseId)
-            .firstOrNull { it.recommendationId == created.result.recommendationId }
+            .firstOrNull { it.recommendationId == recommendationId }
             ?: CourseRecommendationDto(
-                recommendationId = created.result.recommendationId,
+                recommendationId = recommendationId,
                 placeId = placeId.toPlaceIdLong(),
-                source = "MEMBER",
+                source = "MAP",
                 placeName = "",
             )
     }
@@ -428,6 +463,9 @@ class CourseRepositoryImpl @Inject constructor(
 
         return coursePlaces.firstOrNull { it.name == recommendationPlace.name }
     }
+
+    private fun getRegionNameOrUnknown(regionId: Long): String =
+        localCourseRegionDataSource.getRegionName(regionId) ?: UnknownRegionName
 
     private fun requireRegionId(region: String): Long =
         localCourseRegionDataSource.getRegionId(region)

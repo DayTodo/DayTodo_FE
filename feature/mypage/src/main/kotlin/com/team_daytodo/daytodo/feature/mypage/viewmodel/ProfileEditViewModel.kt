@@ -2,6 +2,8 @@ package com.team_daytodo.daytodo.feature.mypage.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.team_daytodo.daytodo.domain.auth.model.LinkNaverRequest
+import com.team_daytodo.daytodo.domain.auth.usecase.LinkNaverUseCase
 import com.team_daytodo.daytodo.domain.mypage.usecase.GetMypageProfileUseCase
 import com.team_daytodo.daytodo.domain.mypage.usecase.UpdateProfileUseCase
 import com.team_daytodo.daytodo.feature.mypage.state.ProfileEditEvent
@@ -21,6 +23,7 @@ import kotlinx.coroutines.launch
 class ProfileEditViewModel @Inject constructor(
     private val getMypageProfileUseCase: GetMypageProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val linkNaverUseCase: LinkNaverUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileEditUiState(isLoading = true))
     val uiState: StateFlow<ProfileEditUiState> = _uiState.asStateFlow()
@@ -32,8 +35,34 @@ class ProfileEditViewModel @Inject constructor(
         loadProfile()
     }
 
-    fun onToggleAccountLinkClick() {
-        _uiState.update { it.copy(isAccountLinked = !it.isAccountLinked) }
+    // 연동 해제 API가 BE에 없어(전수 확인) 로컬 상태만 되돌린다.
+    fun onUnlinkAccountClick() {
+        _uiState.update { it.copy(isAccountLinked = false) }
+    }
+
+    fun linkNaverAccount(naverAccessToken: String?) {
+        val token = naverAccessToken?.trim().orEmpty()
+        if (token.isBlank()) {
+            showNaverLinkFailure("네이버 인증 정보를 가져오지 못했어요.")
+            return
+        }
+
+        viewModelScope.launch {
+            linkNaverUseCase(LinkNaverRequest(providerToken = token))
+                .onSuccess {
+                    _uiState.update { it.copy(isAccountLinked = true, linkedAccountProvider = "네이버") }
+                    _event.emit(ProfileEditEvent.ShowMessage("네이버 계정을 연동했어요."))
+                }
+                .onFailure { cause ->
+                    _event.emit(ProfileEditEvent.ShowMessage(cause.message ?: "네이버 계정 연동에 실패했어요."))
+                }
+        }
+    }
+
+    fun showNaverLinkFailure(message: String) {
+        viewModelScope.launch {
+            _event.emit(ProfileEditEvent.ShowMessage(message.takeIf(String::isNotBlank) ?: "네이버 계정 연동에 실패했어요."))
+        }
     }
 
     fun onNicknameChanged(nickname: String) {
@@ -67,10 +96,12 @@ class ProfileEditViewModel @Inject constructor(
         viewModelScope.launch {
             getMypageProfileUseCase()
                 .onSuccess { profile ->
-                    // name/email/linkedAccountProvider/linkedAccountId는 MypageProfile에서 제거됨(BE 미지원) —
-                    // 화면 필드는 그대로 두되 값 소스가 없어 기본값(빈 문자열)으로 남는다.
+                    // name/linkedAccountProvider/linkedAccountId는 BE가 지원하지 않아 값 소스가 없다.
+                    // email은 BE 프로필 조회 응답엔 없고, 회원가입 시점에 로컬에 저장해둔 값을 쓴다
+                    // (재로그인/재설치로 세션을 얻은 경우 비어있을 수 있음).
                     _uiState.value = ProfileEditUiState(
                         nickname = profile.nickname,
+                        email = profile.email.orEmpty(),
                         isLoading = false,
                     )
                 }

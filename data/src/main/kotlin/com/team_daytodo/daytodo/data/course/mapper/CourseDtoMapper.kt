@@ -4,6 +4,7 @@ import com.team_daytodo.daytodo.core.model.Relationship
 import com.team_daytodo.daytodo.data.course.remote.dto.AddCoursePlaceRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiRecommendedPlaceDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CourseCardDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
@@ -12,7 +13,7 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
-import com.team_daytodo.daytodo.data.course.remote.dto.CourseSummaryDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CreatedCourseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationCommentResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationRequestDto
@@ -60,7 +61,7 @@ internal fun String.toJoinCourseDto(): CourseJoinRequestDto =
 
 internal fun Long.toMapRecommendationDto(): PlaceRecommendationRequestDto =
     PlaceRecommendationRequestDto(
-        source = RecommendationSourceMember,
+        source = RecommendationSourceMap,
         placeId = this,
     )
 
@@ -77,24 +78,40 @@ internal fun CourseCreateResponseDto.toDomain(): CourseCreateResult =
     CourseCreateResult(
         inviteLink = inviteLink
             ?: shareLink
-            ?: inviteCode
+            ?: inviteCode?.let { code -> "$DefaultInviteBaseUrl/$courseId?inviteCode=$code" }
             ?: "$DefaultInviteBaseUrl/$courseId",
     )
 
-internal fun CourseSummaryDto.toDomain(regionName: String?): CourseSummary =
+internal fun CourseCardDto.toDomain(regionName: String?): CourseSummary =
     CourseSummary(
         id = courseId.toString(),
         name = courseName,
         region = region?.regionName ?: this.regionName ?: regionName.orEmpty(),
         date = courseDate.toCourseDate(),
         relationship = (relationType ?: participantType).toRelationship(),
-        members = List(memberCount.coerceAtLeast(0)) { index ->
+        members = List(memberCount.coerceAtLeast(0).toInt()) { index ->
             CourseMember(
                 id = "member-count-${courseId}-${index + 1}",
                 name = "",
             )
         },
-        placeCount = placeCount,
+        placeCount = placeCount.toInt(),
+    )
+
+internal fun CreatedCourseDto.toDomain(regionName: String?): CourseSummary =
+    CourseSummary(
+        id = courseId.toString(),
+        name = courseName,
+        region = region?.regionName ?: this.regionName ?: regionName.orEmpty(),
+        date = courseDate.toCourseDate(),
+        relationship = (relationType ?: participantType).toRelationship(),
+        members = List(memberCount.coerceAtLeast(0).toInt()) { index ->
+            CourseMember(
+                id = "member-count-${courseId}-${index + 1}",
+                name = "",
+            )
+        },
+        placeCount = placeCount.toInt(),
     )
 
 internal fun CourseJoinResponseDto.successMessage(): String =
@@ -112,9 +129,9 @@ internal fun CourseRecommendationDto.toPlace(): CoursePlace =
         id = stablePlaceId(),
         recommendationId = recommendationId.toString(),
         name = placeName,
-        address = roadAddress ?: address,
-        category = category.ifBlank { DefaultCategory },
-        description = description.ifBlank { placeName },
+        address = roadAddress ?: address.orEmpty(),
+        category = category.orEmpty().ifBlank { DefaultCategory },
+        description = description.orEmpty().ifBlank { placeName },
         expectedPrice = minPrice ?: maxPrice ?: 0,
         imageUrl = imageUrl,
         coordinate = CourseCoordinate(
@@ -218,7 +235,7 @@ internal fun PlaceRecommendationCommentResponseDto.toComment(
     content: String,
 ): CourseComment =
     CourseComment(
-        id = result.commentId.toString(),
+        id = resolvedCommentId.toString(),
         author = author,
         content = content.trim(),
         createdAtMillis = System.currentTimeMillis(),
@@ -241,9 +258,10 @@ private fun CourseRecommendationDto.toRecommender(): PlaceRecommender =
     if (source.equals(RecommendationSourceAi, ignoreCase = true)) {
         PlaceRecommender.Ai
     } else {
+        val recommenderName = recommender.orEmpty()
         PlaceRecommender.Member(
-            memberId = "member-${recommender.hashCode().toUInt()}",
-            name = recommender,
+            memberId = "member-${recommenderName.hashCode().toUInt()}",
+            name = recommenderName,
         )
     }
 
@@ -284,7 +302,7 @@ private fun CoursePlaceDto.stableCoursePlaceId(): String =
     "course-place-${coursePlaceId ?: "$placeName|$placeOrder".hashCode().toUInt()}"
 
 private const val RecommendationSourceAi = "AI"
-private const val RecommendationSourceMember = "MEMBER"
+private const val RecommendationSourceMap = "MAP"
 private const val DefaultInviteBaseUrl = "https://daytodo.app/courses/join"
 private const val DefaultCategory = "Place"
 private const val DefaultLatitude = 37.5665

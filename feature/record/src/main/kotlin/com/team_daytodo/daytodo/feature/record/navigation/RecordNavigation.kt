@@ -1,8 +1,10 @@
 package com.team_daytodo.daytodo.feature.record.navigation
 
+import android.widget.Toast
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -12,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.team_daytodo.daytodo.feature.record.RecordScreen
 import com.team_daytodo.daytodo.feature.record.RecordViewModel
+import com.team_daytodo.daytodo.feature.record.model.RecordEvent
 import com.team_daytodo.daytodo.feature.record.screen.MemoScreen
 import com.team_daytodo.daytodo.feature.record.screen.PhotoSelectScreen
 import java.time.YearMonth
@@ -30,9 +33,20 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
     composable(RecordRoute.Record) {
         val viewModel: RecordViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val context = LocalContext.current
 
         LaunchedEffect(Unit) {
             viewModel.onMonthChanged(YearMonth.of(uiState.currentYear, uiState.currentMonth))
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.event.collect { event ->
+                when (event) {
+                    is RecordEvent.ShowMessage -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         RecordScreen(
@@ -76,9 +90,20 @@ fun NavGraphBuilder.recordNavGraph(navController: NavController) {
         }
         val viewModel: RecordViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val context = LocalContext.current
         val photoIndex = backStackEntry.arguments
             ?.getInt(RecordRoute.PhotoIndexArg)
             ?: 0
+
+        LaunchedEffect(Unit) {
+            viewModel.event.collect { event ->
+                when (event) {
+                    is RecordEvent.ShowMessage -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
         MemoScreen(
             photos = uiState.photos,

@@ -18,6 +18,12 @@ fun ProfileEditRoute(
     onBackClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
     onProfileSaved: () -> Unit = {},
+    onNaverLinkRequested: (
+        onAccessTokenReceived: (String) -> Unit,
+        onFailure: (String) -> Unit,
+    ) -> Unit = { _, onFailure ->
+        onFailure("네이버 연동 설정을 확인해 주세요.")
+    },
     viewModel: ProfileEditViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,7 +57,13 @@ fun ProfileEditRoute(
         },
         onChangePasswordClick = onChangePasswordClick,
         onNicknameChange = viewModel::onNicknameChanged,
-        onUnlinkAccountClick = viewModel::onToggleAccountLinkClick,
+        onLinkAccountClick = {
+            onNaverLinkRequested(
+                { token -> viewModel.linkNaverAccount(token) },
+                viewModel::showNaverLinkFailure,
+            )
+        },
+        onUnlinkAccountClick = viewModel::onUnlinkAccountClick,
         onSaveClick = viewModel::onSaveClick,
     )
 }

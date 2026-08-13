@@ -13,7 +13,7 @@ data class MagazineItemDto(
     val magazineId: Long,
     val thumbnailUrl: String? = null,
     val placeName: String,
-    val regionName: String,
+    val regionName: String? = null,
     val tagline: String? = null,
     val isAd: Boolean,
 )
@@ -22,7 +22,7 @@ fun MagazineItemDto.toDomain(): Magazine = Magazine(
     magazineId = magazineId,
     thumbnailUrl = thumbnailUrl,
     placeName = placeName,
-    regionName = regionName,
+    regionName = regionName.orEmpty(),
     tagline = tagline,
     isAd = isAd,
 )
