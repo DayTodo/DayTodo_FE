@@ -33,12 +33,12 @@ data class SavedPlacePickerUiState(
 ) {
     val importablePlaceIds: Set<String>
         get() = places
-            .filter { it.serverPlaceId != null }
-            .mapTo(mutableSetOf()) { it.id }
+            .filter { it.placeId != null }
+            .mapTo(mutableSetOf()) { it.magazineId.toString() }
 
     val selectedServerPlaceIds: List<String>
         get() = selectedPlaceIds.mapNotNull { selectedId ->
-            places.firstOrNull { it.id == selectedId }?.serverPlaceId
+            places.firstOrNull { it.magazineId.toString() == selectedId }?.placeId?.toString()
         }.distinct()
 
     val canImport: Boolean

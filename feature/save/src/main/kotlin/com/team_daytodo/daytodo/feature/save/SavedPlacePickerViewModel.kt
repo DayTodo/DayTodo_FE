@@ -81,8 +81,8 @@ class SavedPlacePickerViewModel @Inject constructor(
     }
 
     fun togglePlaceSelection(placeId: String) {
-        val place = _uiState.value.places.firstOrNull { it.id == placeId }
-        if (place?.serverPlaceId == null) {
+        val place = _uiState.value.places.firstOrNull { it.magazineId.toString() == placeId }
+        if (place?.placeId == null) {
             viewModelScope.launch {
                 _event.emit(SavedPlacePickerEvent.ShowMessage("이 장소는 아직 코스로 불러올 수 없어요."))
             }
