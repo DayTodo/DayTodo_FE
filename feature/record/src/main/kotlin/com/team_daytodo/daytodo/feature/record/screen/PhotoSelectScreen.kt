@@ -15,9 +15,15 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -105,18 +111,33 @@ private fun PhotoGridCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // RecordPhotoRow.PhotoThumbnail와 동일한 이유(업로드 API 부재로 로컬 갤러리 Uri가 그대로
+    // imageUrl로 쓰이는 경우가 있어, 세션이 바뀌면 권한 만료로 영영 로딩되지 않을 수 있음)로
+    // 로딩 실패 상태를 별도 표시한다.
+    var loadFailed by remember(photo.imageUrl) { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .background(DayTodoTheme.colors.backgroundSecondary)
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = photo.imageUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
+        if (loadFailed) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "사진을 표시할 수 없어요",
+                tint = DayTodoTheme.colors.iconDefault,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        } else {
+            AsyncImage(
+                model = photo.imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                onError = { loadFailed = true },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
 
