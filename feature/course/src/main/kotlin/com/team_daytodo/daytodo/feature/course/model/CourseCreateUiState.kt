@@ -44,7 +44,7 @@ data class CourseCreateUiState(
         }
 
     val hasKnownSelectedRegion: Boolean
-        get() = regionOptions.containsRegion(selectedRegion)
+        get() = regionOptions.containsRegion(selectedRegion) && selectedRegion.isSupportedCourseRegion()
 
     val isPrimaryButtonEnabled: Boolean
         get() = phase == CourseCreatePhase.Input && when (currentStep) {
@@ -68,6 +68,41 @@ fun List<CourseRegionGroup>.containsRegion(region: String): Boolean {
         normalizedRegion == group.name || normalizedRegion in group.children
     }
 }
+
+fun String.isSupportedCourseRegion(): Boolean =
+    trim() in SupportedCourseRegionNames
+
+const val UnsupportedCourseRegionMessage = "해당 지역은 서비스하지 않아요."
+
+private val SupportedCourseRegionNames = setOf(
+    "서울 전체",
+    "서울특별시",
+    "종로구",
+    "중구",
+    "용산구",
+    "성동구",
+    "광진구",
+    "동대문구",
+    "중랑구",
+    "성북구",
+    "강북구",
+    "도봉구",
+    "노원구",
+    "은평구",
+    "서대문구",
+    "마포구",
+    "양천구",
+    "강서구",
+    "구로구",
+    "금천구",
+    "영등포구",
+    "동작구",
+    "관악구",
+    "서초구",
+    "강남구",
+    "송파구",
+    "강동구",
+)
 
 sealed interface CourseCreatePhase {
     data object Input : CourseCreatePhase

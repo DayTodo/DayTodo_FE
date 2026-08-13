@@ -8,11 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,7 +77,10 @@ fun CalendarScreen(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     coursesByDate: Map<LocalDate, List<CalendarCourse>>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
     onMonthChanged: (YearMonth) -> Unit = {},
+    onRetryClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -148,17 +155,35 @@ fun CalendarScreen(
 
             WeekDayHeader(firstDayOfWeek = firstDayOfWeek)
 
-            HorizontalCalendar(
-                state = state,
-                dayContent = { day ->
-                    CalendarDayCell(
-                        day = day,
-                        isSelected = day.date == selectedDate,
-                        hasCourse = coursesByDate[day.date]?.isNotEmpty() == true,
-                        onClick = onDateSelected,
+            when {
+                isLoading && coursesByDate.isEmpty() -> {
+                    CalendarStatusContent(
+                        message = "캘린더를 불러오는 중이에요.",
+                        showProgress = true,
                     )
-                },
-            )
+                }
+
+                errorMessage != null && coursesByDate.isEmpty() -> {
+                    CalendarStatusContent(
+                        message = errorMessage,
+                        onRetryClick = onRetryClick,
+                    )
+                }
+
+                else -> {
+                    HorizontalCalendar(
+                        state = state,
+                        dayContent = { day ->
+                            CalendarDayCell(
+                                day = day,
+                                isSelected = day.date == selectedDate,
+                                hasCourse = coursesByDate[day.date]?.isNotEmpty() == true,
+                                onClick = onDateSelected,
+                            )
+                        },
+                    )
+                }
+            }
 
             SelectedCourseSection(
                 selectedDate = selectedDate,
@@ -185,7 +210,7 @@ private fun MonthNavigationRow(
     ) {
         IconButton(onClick = onPreviousClick) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowLeft,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = "이전 달",
                 tint = DayTodoTheme.colors.iconDefault,
             )
@@ -197,7 +222,7 @@ private fun MonthNavigationRow(
         )
         IconButton(onClick = onNextClick) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "다음 달",
                 tint = DayTodoTheme.colors.iconDefault,
             )
@@ -224,6 +249,50 @@ private fun WeekDayHeader(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
             )
+        }
+    }
+}
+
+@Composable
+private fun CalendarStatusContent(
+    message: String,
+    showProgress: Boolean = false,
+    onRetryClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(360.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        if (showProgress) {
+            CircularProgressIndicator(
+                color = DayTodoTheme.colors.brandPrimary,
+            )
+        }
+        Text(
+            text = message,
+            style = DayTodoTheme.typography.label2,
+            color = DayTodoTheme.colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = if (showProgress) 16.dp else 0.dp),
+        )
+        if (onRetryClick != null) {
+            Button(
+                onClick = onRetryClick,
+                modifier = Modifier.padding(top = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DayTodoTheme.colors.brandPrimary,
+                    contentColor = Color.White,
+                ),
+            ) {
+                Text(
+                    text = "다시 시도",
+                    style = DayTodoTheme.typography.label3,
+                )
+            }
         }
     }
 }

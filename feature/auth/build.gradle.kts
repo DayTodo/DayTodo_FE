@@ -6,3 +6,7 @@ plugins {
 android {
     namespace = "com.team_daytodo.daytodo.feature.auth"
 }
+
+dependencies {
+    implementation(project(":feature:mypage"))
+}

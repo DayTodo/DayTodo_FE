@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -103,7 +104,7 @@ fun CourseLocationDialog(
                         .padding(horizontal = 20.dp),
                 ) {
                     LazyColumn(
-                        modifier = Modifier.width(70.dp),
+                        modifier = Modifier.width(58.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp),
                     ) {
                         items(regions, key = { it.name }) { region ->
@@ -156,9 +157,10 @@ private fun RegionParentItem(
     ) {
         Text(
             text = text,
-            style = DayTodoTheme.typography.label3.copy(letterSpacing = 0.sp),
+            style = DayTodoTheme.typography.label1.copy(letterSpacing = 0.sp),
             color = if (selected) progressColor else fieldContentColor,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -174,11 +176,11 @@ private fun RegionChildItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 15.dp, vertical = 13.dp),
+            .padding(horizontal = 15.dp, vertical = 13.5.dp),
     ) {
         Text(
             text = text,
-            style = DayTodoTheme.typography.label3.copy(letterSpacing = 0.sp),
+            style = DayTodoTheme.typography.label2.copy(letterSpacing = 0.sp),
             color = if (selected) progressColor else fieldContentColor,
         )
     }

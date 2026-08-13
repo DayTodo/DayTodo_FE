@@ -31,7 +31,7 @@ class TodayViewModel @Inject constructor(
     private val reorderTodayPlacesUseCase: ReorderTodayPlacesUseCase,
     private val deleteTodayPlaceUseCase: DeleteTodayPlaceUseCase,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(TodayUiState())
+    private val _uiState = MutableStateFlow(TodayUiState(isLoading = true))
     val uiState: StateFlow<TodayUiState> = _uiState.asStateFlow()
 
     private val _event = MutableSharedFlow<TodayEvent>()
@@ -41,6 +41,10 @@ class TodayViewModel @Inject constructor(
     private var placesBeforeDrag: List<CoursePlace>? = null
 
     init {
+        loadTodayCourse()
+    }
+
+    fun retryLoad() {
         loadTodayCourse()
     }
 

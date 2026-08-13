@@ -1,6 +1,7 @@
 package com.team_daytodo.daytodo.domain.course.usecase
 
 import com.team_daytodo.daytodo.domain.course.model.CourseCommentThread
+import com.team_daytodo.daytodo.domain.course.model.CourseDate
 import com.team_daytodo.daytodo.domain.course.model.CourseDetail
 import com.team_daytodo.daytodo.domain.course.model.CoursePlaceSearchResult
 import com.team_daytodo.daytodo.domain.course.model.CourseSummary
@@ -14,8 +15,11 @@ import javax.inject.Inject
 class GetUpcomingCoursesUseCase @Inject constructor(
     private val courseRepository: CourseRepository,
 ) {
-    suspend operator fun invoke(): Result<List<CourseSummary>> =
-        courseRepository.getUpcomingCourses()
+    suspend operator fun invoke(date: CourseDate? = null): Result<List<CourseSummary>> =
+        courseRepository.getUpcomingCourses(
+            startDate = date,
+            endDate = date,
+        )
 }
 
 class GetCourseDetailUseCase @Inject constructor(
@@ -23,6 +27,13 @@ class GetCourseDetailUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(courseId: String): Result<CourseDetail> =
         courseRepository.getCourseDetail(courseId)
+}
+
+class RefreshAiCourseRecommendationsUseCase @Inject constructor(
+    private val courseRepository: CourseRepository,
+) {
+    suspend operator fun invoke(courseId: String): Result<CourseDetail> =
+        courseRepository.refreshAiCourseRecommendations(courseId)
 }
 
 class SearchPlacesUseCase @Inject constructor(

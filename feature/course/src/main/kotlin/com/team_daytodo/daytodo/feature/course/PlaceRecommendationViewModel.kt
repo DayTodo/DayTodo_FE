@@ -10,6 +10,7 @@ import com.team_daytodo.daytodo.domain.course.usecase.GetCourseDetailUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.MoveCoursePlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.RecommendPlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.RemoveCoursePlaceUseCase
+import com.team_daytodo.daytodo.domain.course.usecase.RefreshAiCourseRecommendationsUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.SearchPlacesUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.ToggleCoursePlaceUseCase
 import com.team_daytodo.daytodo.domain.course.usecase.TogglePlaceLikeUseCase
@@ -38,6 +39,7 @@ class PlaceRecommendationViewModel @Inject constructor(
     private val toggleCoursePlaceUseCase: ToggleCoursePlaceUseCase,
     private val removeCoursePlaceUseCase: RemoveCoursePlaceUseCase,
     private val moveCoursePlaceUseCase: MoveCoursePlaceUseCase,
+    private val refreshAiCourseRecommendationsUseCase: RefreshAiCourseRecommendationsUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlaceRecommendationUiState(isLoading = true))
     val uiState: StateFlow<PlaceRecommendationUiState> = _uiState.asStateFlow()
@@ -48,6 +50,7 @@ class PlaceRecommendationViewModel @Inject constructor(
     private var loadedCourseId: String? = null
     private var searchPlacesRequestVersion = 0
     private var coursePlaceMoveRequestVersion = 0
+    private var aiRecommendationsRequestVersion = 0
 
     fun loadCourse(courseId: String) {
         if (loadedCourseId == courseId && _uiState.value.course != null) return
@@ -87,6 +90,9 @@ class PlaceRecommendationViewModel @Inject constructor(
                             errorMessage = null,
                         )
                     }
+                    if (_uiState.value.selectedRecommender == RecommenderFilter.Ai) {
+                        refreshAiRecommendations(courseId)
+                    }
                 }
                 .onFailure { cause ->
                     _uiState.update {
@@ -110,6 +116,12 @@ class PlaceRecommendationViewModel @Inject constructor(
                 searchPerformed = if (query.isBlank()) false else it.searchPerformed,
                 searchResults = if (query.isBlank()) emptyList() else it.searchResults,
             )
+        }
+    }
+
+    fun updateSearchFocus(focused: Boolean) {
+        if (focused) {
+            _uiState.update { it.copy(sheetState = PlaceBottomSheetState.Hidden) }
         }
     }
 
@@ -137,6 +149,11 @@ class PlaceRecommendationViewModel @Inject constructor(
                                 searchResults = results,
                                 searchPerformed = query.isNotBlank(),
                                 selectedPlaceId = results.firstOrNull()?.place?.id ?: it.selectedPlaceId,
+                                sheetState = if (query.isNotBlank()) {
+                                    PlaceBottomSheetState.Collapsed
+                                } else {
+                                    it.sheetState
+                                },
                             )
                         }
                     }
@@ -162,6 +179,9 @@ class PlaceRecommendationViewModel @Inject constructor(
 
     fun selectRecommender(filter: RecommenderFilter) {
         _uiState.update { it.copy(selectedRecommender = filter) }
+        if (filter == RecommenderFilter.Ai) {
+            loadedCourseId?.let(::refreshAiRecommendations)
+        }
     }
 
     fun selectCurrentMemberRecommendations() {
@@ -228,7 +248,6 @@ class PlaceRecommendationViewModel @Inject constructor(
             toggleCoursePlaceUseCase(courseId, placeId)
                 .onSuccess { detail ->
                     replaceCourseDetail(detail)
-                    _uiState.update { it.copy(mode = PlaceCourseMode.Course) }
                 }
                 .onFailure { cause ->
                     _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))
@@ -266,6 +285,23 @@ class PlaceRecommendationViewModel @Inject constructor(
                         replaceCourseDetail(previousDetail)
                     }
                     _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))
+                }
+        }
+    }
+
+    private fun refreshAiRecommendations(courseId: String) {
+        val requestVersion = ++aiRecommendationsRequestVersion
+        viewModelScope.launch {
+            refreshAiCourseRecommendationsUseCase(courseId)
+                .onSuccess { detail ->
+                    if (requestVersion == aiRecommendationsRequestVersion && loadedCourseId == courseId) {
+                        replaceCourseDetail(detail)
+                    }
+                }
+                .onFailure { cause ->
+                    if (requestVersion == aiRecommendationsRequestVersion && loadedCourseId == courseId) {
+                        _event.emit(PlaceRecommendationEvent.ShowMessage(cause.userFacingMessage()))
+                    }
                 }
         }
     }

@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.team_daytodo.daytodo.domain.mypage.model.InterestRegionOption
@@ -34,9 +35,11 @@ import com.team_daytodo.daytodo.feature.mypage.state.InterestRegionUiState
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 private val HorizontalPadding = 20.dp
-private val ParentColumnWidth = 84.dp
+private val ParentColumnWidth = 108.dp
 private val SaveButtonBottomPadding = 100.dp
-private val ParentItemWidth = 72.dp
+private val SaveButtonHeight = 58.dp
+private val RegionListBottomPadding = SaveButtonBottomPadding + SaveButtonHeight + 24.dp
+private val ParentItemWidth = 96.dp
 private val ParentItemHeight = 46.dp
 
 @Composable
@@ -79,15 +82,17 @@ fun InterestRegionScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = HorizontalPadding),
+                        .padding(horizontal = HorizontalPadding)
+                        .padding(bottom = RegionListBottomPadding),
                 ) {
                     LazyColumn(
                         modifier = Modifier.width(ParentColumnWidth),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp),
                     ) {
                         items(uiState.groups, key = { it.parentName }) { group ->
                             InterestRegionParentItem(
-                                text = group.parentName,
+                                text = group.displayName,
                                 selected = group.parentName == uiState.selectedGroupName,
                                 onClick = { onGroupSelected(group.parentName) },
                             )
@@ -97,12 +102,14 @@ fun InterestRegionScreen(
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                        contentPadding = PaddingValues(bottom = 96.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp),
                     ) {
                         val children = uiState.selectedGroup?.options.orEmpty()
                         items(children, key = { it.regionId }) { option ->
                             InterestRegionChildItem(
-                                text = option.regionName,
+                                text = option.toDisplayRegionName(
+                                    uiState.selectedGroup?.displayName.orEmpty(),
+                                ),
                                 selected = option.regionId in uiState.selectedRegionIds,
                                 onClick = { onRegionToggled(option.regionId) },
                             )
@@ -147,8 +154,34 @@ private fun InterestRegionParentItem(
             style = DayTodoTheme.typography.caption1,
             color = if (selected) DayTodoTheme.colors.brandPrimary else DayTodoTheme.colors.textSecondary,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
+}
+
+private fun InterestRegionOption.toDisplayRegionName(groupDisplayName: String): String =
+    if (parentRegionName == null && regionName.toRegionParentDisplayName() == groupDisplayName) {
+        "$groupDisplayName 전체"
+    } else {
+        regionName
+    }
+
+private fun String.toRegionParentDisplayName(): String = when (this) {
+    "서울특별시" -> "서울"
+    "부산광역시" -> "부산"
+    "대구광역시" -> "대구"
+    "인천광역시" -> "인천"
+    "광주광역시" -> "광주"
+    "대전광역시" -> "대전"
+    "울산광역시" -> "울산"
+    "세종특별자치시" -> "세종"
+    "제주특별자치도" -> "제주"
+    "강원특별자치도", "강원도" -> "강원"
+    "경기도" -> "경기"
+    "충청북도", "충청남도" -> "충청"
+    "전북특별자치도", "전라북도", "전라남도" -> "전라"
+    "경상북도", "경상남도" -> "경상"
+    else -> this
 }
 
 @Composable

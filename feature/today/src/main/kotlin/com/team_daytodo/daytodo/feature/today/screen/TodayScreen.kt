@@ -69,6 +69,8 @@ fun TodayScreen(
     courseName: String? = null,
     members: List<CourseMember> = emptyList(),
     places: List<CoursePlace> = emptyList(),
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
     onBackClick: (() -> Unit)? = null,
     onAddPlaceClick: () -> Unit = {},
     onCompleteCourseClick: () -> Unit = {},
@@ -78,6 +80,7 @@ fun TodayScreen(
     memoryPhotos: List<MemoryPhoto> = emptyList(),
     pendingMemoryPhotoUris: List<String> = emptyList(),
     onAddMemoryPhotosClick: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     startWithMemoryTab: Boolean = false,
 ) {
@@ -133,14 +136,37 @@ fun TodayScreen(
         },
 
     ) { innerPadding ->
-        if (!hasCourse) {
-            TodayEmptyContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 18.dp),
-            )
-            return@Scaffold
+        when {
+            isLoading && !hasCourse -> {
+                TodayLoadingContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                )
+                return@Scaffold
+            }
+
+            errorMessage != null && !hasCourse -> {
+                TodayErrorContent(
+                    message = errorMessage,
+                    onRetryClick = onRetryClick,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 18.dp),
+                )
+                return@Scaffold
+            }
+
+            !hasCourse -> {
+                TodayEmptyContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 18.dp),
+                )
+                return@Scaffold
+            }
         }
 
         LazyColumn(
@@ -261,7 +287,7 @@ fun TodayScreen(
                     ) {
                         Row(
                             modifier = Modifier
-                                .width(100.dp)
+                                .width(110.dp)
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(color = DayTodoTheme.colors.brandPrimary)
@@ -304,6 +330,52 @@ fun TodayScreen(
             },
             onDismiss = { placeIdPendingDelete = null },
         )
+    }
+}
+
+@Composable
+private fun TodayLoadingContent(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            color = DayTodoTheme.colors.brandPrimary,
+        )
+    }
+}
+
+@Composable
+private fun TodayErrorContent(
+    message: String,
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = message,
+            style = DayTodoTheme.typography.label2,
+            color = DayTodoTheme.colors.textSecondary,
+        )
+        Button(
+            onClick = onRetryClick,
+            modifier = Modifier.padding(top = 16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DayTodoTheme.colors.brandPrimary,
+                contentColor = Color.White,
+            ),
+        ) {
+            Text(
+                text = "다시 시도",
+                style = DayTodoTheme.typography.label3,
+            )
+        }
     }
 }
 

@@ -39,6 +39,7 @@ fun PlaceRecommendationScreen(
     onEditClick: () -> Unit,
     onEditDisabledClick: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit,
+    onSearchFocusChange: (Boolean) -> Unit,
     onSearch: () -> Unit,
     onClearSearch: () -> Unit,
     onModeClick: (PlaceCourseMode) -> Unit,
@@ -104,6 +105,7 @@ fun PlaceRecommendationScreen(
                 onValueChange = onSearchQueryChange,
                 onSearch = onSearch,
                 onClearClick = onClearSearch,
+                onFocusChange = onSearchFocusChange,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(horizontal = 20.dp)

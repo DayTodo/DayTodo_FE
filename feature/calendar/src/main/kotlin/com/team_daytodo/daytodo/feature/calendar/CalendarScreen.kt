@@ -20,7 +20,10 @@ fun CalendarScreen(
         selectedDate = uiState.selectedDate,
         onDateSelected = viewModel::selectDate,
         coursesByDate = uiState.coursesByDate,
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
         onMonthChanged = viewModel::onMonthChanged,
+        onRetryClick = viewModel::retryLoad,
         onBackClick = onBackClick,
         modifier = modifier,
     )

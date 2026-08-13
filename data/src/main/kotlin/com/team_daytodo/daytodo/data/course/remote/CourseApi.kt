@@ -1,5 +1,6 @@
 package com.team_daytodo.daytodo.data.course.remote
 
+import com.team_daytodo.daytodo.data.course.remote.dto.AddCoursePlaceRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.AiCourseRecommendationsResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateRequestDto
@@ -7,7 +8,9 @@ import com.team_daytodo.daytodo.data.course.remote.dto.CourseCreateResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseJoinResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseMemberDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceAddedResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlaceDto
+import com.team_daytodo.daytodo.data.course.remote.dto.CoursePlacesBodyDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseRecommendationDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.CourseSettingResponseDto
@@ -18,6 +21,7 @@ import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationLikeRe
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationRequestDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlaceRecommendationResponseDto
 import com.team_daytodo.daytodo.data.course.remote.dto.PlacesSearchResponseDto
+import com.team_daytodo.daytodo.data.course.remote.dto.ReorderCoursePlacesRequestDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -71,6 +75,24 @@ interface CourseApi {
         @Path("courseId") courseId: Long,
         @Query("recommender") recommender: String? = null,
     ): Response<List<CourseRecommendationDto>>
+
+    @POST("courses/{courseId}/places")
+    suspend fun addRecommendationToCourse(
+        @Path("courseId") courseId: Long,
+        @Body request: AddCoursePlaceRequestDto,
+    ): Response<CoursePlaceAddedResponseDto>
+
+    @DELETE("courses/{courseId}/today-places/{coursePlaceId}")
+    suspend fun removeCoursePlace(
+        @Path("courseId") courseId: Long,
+        @Path("coursePlaceId") coursePlaceId: Long,
+    ): Response<CoursePlacesBodyDto>
+
+    @PATCH("courses/{courseId}/today-places/order")
+    suspend fun reorderCoursePlaces(
+        @Path("courseId") courseId: Long,
+        @Body request: ReorderCoursePlacesRequestDto,
+    ): Response<CoursePlacesBodyDto>
 
     @POST("courses/{courseId}/recommendations")
     suspend fun recommendPlace(

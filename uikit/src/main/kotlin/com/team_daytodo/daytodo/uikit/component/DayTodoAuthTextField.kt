@@ -63,7 +63,7 @@ fun DayTodoAuthTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     colors: DayTodoAuthTextFieldColors = DayTodoAuthTextFieldColors.default(),
-    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     textStyle: TextStyle = DayTodoTheme.typography.caption1,
     labelStyle: TextStyle = DayTodoTheme.typography.label2,
     labelSpacing: Dp = 8.dp,

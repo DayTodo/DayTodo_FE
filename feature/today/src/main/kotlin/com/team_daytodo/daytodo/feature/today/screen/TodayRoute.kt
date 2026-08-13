@@ -49,6 +49,8 @@ fun TodayRoute(
         courseName = uiState.courseName,
         members = uiState.members,
         places = uiState.places,
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
         onCompleteCourseClick = viewModel::completeCourse,
         onAddPlaceClick = { uiState.courseId?.let(onAddPlaceClick) },
         onDeletePlaceClick = viewModel::deleteCoursePlace,
@@ -61,6 +63,7 @@ fun TodayRoute(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )
         },
+        onRetryClick = viewModel::retryLoad,
         modifier = modifier,
     )
 }

@@ -91,7 +91,7 @@ internal fun CoursePlanBottomSheet(
         ) {
             itemsIndexed(
                 items = places,
-                key = { _, item -> item.id },
+                key = { index, item -> "course-$index-${item.id}" },
             ) { index, place ->
                 CoursePlanItem(
                     index = index,

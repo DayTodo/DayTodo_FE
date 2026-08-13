@@ -43,6 +43,8 @@ data class CourseDetail(
 
 data class CoursePlace(
     val id: String,
+    val coursePlaceId: String? = null,
+    val recommendationId: String? = null,
     val name: String,
     val address: String,
     val category: String,
@@ -53,6 +55,7 @@ data class CoursePlace(
 )
 
 data class CoursePlaceRecommendation(
+    val recommendationId: String,
     val place: CoursePlace,
     val recommender: PlaceRecommender,
     val likedByMemberIds: Set<String>,
