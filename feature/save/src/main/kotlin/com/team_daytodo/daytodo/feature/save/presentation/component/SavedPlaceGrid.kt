@@ -16,6 +16,8 @@ internal fun SavedPlaceGrid(
     onPlaceClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectedPlaceIds: Set<String> = emptySet(),
+    // null이면(SaveScreen처럼 불러오기 선택 개념이 없는 화면) 전부 활성 상태로 취급한다.
+    enabledPlaceIds: Set<String>? = null,
     selectionMode: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(bottom = 24.dp),
 ) {
@@ -35,6 +37,7 @@ internal fun SavedPlaceGrid(
                 place = place,
                 selected = placeId in selectedPlaceIds,
                 selectionMode = selectionMode,
+                enabled = enabledPlaceIds?.let { placeId in it } ?: true,
                 onClick = { onPlaceClick(placeId) },
             )
         }
