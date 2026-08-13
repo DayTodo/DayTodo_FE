@@ -18,14 +18,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.team_daytodo.daytodo.domain.bookmark.model.SavedPlaceSortType
-import com.team_daytodo.daytodo.feature.save.model.displayName
 import com.team_daytodo.daytodo.uikit.R as UIKitR
 import com.team_daytodo.daytodo.uikit.theme.DayTodoTheme
 
 @Composable
-internal fun SavedPlaceSortBar(
-    sortType: SavedPlaceSortType,
+internal fun SavedPlaceRegionBar(
+    selectedRegionName: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -46,7 +44,7 @@ internal fun SavedPlaceSortBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = sortType.displayName(),
+            text = selectedRegionName ?: "전체 지역",
             modifier = Modifier.weight(1f),
             style = DayTodoTheme.typography.caption1,
             color = Color(0xFF616166),
@@ -55,7 +53,7 @@ internal fun SavedPlaceSortBar(
         )
         Icon(
             painter = painterResource(id = UIKitR.drawable.ic_filter),
-            contentDescription = "정렬 선택",
+            contentDescription = "지역 선택",
             tint = Color.Unspecified,
             modifier = Modifier
                 .size(24.dp)

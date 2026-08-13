@@ -52,6 +52,9 @@ fun SaveRoute(
         onSortClick = viewModel::showSortDialog,
         onDismissSortDialog = viewModel::dismissSortDialog,
         onSortTypeClick = viewModel::selectSortType,
+        onRegionClick = viewModel::showRegionDialog,
+        onDismissRegionDialog = viewModel::dismissRegionDialog,
+        onRegionSelect = viewModel::selectRegion,
         onPlaceClick = onPlaceClick,
     )
 }
