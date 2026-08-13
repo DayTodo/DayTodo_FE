@@ -6,9 +6,14 @@ import com.team_daytodo.daytodo.domain.auth.model.EmailCheckRequest
 import com.team_daytodo.daytodo.domain.auth.model.SignupRequest
 import com.team_daytodo.daytodo.domain.auth.usecase.CheckEmailUseCase
 import com.team_daytodo.daytodo.domain.auth.usecase.SignupUseCase
+import com.team_daytodo.daytodo.domain.mypage.usecase.GetPoliciesUseCase
+import com.team_daytodo.daytodo.feature.auth.model.SignupPolicyDialogUiState
 import com.team_daytodo.daytodo.feature.auth.model.SignupEvent
 import com.team_daytodo.daytodo.feature.auth.model.SignupUiState
 import com.team_daytodo.daytodo.feature.auth.model.invalidInputMessage
+import com.team_daytodo.daytodo.feature.mypage.model.PolicyContent
+import com.team_daytodo.daytodo.feature.mypage.model.PolicyDocuments
+import com.team_daytodo.daytodo.feature.mypage.model.RemotePolicyField
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,6 +29,7 @@ import kotlinx.coroutines.launch
 class SignupViewModel @Inject constructor(
     private val checkEmailUseCase: CheckEmailUseCase,
     private val signupUseCase: SignupUseCase,
+    private val getPoliciesUseCase: GetPoliciesUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SignupUiState())
     val uiState: StateFlow<SignupUiState> = _uiState.asStateFlow()
@@ -53,6 +59,63 @@ class SignupViewModel @Inject constructor(
 
     fun togglePasswordConfirmVisibility() {
         _uiState.update { it.copy(isPasswordConfirmVisible = !it.isPasswordConfirmVisible) }
+    }
+
+    fun showPolicyDocument(index: Int) {
+        val document = PolicyDocuments.getOrNull(index) ?: return
+        when (val content = document.content) {
+            is PolicyContent.Static -> {
+                _uiState.update {
+                    it.copy(
+                        policyDialog = SignupPolicyDialogUiState(
+                            title = document.title,
+                            body = content.body,
+                        ),
+                    )
+                }
+            }
+            is PolicyContent.Remote -> {
+                _uiState.update {
+                    it.copy(
+                        policyDialog = SignupPolicyDialogUiState(
+                            title = document.title,
+                            isLoading = true,
+                        ),
+                    )
+                }
+                viewModelScope.launch {
+                    getPoliciesUseCase()
+                        .onSuccess { policies ->
+                            val body = when (content.field) {
+                                RemotePolicyField.TermsOfService -> policies.termsOfService
+                                RemotePolicyField.PrivacyPolicy -> policies.privacyPolicy
+                            }
+                            _uiState.update {
+                                it.copy(
+                                    policyDialog = SignupPolicyDialogUiState(
+                                        title = document.title,
+                                        body = body,
+                                    ),
+                                )
+                            }
+                        }
+                        .onFailure {
+                            _uiState.update {
+                                it.copy(
+                                    policyDialog = SignupPolicyDialogUiState(
+                                        title = document.title,
+                                        isError = true,
+                                    ),
+                                )
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    fun dismissPolicyDocument() {
+        _uiState.update { it.copy(policyDialog = null) }
     }
 
     fun signup() {

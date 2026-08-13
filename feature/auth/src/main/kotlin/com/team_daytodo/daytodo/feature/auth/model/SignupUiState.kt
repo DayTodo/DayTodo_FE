@@ -11,6 +11,7 @@ data class SignupUiState(
     val isPasswordVisible: Boolean = false,
     val isPasswordConfirmVisible: Boolean = false,
     val isLoading: Boolean = false,
+    val policyDialog: SignupPolicyDialogUiState? = null,
 ) {
     val isEmailValid: Boolean
         get() = email.isValidEmail()
@@ -28,6 +29,13 @@ data class SignupUiState(
             agreedToTerms &&
             !isLoading
 }
+
+data class SignupPolicyDialogUiState(
+    val title: String,
+    val body: String = "",
+    val isLoading: Boolean = false,
+    val isError: Boolean = false,
+)
 
 fun SignupUiState.invalidInputMessage(): String =
     when {
